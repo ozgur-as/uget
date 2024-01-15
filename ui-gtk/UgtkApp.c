@@ -1775,7 +1775,7 @@ void  ugtk_app_add_default_category (UgtkApp* app)
 	cnode = uget_node_new (NULL);
 	common = ug_info_realloc (cnode->info, UgetCommonInfo);
 	common->name = ug_strdup_printf ("%s %d", _("New"), counts++);
-	common->folder = ug_strdup (g_get_home_dir ());
+	common->folder = ug_strdup (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
 	category = ug_info_realloc (cnode->info, UgetCategoryInfo);
 	*(char**)ug_array_alloc (&category->schemes, 1) = ug_strdup ("ftps");
 	*(char**)ug_array_alloc (&category->schemes, 1) = ug_strdup ("magnet");
