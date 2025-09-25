@@ -9,9 +9,9 @@
 },
     { "name": "msvc-vcpkg", "generator": "Ninja", "binaryDir": "build/msvc", "cacheVariables": {
       "CMAKE_BUILD_TYPE": "Debug",
-      "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "CMAKE_TOOLCHAIN_FILE": "$env{RUNVCPKG_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "VCPKG_TARGET_TRIPLET": "x64-windows",
-      "PKG_CONFIG_EXECUTABLE": "$env{VCPKG_ROOT}/installed/x64-windows/tools/pkgconf/pkgconf.exe"
+      "PKG_CONFIG_EXECUTABLE": "$env{RUNVCPKG_VCPKG_ROOT}/installed/x64-windows/tools/pkgconf/pkgconf.exe"
     } }
   ],
   "buildPresets": [
