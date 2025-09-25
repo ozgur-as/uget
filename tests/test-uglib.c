@@ -129,7 +129,7 @@ void  test_uri (void)
 // ----------------------------------------------------------------------------
 // test UgList
 
-static UgLink  link[4];
+static UgLink  ug_links[4];
 
 void  test_list (void)
 {
@@ -138,16 +138,16 @@ void  test_list (void)
 	uintptr_t  index;
 
 	ug_list_init (&list);
-	for (index = 0;  index < 4;  index++)
-		link[index].data = (void*) index;
+        for (index = 0;  index < 4;  index++)
+                ug_links[index].data = (void*) index;
 
-	ug_list_append (&list, link + 0);
-	ug_list_append (&list, link + 1);
-	ug_list_append (&list, link + 2);
-	ug_list_append (&list, link + 3);
+        ug_list_append (&list, ug_links + 0);
+        ug_list_append (&list, ug_links + 1);
+        ug_list_append (&list, ug_links + 2);
+        ug_list_append (&list, ug_links + 3);
 
-	ug_list_remove (&list, link + 2);
-	ug_list_insert (&list, link + 3, link + 2);
+        ug_list_remove (&list, ug_links + 2);
+        ug_list_insert (&list, ug_links + 3, ug_links + 2);
 
 	for (temp = list.head;  temp;  temp = temp->next) {
 		printf ("%d, %p, %p\n",
