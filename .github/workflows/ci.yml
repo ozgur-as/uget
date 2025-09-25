@@ -1,0 +1,123 @@
+name: ci
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ "v*" ]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, windows-latest ]
+        config: [ Debug, RelWithDebInfo ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # ---------- Linux deps ----------
+      - name: Install deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ninja-build pkg-config xvfb \
+            libgtk-3-dev libglib2.0-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libcurl4-openssl-dev libayatana-appindicator3-dev
+
+      # ---------- Resolve a vcpkg commit ----------
+      - name: Resolve vcpkg commit (Windows)
+        if: runner.os == 'Windows'
+        id: vcpkgsha
+        shell: bash
+        run: |
+          set -e
+          # Fetch latest commit on vcpkg's master (main) branch
+          SHA=$(git ls-remote https://github.com/microsoft/vcpkg refs/heads/master | cut -f1)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Using vcpkg commit: $SHA"
+
+      # ---------- Windows deps via vcpkg ----------
+      - name: Setup vcpkg (Windows)
+        if: runner.os == 'Windows'
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: 'vcpkg.json'
+          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
+
+      - name: Add vcpkg tools to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $root = "$env:RUNVCPKG_VCPKG_ROOT"
+          $paths = @(
+            Join-Path $root 'installed\x64-windows\tools\pkgconf'
+            Join-Path $root 'installed\x64-windows\tools'
+          )
+          foreach ($p in $paths) {
+            if (Test-Path $p) {
+              Write-Host "Adding $p to PATH"
+              $p | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            }
+          }
+          # show which pkgconf will be used
+          Write-Host "pkgconf = " (Get-Command pkgconf -ErrorAction SilentlyContinue)
+          Write-Host "pkg-config = " (Get-Command pkg-config -ErrorAction SilentlyContinue)
+
+      - name: Setup Ninja (Windows)
+        if: runner.os == 'Windows'
+        uses: seanmiddleditch/gha-setup-ninja@v4
+
+      - name: Setup MSVC dev environment (x64)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      # ---------- Configure ----------
+      - name: Configure (Linux Debug)
+        if: runner.os == 'Linux' && matrix.config == 'Debug'
+        run: cmake --preset dev
+      - name: Configure (Linux RelWithDebInfo)
+        if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
+        run: cmake --preset rel
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DWITH_GUI=OFF -DWITH_TRAY=OFF
+
+      # ---------- Build ----------
+      - name: Build (Linux Debug)
+        if: runner.os == 'Linux' && matrix.config == 'Debug'
+        run: cmake --build build/dev -- -v
+      - name: Build (Linux RelWithDebInfo)
+        if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
+        run: cmake --build build/rel -- -v
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: cmake --build build/msvc --config ${{ matrix.config }} -- -v
+
+      # ---------- Test ----------
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          if command -v xvfb-run >/dev/null 2>&1; then
+            xvfb-run -a ctest --test-dir ${{ matrix.config == 'Debug' && 'build/dev' || 'build/rel' }} --output-on-failure -LE net
+          else
+            ctest --test-dir ${{ matrix.config == 'Debug' && 'build/dev' || 'build/rel' }} --output-on-failure -LE net
+          fi
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        run: ctest --test-dir build/msvc -C ${{ matrix.config }} --output-on-failure -LE net
+
+      # ---------- Artifacts ----------
+      - name: Upload build dir
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.config }}
+          path: build/**
+          if-no-files-found: warn

@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 project(ModernizedApp VERSION 2.3.0 LANGUAGES C)
 
+set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "Verbose build" FORCE)
+
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
 option(ENABLE_SANITIZERS "Enable ASan/UBSan in Debug on non-MSVC builds" ON)
+option(WITH_GUI "Enable GTK-based GUI components" ON)
 
 if(MSVC)
   add_compile_options(/W4 /permissive- /utf-8)
@@ -15,13 +18,94 @@ endif()
 
 include(GNUInstallDirs)
 include(CheckIncludeFile)
+include(CheckSymbolExists)
+
+# ---- Robust pkg-config discovery (works with vcpkg, MSYS2, Linux) ----
+# Prefer 'pkgconf' on Windows (vcpkg installs it), 'pkg-config' elsewhere.
+find_program(PKG_CONFIG_EXECUTABLE NAMES pkgconf pkg-config)
+if(PKG_CONFIG_EXECUTABLE)
+  message(STATUS "Using pkg-config at: ${PKG_CONFIG_EXECUTABLE}")
+  # Some FindPkgConfig variants also read the env var:
+  set(ENV{PKG_CONFIG} "${PKG_CONFIG_EXECUTABLE}")
+else()
+  message(STATUS "pkg-config not found on PATH yet; FindPkgConfig may fail unless the toolchain provides it.")
+endif()
+
+# Feature test macros on non-MSVC to expose POSIX prototypes (getaddrinfo, ftruncate, popen, etc.)
+if(NOT MSVC)
+  add_compile_definitions(_GNU_SOURCE)
+endif()
+
+set(HEADER_NAMES
+  "sys/types.h"
+  "sys/select.h"
+  "sys/socket.h"
+  "netdb.h"
+  "arpa/inet.h"
+  "netinet/in.h"
+  "sys/time.h"
+  "unistd.h"
+  "fcntl.h"
+  "poll.h"
+  "sys/stat.h"
+  "inttypes.h"
+  "stdint.h"
+)
+set(HEADER_MACROS
+  HAVE_SYS_TYPES_H
+  HAVE_SYS_SELECT_H
+  HAVE_SYS_SOCKET_H
+  HAVE_NETDB_H
+  HAVE_ARPA_INET_H
+  HAVE_NETINET_IN_H
+  HAVE_SYS_TIME_H
+  HAVE_UNISTD_H
+  HAVE_FCNTL_H
+  HAVE_POLL_H
+  HAVE_SYS_STAT_H
+  HAVE_INTTYPES_H
+  HAVE_STDINT_H
+)
+
+list(LENGTH HEADER_NAMES _header_count)
+if(_header_count GREATER 0)
+  math(EXPR _header_last "${_header_count} - 1")
+  foreach(_idx RANGE 0 ${_header_last})
+    list(GET HEADER_NAMES ${_idx} _hdr)
+    list(GET HEADER_MACROS ${_idx} _macro)
+    check_include_file("${_hdr}" ${_macro})
+  endforeach()
+endif()
+
+check_symbol_exists(fileno "stdio.h" HAVE_FILENO)
+check_symbol_exists(ftruncate "unistd.h" HAVE_FTRUNCATE)
+check_symbol_exists(popen "stdio.h" HAVE_POPEN)
+check_symbol_exists(pclose "stdio.h" HAVE_PCLOSE)
 
 # pkg-config deps
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK   REQUIRED gtk+-3.0>=3.24)
-pkg_check_modules(GLIB  REQUIRED glib-2.0>=2.76 gobject-2.0)
-pkg_check_modules(GST   REQUIRED gstreamer-1.0 gstreamer-base-1.0)
-pkg_check_modules(CURL  REQUIRED libcurl)
+set(HAVE_GTK 0)
+set(HAVE_GSTREAMER 0)
+set(HAVE_GLIB 0)
+
+if(WITH_GUI)
+  if(NOT DEFINED PkgConfig_FOUND OR NOT PkgConfig_FOUND)
+    find_package(PkgConfig REQUIRED)
+  endif()
+  pkg_check_modules(GTK  REQUIRED gtk+-3.0>=3.24)
+  pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
+  pkg_check_modules(GST  REQUIRED gstreamer-1.0 gstreamer-base-1.0)
+
+  set(HAVE_GTK ${GTK_FOUND})
+  set(HAVE_GSTREAMER ${GST_FOUND})
+  set(HAVE_GLIB ${GLIB_FOUND})
+else()
+  message(STATUS "WITH_GUI=OFF: skipping GTK/GLib/GStreamer detection")
+endif()
+
+if(NOT DEFINED PkgConfig_FOUND OR NOT PkgConfig_FOUND)
+  find_package(PkgConfig REQUIRED)
+endif()
+pkg_check_modules(CURL REQUIRED libcurl)
 find_package(Threads REQUIRED)
 
 include(CTest)
@@ -29,11 +113,7 @@ if(NOT BUILD_TESTING)
   message(STATUS "BUILD_TESTING=OFF: test targets will not be generated")
 endif()
 
-set(HAVE_GTK ${GTK_FOUND})
-set(HAVE_GSTREAMER ${GST_FOUND})
 set(HAVE_CURL ${CURL_FOUND})
-
-add_compile_definitions(HAVE_GLIB=1)
 
 # ---------- Feature toggles (default ON; compile gracefully without them) ----------
 option(WITH_TRAY     "Enable system tray indicator" ON)
@@ -57,6 +137,8 @@ target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_compile_options(core PRIVATE ${GTK_CFLAGS_OTHER} ${GLIB_CFLAGS_OTHER} ${GST_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
 target_include_directories(core PRIVATE ${GTK_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS} ${GST_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 target_link_directories(core PRIVATE ${GTK_LIBRARY_DIRS} ${GLIB_LIBRARY_DIRS} ${GST_LIBRARY_DIRS} ${CURL_LIBRARY_DIRS})
+target_compile_definitions(core PRIVATE HAVE_CONFIG_H)
+target_include_directories(core PRIVATE ${CMAKE_BINARY_DIR}/generated)
 
 add_executable(app src/main.c) # adjust if main file differs
 target_link_libraries(app PRIVATE core
@@ -187,7 +269,11 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+  if(WITH_GUI)
+    add_subdirectory(tests)
+  else()
+    message(STATUS "BUILD_TESTING=ON but WITH_GUI=OFF -> skipping GLib/GTK tests on this platform")
+  endif()
 endif()
 
 install(TARGETS app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

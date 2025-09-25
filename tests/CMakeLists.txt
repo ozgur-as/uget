@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
+if(NOT WITH_GUI)
+  message(STATUS "tests/: WITH_GUI=OFF -> not building legacy GLib/GTK tests")
+  return()
+endif()
+
 set(UGLIB_SOURCES
   ${CMAKE_SOURCE_DIR}/uglib/UgStdio.c
   ${CMAKE_SOURCE_DIR}/uglib/UgString.c
@@ -171,6 +176,7 @@ function(add_uget_test target)
     ${CMAKE_SOURCE_DIR}/uget
     ${GLIB_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}/generated
   )
   target_compile_options(${target} PRIVATE ${GLIB_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
@@ -218,6 +224,10 @@ add_uget_test(test_jsonrpc
   LIBS uget
   LABELS "unit;net"
 )
+
+if(TEST test_http)
+  set_tests_properties(test_http PROPERTIES LABELS "unit;net")
+endif()
 
 if(_uget_has_mega)
   add_uget_test(test_plugin_app
