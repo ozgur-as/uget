@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
+option(ENABLE_SANITIZERS "Enable ASan/UBSan in Debug on non-MSVC builds" ON)
+
 if(MSVC)
   add_compile_options(/W4 /permissive- /utf-8)
 else()
@@ -54,6 +56,24 @@ target_link_libraries(app PRIVATE core
 target_compile_options(app PRIVATE ${GTK_CFLAGS_OTHER} ${GLIB_CFLAGS_OTHER} ${GST_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
 target_include_directories(app PRIVATE ${GTK_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS} ${GST_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 target_link_directories(app PRIVATE ${GTK_LIBRARY_DIRS} ${GLIB_LIBRARY_DIRS} ${GST_LIBRARY_DIRS} ${CURL_LIBRARY_DIRS})
+
+# --- Project-wide compile warnings (already set globally, but ensure targets inherit) ---
+if(MSVC)
+  target_compile_options(core PRIVATE /W4 /permissive- /utf-8)
+  target_compile_options(app  PRIVATE /W4 /permissive- /utf-8)
+else()
+  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(app  PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+# --- Sanitizers: only in Debug, only on non-MSVC ---
+if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
+  target_compile_options(core PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+  target_link_options(  core PRIVATE -fsanitize=address,undefined)
+
+  target_compile_options(app  PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+  target_link_options(  app  PRIVATE -fsanitize=address,undefined)
+endif()
 
 # ---------- TRAY (Ayatana/AppIndicator) ----------
 if(WITH_TRAY)
