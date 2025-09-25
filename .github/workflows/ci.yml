@@ -48,13 +48,13 @@ jobs:
       # ---------- Build ----------
       - name: Build (Linux Debug)
         if: runner.os == 'Linux' && matrix.config == 'Debug'
-        run: cmake --build build/dev
+        run: cmake --build build/dev -- -v
       - name: Build (Linux RelWithDebInfo)
         if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
-        run: cmake --build build/rel
+        run: cmake --build build/rel -- -v
       - name: Build (Windows)
         if: runner.os == 'Windows'
-        run: cmake --build build/msvc --config ${{ matrix.config }}
+        run: cmake --build build/msvc --config ${{ matrix.config }} -- -v
 
       # ---------- Test ----------
       - name: Test (Linux)
