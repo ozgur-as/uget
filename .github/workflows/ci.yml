@@ -53,6 +53,12 @@ jobs:
         if: runner.os == 'Windows'
         uses: seanmiddleditch/gha-setup-ninja@v4
 
+      - name: Setup MSVC dev environment (x64)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
         if: runner.os == 'Linux' && matrix.config == 'Debug'

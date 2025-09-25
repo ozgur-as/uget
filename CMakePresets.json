@@ -8,7 +8,6 @@
     { "name": "rel", "generator": "Ninja", "binaryDir": "build/rel", "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
 },
     { "name": "msvc-vcpkg", "generator": "Ninja", "binaryDir": "build/msvc", "cacheVariables": {
-      "CMAKE_C_COMPILER": "cl",
       "CMAKE_BUILD_TYPE": "Debug",
       "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "VCPKG_TARGET_TRIPLET": "x64-windows",
