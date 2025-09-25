@@ -1,0 +1,12 @@
+{
+  "name": "modernizedapp",
+  "version-string": "2.3.0",
+  "dependencies": [
+    "gtk",
+    "glib",
+    "gstreamer",
+    "gstreamer-plugins-base",
+    "curl",
+    "openssl"
+  ]
+}
