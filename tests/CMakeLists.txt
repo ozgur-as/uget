@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
+if(NOT WITH_GUI)
+  message(STATUS "tests/: WITH_GUI=OFF -> not building legacy GLib/GTK tests")
+  return()
+endif()
+
 set(UGLIB_SOURCES
   ${CMAKE_SOURCE_DIR}/uglib/UgStdio.c
   ${CMAKE_SOURCE_DIR}/uglib/UgString.c

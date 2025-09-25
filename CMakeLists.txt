@@ -269,7 +269,11 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+  if(WITH_GUI)
+    add_subdirectory(tests)
+  else()
+    message(STATUS "BUILD_TESTING=ON but WITH_GUI=OFF -> skipping GLib/GTK tests on this platform")
+  endif()
 endif()
 
 install(TARGETS app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
