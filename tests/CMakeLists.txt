@@ -219,6 +219,10 @@ add_uget_test(test_jsonrpc
   LABELS "unit;net"
 )
 
+if(TEST test_http)
+  set_tests_properties(test_http PROPERTIES LABELS "unit;net")
+endif()
+
 if(_uget_has_mega)
   add_uget_test(test_plugin_app
     SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-plugin+app.c
