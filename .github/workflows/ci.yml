@@ -27,12 +27,25 @@ jobs:
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libcurl4-openssl-dev libayatana-appindicator3-dev
 
+      # ---------- Resolve a vcpkg commit ----------
+      - name: Resolve vcpkg commit (Windows)
+        if: runner.os == 'Windows'
+        id: vcpkgsha
+        shell: bash
+        run: |
+          set -e
+          # Fetch latest commit on vcpkg's master (main) branch
+          SHA=$(git ls-remote https://github.com/microsoft/vcpkg refs/heads/master | cut -f1)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Using vcpkg commit: $SHA"
+
       # ---------- Windows deps via vcpkg ----------
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: 'vcpkg.json'
+          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
 
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
