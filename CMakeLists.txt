@@ -15,6 +15,58 @@ endif()
 
 include(GNUInstallDirs)
 include(CheckIncludeFile)
+include(CheckSymbolExists)
+
+# Feature test macros on non-MSVC to expose POSIX prototypes (getaddrinfo, ftruncate, popen, etc.)
+if(NOT MSVC)
+  add_compile_definitions(_GNU_SOURCE)
+endif()
+
+set(HEADER_NAMES
+  "sys/types.h"
+  "sys/select.h"
+  "sys/socket.h"
+  "netdb.h"
+  "arpa/inet.h"
+  "netinet/in.h"
+  "sys/time.h"
+  "unistd.h"
+  "fcntl.h"
+  "poll.h"
+  "sys/stat.h"
+  "inttypes.h"
+  "stdint.h"
+)
+set(HEADER_MACROS
+  HAVE_SYS_TYPES_H
+  HAVE_SYS_SELECT_H
+  HAVE_SYS_SOCKET_H
+  HAVE_NETDB_H
+  HAVE_ARPA_INET_H
+  HAVE_NETINET_IN_H
+  HAVE_SYS_TIME_H
+  HAVE_UNISTD_H
+  HAVE_FCNTL_H
+  HAVE_POLL_H
+  HAVE_SYS_STAT_H
+  HAVE_INTTYPES_H
+  HAVE_STDINT_H
+)
+
+list(LENGTH HEADER_NAMES _header_count)
+if(_header_count GREATER 0)
+  math(EXPR _header_last "${_header_count} - 1")
+  foreach(_idx RANGE 0 ${_header_last})
+    list(GET HEADER_NAMES ${_idx} _hdr)
+    list(GET HEADER_MACROS ${_idx} _macro)
+    check_include_file("${_hdr}" ${_macro})
+  endforeach()
+endif()
+
+check_symbol_exists(fileno "stdio.h" HAVE_FILENO)
+check_symbol_exists(ftruncate "unistd.h" HAVE_FTRUNCATE)
+check_symbol_exists(popen "stdio.h" HAVE_POPEN)
+check_symbol_exists(pclose "stdio.h" HAVE_PCLOSE)
 
 # pkg-config deps
 find_package(PkgConfig REQUIRED)
@@ -57,6 +109,8 @@ target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_compile_options(core PRIVATE ${GTK_CFLAGS_OTHER} ${GLIB_CFLAGS_OTHER} ${GST_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
 target_include_directories(core PRIVATE ${GTK_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS} ${GST_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 target_link_directories(core PRIVATE ${GTK_LIBRARY_DIRS} ${GLIB_LIBRARY_DIRS} ${GST_LIBRARY_DIRS} ${CURL_LIBRARY_DIRS})
+target_compile_definitions(core PRIVATE HAVE_CONFIG_H)
+target_include_directories(core PRIVATE ${CMAKE_BINARY_DIR}/generated)
 
 add_executable(app src/main.c) # adjust if main file differs
 target_link_libraries(app PRIVATE core

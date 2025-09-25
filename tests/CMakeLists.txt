@@ -171,6 +171,7 @@ function(add_uget_test target)
     ${CMAKE_SOURCE_DIR}/uget
     ${GLIB_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}/generated
   )
   target_compile_options(${target} PRIVATE ${GLIB_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
