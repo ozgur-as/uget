@@ -49,6 +49,25 @@ jobs:
           vcpkgJsonGlob: 'vcpkg.json'
           vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
 
+      - name: Add vcpkg tools to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $root = "$env:RUNVCPKG_VCPKG_ROOT"
+          $paths = @(
+            Join-Path $root 'installed\x64-windows\tools\pkgconf'
+            Join-Path $root 'installed\x64-windows\tools'
+          )
+          foreach ($p in $paths) {
+            if (Test-Path $p) {
+              Write-Host "Adding $p to PATH"
+              $p | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            }
+          }
+          # show which pkgconf will be used
+          Write-Host "pkgconf = " (Get-Command pkgconf -ErrorAction SilentlyContinue)
+          Write-Host "pkg-config = " (Get-Command pkg-config -ErrorAction SilentlyContinue)
+
       - name: Setup Ninja (Windows)
         if: runner.os == 'Windows'
         uses: seanmiddleditch/gha-setup-ninja@v4

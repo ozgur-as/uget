@@ -19,6 +19,17 @@ include(GNUInstallDirs)
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 
+# ---- Robust pkg-config discovery (works with vcpkg, MSYS2, Linux) ----
+# Prefer 'pkgconf' on Windows (vcpkg installs it), 'pkg-config' elsewhere.
+find_program(PKG_CONFIG_EXECUTABLE NAMES pkgconf pkg-config)
+if(PKG_CONFIG_EXECUTABLE)
+  message(STATUS "Using pkg-config at: ${PKG_CONFIG_EXECUTABLE}")
+  # Some FindPkgConfig variants also read the env var:
+  set(ENV{PKG_CONFIG} "${PKG_CONFIG_EXECUTABLE}")
+else()
+  message(STATUS "pkg-config not found on PATH yet; FindPkgConfig may fail unless the toolchain provides it.")
+endif()
+
 # Feature test macros on non-MSVC to expose POSIX prototypes (getaddrinfo, ftruncate, popen, etc.)
 if(NOT MSVC)
   add_compile_definitions(_GNU_SOURCE)
