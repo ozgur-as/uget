@@ -15,6 +15,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       # ---------- Linux deps ----------
       - name: Install deps (Linux)
@@ -47,6 +49,10 @@ jobs:
           vcpkgJsonGlob: 'vcpkg.json'
           vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
 
+      - name: Setup Ninja (Windows)
+        if: runner.os == 'Windows'
+        uses: seanmiddleditch/gha-setup-ninja@v4
+
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
         if: runner.os == 'Linux' && matrix.config == 'Debug'
@@ -56,7 +62,7 @@ jobs:
         run: cmake --preset rel
       - name: Configure (Windows)
         if: runner.os == 'Windows'
-        run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DWITH_GUI=OFF -DWITH_TRAY=OFF
 
       # ---------- Build ----------
       - name: Build (Linux Debug)

@@ -2,12 +2,10 @@
   "name": "modernizedapp",
   "version-string": "2.3.0",
   "dependencies": [
-    "gtk",
-    "glib",
-    "gstreamer",
-    "gstreamer-plugins-base",
     "curl",
     "openssl",
-    "pkgconf"
+    "pkgconf",
+    { "name": "gtk", "platform": "!windows" },
+    { "name": "gstreamer", "features": ["plugins-base"], "platform": "!windows" }
   ]
 }
