@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            ninja-build pkg-config \
+            ninja-build pkg-config xvfb \
             libgtk-3-dev libglib2.0-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libcurl4-openssl-dev libayatana-appindicator3-dev
@@ -35,19 +35,23 @@ jobs:
           vcpkgJsonGlob: 'vcpkg.json'
 
       # ---------- Configure ----------
-      - name: Configure (Linux)
-        if: runner.os == 'Linux'
-        run: cmake --preset ${{ matrix.config == 'Debug' && 'dev' || 'rel' }}
-
+      - name: Configure (Linux Debug)
+        if: runner.os == 'Linux' && matrix.config == 'Debug'
+        run: cmake --preset dev
+      - name: Configure (Linux RelWithDebInfo)
+        if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
+        run: cmake --preset rel
       - name: Configure (Windows)
         if: runner.os == 'Windows'
         run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }}
 
       # ---------- Build ----------
-      - name: Build (Linux)
-        if: runner.os == 'Linux'
-        run: cmake --build build/${{ matrix.config == 'Debug' && 'dev' || 'rel' }} --config ${{ matrix.config }}
-
+      - name: Build (Linux Debug)
+        if: runner.os == 'Linux' && matrix.config == 'Debug'
+        run: cmake --build build/dev
+      - name: Build (Linux RelWithDebInfo)
+        if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
+        run: cmake --build build/rel
       - name: Build (Windows)
         if: runner.os == 'Windows'
         run: cmake --build build/msvc --config ${{ matrix.config }}
@@ -55,20 +59,21 @@ jobs:
       # ---------- Test ----------
       - name: Test (Linux)
         if: runner.os == 'Linux'
-        run: ctest --test-dir build/${{ matrix.config == 'Debug' && 'dev' || 'rel' }} --output-on-failure -LE net
-
+        run: |
+          if command -v xvfb-run >/dev/null 2>&1; then
+            xvfb-run -a ctest --test-dir ${{ matrix.config == 'Debug' && 'build/dev' || 'build/rel' }} --output-on-failure -LE net
+          else
+            ctest --test-dir ${{ matrix.config == 'Debug' && 'build/dev' || 'build/rel' }} --output-on-failure -LE net
+          fi
       - name: Test (Windows)
         if: runner.os == 'Windows'
         run: ctest --test-dir build/msvc -C ${{ matrix.config }} --output-on-failure -LE net
 
       # ---------- Artifacts ----------
-      - name: Upload binaries
+      - name: Upload build dir
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.config }}
-          path: |
-            build/**/app*
-            build/**/tests/*
-            !**/*.obj
-            !**/*.o
+          path: build/**
+          if-no-files-found: warn

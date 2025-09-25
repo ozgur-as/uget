@@ -5,12 +5,14 @@
     { "name": "dev", "generator": "Ninja", "binaryDir": "build/dev", "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
     { "name": "asan", "inherits": "dev", "binaryDir": "build/asan",
       "cacheVariables": { "ENABLE_SANITIZERS": true, "CMAKE_BUILD_TYPE": "Debug" } },
-    { "name": "rel", "generator": "Ninja", "binaryDir": "build/rel", "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" } },
+    { "name": "rel", "generator": "Ninja", "binaryDir": "build/rel", "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+},
     { "name": "msvc-vcpkg", "generator": "Ninja", "binaryDir": "build/msvc", "cacheVariables": {
       "CMAKE_C_COMPILER": "cl",
       "CMAKE_BUILD_TYPE": "Debug",
       "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-      "VCPKG_TARGET_TRIPLET": "x64-windows"
+      "VCPKG_TARGET_TRIPLET": "x64-windows",
+      "PKG_CONFIG_EXECUTABLE": "$env{VCPKG_ROOT}/installed/x64-windows/tools/pkgconf/pkgconf.exe"
     } }
   ],
   "buildPresets": [
