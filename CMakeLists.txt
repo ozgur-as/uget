@@ -22,10 +22,18 @@ pkg_check_modules(GTK   REQUIRED gtk+-3.0>=3.24)
 pkg_check_modules(GLIB  REQUIRED glib-2.0>=2.76 gobject-2.0)
 pkg_check_modules(GST   REQUIRED gstreamer-1.0 gstreamer-base-1.0)
 pkg_check_modules(CURL  REQUIRED libcurl)
+find_package(Threads REQUIRED)
+
+include(CTest)
+if(NOT BUILD_TESTING)
+  message(STATUS "BUILD_TESTING=OFF: test targets will not be generated")
+endif()
 
 set(HAVE_GTK ${GTK_FOUND})
 set(HAVE_GSTREAMER ${GST_FOUND})
 set(HAVE_CURL ${CURL_FOUND})
+
+add_compile_definitions(HAVE_GLIB=1)
 
 # ---------- Feature toggles (default ON; compile gracefully without them) ----------
 option(WITH_TRAY     "Enable system tray indicator" ON)
@@ -177,6 +185,9 @@ configure_file(${CMAKE_SOURCE_DIR}/cmake/config.h.in
                ${CMAKE_BINARY_DIR}/generated/config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}/generated)
 
-enable_testing()
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
 
 install(TARGETS app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
