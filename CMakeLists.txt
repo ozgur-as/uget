@@ -8,6 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
 option(ENABLE_SANITIZERS "Enable ASan/UBSan in Debug on non-MSVC builds" ON)
+option(WITH_GUI "Enable GTK-based GUI components" ON)
 
 if(MSVC)
   add_compile_options(/W4 /permissive- /utf-8)
@@ -82,11 +83,29 @@ check_symbol_exists(popen "stdio.h" HAVE_POPEN)
 check_symbol_exists(pclose "stdio.h" HAVE_PCLOSE)
 
 # pkg-config deps
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK   REQUIRED gtk+-3.0>=3.24)
-pkg_check_modules(GLIB  REQUIRED glib-2.0>=2.76 gobject-2.0)
-pkg_check_modules(GST   REQUIRED gstreamer-1.0 gstreamer-base-1.0)
-pkg_check_modules(CURL  REQUIRED libcurl)
+set(HAVE_GTK 0)
+set(HAVE_GSTREAMER 0)
+set(HAVE_GLIB 0)
+
+if(WITH_GUI)
+  if(NOT DEFINED PkgConfig_FOUND OR NOT PkgConfig_FOUND)
+    find_package(PkgConfig REQUIRED)
+  endif()
+  pkg_check_modules(GTK  REQUIRED gtk+-3.0>=3.24)
+  pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
+  pkg_check_modules(GST  REQUIRED gstreamer-1.0 gstreamer-base-1.0)
+
+  set(HAVE_GTK ${GTK_FOUND})
+  set(HAVE_GSTREAMER ${GST_FOUND})
+  set(HAVE_GLIB ${GLIB_FOUND})
+else()
+  message(STATUS "WITH_GUI=OFF: skipping GTK/GLib/GStreamer detection")
+endif()
+
+if(NOT DEFINED PkgConfig_FOUND OR NOT PkgConfig_FOUND)
+  find_package(PkgConfig REQUIRED)
+endif()
+pkg_check_modules(CURL REQUIRED libcurl)
 find_package(Threads REQUIRED)
 
 include(CTest)
@@ -94,11 +113,7 @@ if(NOT BUILD_TESTING)
   message(STATUS "BUILD_TESTING=OFF: test targets will not be generated")
 endif()
 
-set(HAVE_GTK ${GTK_FOUND})
-set(HAVE_GSTREAMER ${GST_FOUND})
 set(HAVE_CURL ${CURL_FOUND})
-
-add_compile_definitions(HAVE_GLIB=1)
 
 # ---------- Feature toggles (default ON; compile gracefully without them) ----------
 option(WITH_TRAY     "Enable system tray indicator" ON)
