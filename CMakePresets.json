@@ -3,6 +3,8 @@
   "cmakeMinimumRequired": { "major": 3, "minor": 28 },
   "configurePresets": [
     { "name": "dev", "generator": "Ninja", "binaryDir": "build/dev", "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "asan", "inherits": "dev", "binaryDir": "build/asan",
+      "cacheVariables": { "ENABLE_SANITIZERS": true, "CMAKE_BUILD_TYPE": "Debug" } },
     { "name": "rel", "generator": "Ninja", "binaryDir": "build/rel", "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" } },
     { "name": "msvc-vcpkg", "generator": "Ninja", "binaryDir": "build/msvc", "cacheVariables": {
       "CMAKE_C_COMPILER": "cl",
@@ -12,11 +14,13 @@
   ],
   "buildPresets": [
     { "name": "dev", "configurePreset": "dev" },
+    { "name": "asan", "configurePreset": "asan" },
     { "name": "rel", "configurePreset": "rel" },
     { "name": "msvc-vcpkg", "configurePreset": "msvc-vcpkg" }
   ],
   "testPresets": [
     { "name": "dev", "configurePreset": "dev" },
+    { "name": "asan", "configurePreset": "asan" },
     { "name": "rel", "configurePreset": "rel" }
   ]
 }
