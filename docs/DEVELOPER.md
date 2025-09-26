@@ -5,6 +5,7 @@ Use CMake presets to configure common build types:
 - `cmake --preset dev` for a standard Debug build.
 - `cmake --preset asan` for a Debug build with AddressSanitizer/UndefinedBehaviorSanitizer enabled (Unix-like platforms).
 - `cmake --preset rel` for a RelWithDebInfo build.
+- `cmake --preset msvc-vcpkg` for the Visual Studio + vcpkg toolchain on Windows.
 
 When debugging sanitizer builds you can enable stricter behavior with:
 
