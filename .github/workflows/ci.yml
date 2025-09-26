@@ -34,6 +34,50 @@ jobs:
         if: runner.os == 'Windows'
         uses: seanmiddleditch/gha-setup-ninja@v4
 
+      - name: Restore vcpkg downloads cache (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: .vcpkg_downloads
+          key: windows-vcpkg-downloads-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            windows-vcpkg-downloads-
+
+      - name: Pre-fetch GNU sources (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $downloads = Join-Path $env:GITHUB_WORKSPACE ".vcpkg_downloads"
+          if (-not (Test-Path $downloads)) {
+            New-Item -ItemType Directory -Path $downloads | Out-Null
+          }
+
+          $archives = @(
+            @{ Name = "gettext-0.22.5.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/gettext/gettext-0.22.5.tar.gz" },
+            @{ Name = "gettext-0.22.4.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/gettext/gettext-0.22.4.tar.gz" },
+            @{ Name = "libiconv-1.17.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/libiconv/libiconv-1.17.tar.gz" }
+          )
+
+          foreach ($archive in $archives) {
+            $target = Join-Path $downloads $archive.Name
+            if (Test-Path $target) {
+              Write-Host "Archive $($archive.Name) already cached."
+              continue
+            }
+
+            try {
+              Write-Host "Downloading $($archive.Url) ..."
+              Invoke-WebRequest -Uri $archive.Url -OutFile $target -UseBasicParsing
+            } catch {
+              Write-Warning "Could not download $($archive.Url): $($_.Exception.Message)"
+              if (Test-Path $target) {
+                Remove-Item $target -ErrorAction SilentlyContinue
+              }
+            }
+          }
+
+          "VCPKG_DOWNLOADS=$downloads" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       # ---------- Windows deps via vcpkg ----------
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
