@@ -37,9 +37,10 @@ jobs:
       # ---------- Windows deps via vcpkg ----------
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
-        uses: microsoft/vcpkg-action@v0
+        uses: lukka/run-vcpkg@v11
         with:
-          cacheHitVar: VCPKG_CACHE_HIT
+          vcpkgJsonGlob: vcpkg.json
+          runVcpkgInstall: true
 
       - name: Setup MSVC dev environment (x64)
         if: runner.os == 'Windows'
