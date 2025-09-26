@@ -1,5 +1,7 @@
 # Building on Windows (MSVC + vcpkg, x64)
 
+> Requires CMake 3.24 or newer.
+
 ## Prereqs
 - Visual Studio 2022 (Desktop development with C++)
 - vcpkg (https://github.com/microsoft/vcpkg) and set `VCPKG_ROOT`
@@ -21,4 +23,7 @@ ctest --test-dir build\msvc -C Debug --output-on-failure
 ## Notes
 - Dependencies come from vcpkg.json (gtk3, glib, gstreamer, curl, openssl).
 - Tray support (Ayatana/AppIndicator) may be unavailable on Windows: the build will continue without it.
+- Optional components such as OpenSSL, libpwmd or GnuTLS follow the same
+  autodetection as on Linux; toggle them manually by passing
+  `-DWITH_OPENSSL=OFF`, `-DWITH_PWMD=OFF`, or `-DWITH_GNUTLS=ON` to `cmake`.
 - Use RelWithDebInfo for release-like builds: `cmake -S . -B build\msvc -DCMAKE_BUILD_TYPE=RelWithDebInfo --preset msvc-vcpkg`
