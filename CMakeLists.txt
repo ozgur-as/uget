@@ -175,6 +175,13 @@ else()
   set(UGET_CURL_CFLAGS_OTHER ${LIBCURL_CFLAGS_OTHER})
 endif()
 
+if(NOT DEFINED CURL_LIBRARIES OR CURL_LIBRARIES STREQUAL "")
+  set(CURL_LIBRARIES ${UGET_CURL_LIBRARIES})
+endif()
+if(NOT DEFINED CURL_INCLUDE_DIRS OR CURL_INCLUDE_DIRS STREQUAL "")
+  set(CURL_INCLUDE_DIRS ${UGET_CURL_INCLUDE_DIRS})
+endif()
+
 list(APPEND _uget_common_include_dirs ${UGET_CURL_INCLUDE_DIRS})
 list(APPEND _uget_common_library_dirs ${UGET_CURL_LIBRARY_DIRS})
 list(APPEND _uget_common_libraries ${UGET_CURL_LIBRARIES})
@@ -400,25 +407,55 @@ else()
   message(STATUS "Mega: disabled (needs OpenSSL or GnuTLS AND libgcrypt)")
 endif()
 
-set(_uget_cli_dir "${CMAKE_CURRENT_SOURCE_DIR}/cli")
-if(EXISTS "${_uget_cli_dir}")
-  file(GLOB UGET_CLI_SOURCES CONFIGURE_DEPENDS "${_uget_cli_dir}/*.c")
-else()
-  set(UGET_CLI_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/core.c")
-    list(APPEND UGET_CLI_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/core.c)
+# --- CLI entrypoint discovery
+set(UGET_CLI_CANDIDATES
+  ${CMAKE_SOURCE_DIR}/uget/cli/uget.c
+  ${CMAKE_SOURCE_DIR}/uget/uget.c
+  ${CMAKE_SOURCE_DIR}/uget/main.c
+  ${CMAKE_SOURCE_DIR}/src/uget.c
+)
+
+set(UGET_CLI_MAIN "")
+foreach(_c ${UGET_CLI_CANDIDATES})
+  if(EXISTS "${_c}")
+    set(UGET_CLI_MAIN "${_c}")
+    break()
   endif()
+endforeach()
+
+option(UGET_CLI_STUB "Generate a minimal CLI main() if no real CLI is found" OFF)
+
+if(UGET_CLI_MAIN)
+  message(STATUS "uget CLI: using ${UGET_CLI_MAIN}")
+  add_executable(uget ${UGET_CLI_MAIN})
+elseif(UGET_CLI_STUB)
+  message(WARNING "uget CLI: real entrypoint not found; generating stub (prints version and exits 0)")
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
+  file(WRITE ${CMAKE_BINARY_DIR}/generated/uget_stub.c
+"#include <stdio.h>\n"
+"int main(int argc, char** argv){\n"
+"  (void)argc; (void)argv;\n"
+"  printf(\"uget (stub) built with CMake %s\\n\", \"${CMAKE_VERSION}\");\n"
+"  return 0;\n"
+"}\n")
+  add_executable(uget ${CMAKE_BINARY_DIR}/generated/uget_stub.c)
+else()
+  message(STATUS "uget CLI: no entrypoint found; skipping CLI build")
 endif()
 
-add_executable(uget ${UGET_CLI_SOURCES})
-target_link_libraries(uget PRIVATE uget_core uglib)
-target_include_directories(uget
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/uget
-    ${CMAKE_CURRENT_SOURCE_DIR}/uglib
-    ${CMAKE_BINARY_DIR}/generated)
-target_compile_definitions(uget PRIVATE HAVE_CONFIG_H)
+if(TARGET uget)
+  target_link_libraries(uget PRIVATE uget_core uglib Threads::Threads ${CURL_LIBRARIES})
+  target_include_directories(uget PRIVATE
+    ${CMAKE_SOURCE_DIR}/uget
+    ${CMAKE_SOURCE_DIR}/uglib
+    ${CMAKE_BINARY_DIR}/generated
+    ${CURL_INCLUDE_DIRS}
+  )
+  target_compile_definitions(uget PRIVATE
+    $<TARGET_PROPERTY:uget_core,INTERFACE_COMPILE_DEFINITIONS>
+  )
+  install(TARGETS uget RUNTIME DESTINATION bin)
+endif()
 
 if(WITH_GUI)
   file(GLOB UGET_GTK_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/ui-gtk/*.c")
@@ -437,7 +474,10 @@ if(WITH_GUI)
   endif()
 endif()
 
-set(_uget_targets uglib uget_core uget)
+set(_uget_targets uglib uget_core)
+if(TARGET uget)
+  list(APPEND _uget_targets uget)
+endif()
 if(TARGET uget-gtk)
   list(APPEND _uget_targets uget-gtk)
 endif()
@@ -514,7 +554,6 @@ if(BUILD_TESTING)
   endif()
 endif()
 
-install(TARGETS uget RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(TARGET uget-gtk)
   install(TARGETS uget-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
