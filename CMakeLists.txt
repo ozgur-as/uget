@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(ModernizedApp VERSION 2.3.0 LANGUAGES C)
+project(uget VERSION 2.3.0 LANGUAGES C)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "Verbose build" FORCE)
 
@@ -99,43 +99,53 @@ set(HAVE_GSTREAMER 0)
 set(HAVE_GLIB 0)
 set(HAVE_CURL 0)
 
-set(_uget_private_include_dirs)
-set(_uget_private_library_dirs)
-set(_uget_private_libraries)
-set(_uget_private_compile_options)
+set(_uget_common_include_dirs)
+set(_uget_common_library_dirs)
+set(_uget_common_libraries)
+set(_uget_common_compile_options)
+set(_uget_gui_include_dirs)
+set(_uget_gui_library_dirs)
+set(_uget_gui_libraries)
+set(_uget_gui_compile_options)
+
+if(PkgConfig_FOUND)
+  pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
+  add_compile_definitions(HAVE_GLIB=1)
+  set(HAVE_GLIB 1)
+
+  list(APPEND _uget_common_include_dirs ${GLIB_INCLUDE_DIRS})
+  list(APPEND _uget_common_library_dirs ${GLIB_LIBRARY_DIRS})
+  list(APPEND _uget_common_libraries ${GLIB_LIBRARIES})
+  list(APPEND _uget_common_compile_options ${GLIB_CFLAGS_OTHER})
+else()
+  message(FATAL_ERROR "GLib detection requires pkg-config.")
+endif()
 
 if(WITH_GUI)
   if(PkgConfig_FOUND)
     pkg_check_modules(GTK REQUIRED gtk+-3.0>=3.24)
-    pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
     pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-base-1.0)
-    add_compile_definitions(HAVE_GLIB=1)
 
     set(HAVE_GTK 1)
     set(HAVE_GSTREAMER 1)
-    set(HAVE_GLIB 1)
 
-    list(APPEND _uget_private_include_dirs
+    list(APPEND _uget_gui_include_dirs
       ${GTK_INCLUDE_DIRS}
-      ${GLIB_INCLUDE_DIRS}
       ${GST_INCLUDE_DIRS})
-    list(APPEND _uget_private_library_dirs
+    list(APPEND _uget_gui_library_dirs
       ${GTK_LIBRARY_DIRS}
-      ${GLIB_LIBRARY_DIRS}
       ${GST_LIBRARY_DIRS})
-    list(APPEND _uget_private_libraries
+    list(APPEND _uget_gui_libraries
       ${GTK_LIBRARIES}
-      ${GLIB_LIBRARIES}
       ${GST_LIBRARIES})
-    list(APPEND _uget_private_compile_options
+    list(APPEND _uget_gui_compile_options
       ${GTK_CFLAGS_OTHER}
-      ${GLIB_CFLAGS_OTHER}
       ${GST_CFLAGS_OTHER})
   else()
     message(FATAL_ERROR "WITH_GUI=ON but pkg-config is unavailable on this toolchain.")
   endif()
 else()
-  message(STATUS "WITH_GUI=OFF: skipping GTK/GLib/GStreamer detection")
+  message(STATUS "WITH_GUI=OFF: skipping GTK/GStreamer detection")
 endif()
 
 if(WIN32)
@@ -165,10 +175,10 @@ else()
   set(UGET_CURL_CFLAGS_OTHER ${LIBCURL_CFLAGS_OTHER})
 endif()
 
-list(APPEND _uget_private_include_dirs ${UGET_CURL_INCLUDE_DIRS})
-list(APPEND _uget_private_library_dirs ${UGET_CURL_LIBRARY_DIRS})
-list(APPEND _uget_private_libraries ${UGET_CURL_LIBRARIES})
-list(APPEND _uget_private_compile_options ${UGET_CURL_CFLAGS_OTHER})
+list(APPEND _uget_common_include_dirs ${UGET_CURL_INCLUDE_DIRS})
+list(APPEND _uget_common_library_dirs ${UGET_CURL_LIBRARY_DIRS})
+list(APPEND _uget_common_libraries ${UGET_CURL_LIBRARIES})
+list(APPEND _uget_common_compile_options ${UGET_CURL_CFLAGS_OTHER})
 
 find_package(Threads REQUIRED)
 
@@ -191,9 +201,9 @@ if(WITH_GUI AND WITH_TRAY)
     pkg_check_modules(AYATANA QUIET ayatana-appindicator3-0.1)
     if(AYATANA_FOUND)
       add_compile_definitions(HAVE_AYATANA=1)
-      list(APPEND _uget_private_include_dirs ${AYATANA_INCLUDE_DIRS})
-      list(APPEND _uget_private_library_dirs ${AYATANA_LIBRARY_DIRS})
-      list(APPEND _uget_private_libraries ${AYATANA_LIBRARIES})
+      list(APPEND _uget_gui_include_dirs ${AYATANA_INCLUDE_DIRS})
+      list(APPEND _uget_gui_library_dirs ${AYATANA_LIBRARY_DIRS})
+      list(APPEND _uget_gui_libraries ${AYATANA_LIBRARIES})
       set(HAVE_TRAY 1)
       set(HAVE_AYATANA 1)
       message(STATUS "Tray: using ayatana-appindicator3")
@@ -201,9 +211,9 @@ if(WITH_GUI AND WITH_TRAY)
       pkg_check_modules(APPINDICATOR QUIET appindicator3-0.1)
       if(APPINDICATOR_FOUND)
         add_compile_definitions(HAVE_APPINDICATOR=1)
-        list(APPEND _uget_private_include_dirs ${APPINDICATOR_INCLUDE_DIRS})
-        list(APPEND _uget_private_library_dirs ${APPINDICATOR_LIBRARY_DIRS})
-        list(APPEND _uget_private_libraries ${APPINDICATOR_LIBRARIES})
+        list(APPEND _uget_gui_include_dirs ${APPINDICATOR_INCLUDE_DIRS})
+        list(APPEND _uget_gui_library_dirs ${APPINDICATOR_LIBRARY_DIRS})
+        list(APPEND _uget_gui_libraries ${APPINDICATOR_LIBRARIES})
         set(HAVE_TRAY 1)
         set(HAVE_APPINDICATOR 1)
         message(STATUS "Tray: using appindicator3-0.1 (fallback)")
@@ -225,9 +235,9 @@ if(WITH_PWMD)
   if(PkgConfig_FOUND)
     pkg_check_modules(PWMD QUIET libpwmd)
     if(PWMD_FOUND)
-      list(APPEND _uget_private_include_dirs ${PWMD_INCLUDE_DIRS})
-      list(APPEND _uget_private_library_dirs ${PWMD_LIBRARY_DIRS})
-      list(APPEND _uget_private_libraries ${PWMD_LIBRARIES})
+      list(APPEND _uget_common_include_dirs ${PWMD_INCLUDE_DIRS})
+      list(APPEND _uget_common_library_dirs ${PWMD_LIBRARY_DIRS})
+      list(APPEND _uget_common_libraries ${PWMD_LIBRARIES})
       set(HAVE_PWMD 1)
       message(STATUS "PWMD: enabled")
     else()
@@ -242,7 +252,7 @@ endif()
 if(WITH_OPENSSL)
   find_package(OpenSSL REQUIRED)
   add_compile_definitions(HAVE_OPENSSL=1)
-  list(APPEND _uget_private_libraries OpenSSL::SSL OpenSSL::Crypto)
+  list(APPEND _uget_common_libraries OpenSSL::SSL OpenSSL::Crypto)
   set(HAVE_OPENSSL 1)
 endif()
 
@@ -254,66 +264,194 @@ if(WITH_GNUTLS)
     set(HAVE_GNUTLS 1)
     set(HAVE_LIBGCRYPT 1)
 
-    list(APPEND _uget_private_include_dirs ${GNUTLS_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
-    list(APPEND _uget_private_library_dirs ${GNUTLS_LIBRARY_DIRS} ${GCRYPT_LIBRARY_DIRS})
-    list(APPEND _uget_private_libraries ${GNUTLS_LIBRARIES} ${GCRYPT_LIBRARIES})
+    list(APPEND _uget_common_include_dirs ${GNUTLS_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
+    list(APPEND _uget_common_library_dirs ${GNUTLS_LIBRARY_DIRS} ${GCRYPT_LIBRARY_DIRS})
+    list(APPEND _uget_common_libraries ${GNUTLS_LIBRARIES} ${GCRYPT_LIBRARIES})
   else()
     message(FATAL_ERROR "WITH_GNUTLS=ON requires pkg-config.")
   endif()
 endif()
 
-# TEMP: discover sources (to be replaced with explicit lists later)
-file(GLOB_RECURSE CORE_SRC CONFIGURE_DEPENDS src/*.c)
-add_library(core STATIC ${CORE_SRC})
-target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_compile_definitions(core PRIVATE HAVE_CONFIG_H)
-target_include_directories(core PRIVATE ${CMAKE_BINARY_DIR}/generated)
+# ---- Libraries and executables ----
+set(UGLIB_SOURCES
+  uglib/UgArray.c
+  uglib/UgBuffer.c
+  uglib/UgData.c
+  uglib/UgEntry.c
+  uglib/UgFileUtil.c
+  uglib/UgHtml.c
+  uglib/UgHtmlEntry.c
+  uglib/UgHtmlFilter.c
+  uglib/UgInfo.c
+  uglib/UgJson-custom.c
+  uglib/UgJson.c
+  uglib/UgJsonFile.c
+  uglib/UgJsonrpc.c
+  uglib/UgJsonrpcCurl.c
+  uglib/UgJsonrpcSocket.c
+  uglib/UgList.c
+  uglib/UgNode.c
+  uglib/UgOption.c
+  uglib/UgRegistry.c
+  uglib/UgSocket.c
+  uglib/UgSLink.c
+  uglib/UgStdio.c
+  uglib/UgString.c
+  uglib/UgThread.c
+  uglib/UgUri.c
+  uglib/UgUtil.c
+  uglib/UgValue.c
+)
 
-if(_uget_private_compile_options)
-  target_compile_options(core PRIVATE ${_uget_private_compile_options})
-endif()
-if(_uget_private_include_dirs)
-  target_include_directories(core PRIVATE ${_uget_private_include_dirs})
-endif()
-if(_uget_private_library_dirs)
-  target_link_directories(core PRIVATE ${_uget_private_library_dirs})
-endif()
-if(_uget_private_libraries)
-  target_link_libraries(core PRIVATE ${_uget_private_libraries})
+add_library(uglib STATIC ${UGLIB_SOURCES})
+target_include_directories(uglib
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/uglib
+    ${CMAKE_BINARY_DIR}/generated)
+target_compile_definitions(uglib PUBLIC HAVE_CONFIG_H)
+target_link_libraries(uglib PUBLIC Threads::Threads)
+
+set(UGET_CORE_SOURCES
+  uget/UgetA2cf.c
+  uget/UgetApp.c
+  uget/UgetAria2.c
+  uget/UgetCurl.c
+  uget/UgetData.c
+  uget/UgetEvent.c
+  uget/UgetFiles.c
+  uget/UgetHash.c
+  uget/UgetMedia-youtube.c
+  uget/UgetMedia.c
+  uget/UgetNode-compare.c
+  uget/UgetNode-filter.c
+  uget/UgetNode.c
+  uget/UgetOption.c
+  uget/UgetPlugin.c
+  uget/UgetPluginAgent.c
+  uget/UgetPluginAria2.c
+  uget/UgetPluginCurl.c
+  uget/UgetPluginEmpty.c
+  uget/UgetPluginMedia.c
+  uget/UgetPluginMega.c
+  uget/UgetRpc.c
+  uget/UgetRss.c
+  uget/UgetSequence.c
+  uget/UgetSite.c
+  uget/UgetTask.c
+)
+
+if(HAVE_PWMD)
+  list(APPEND UGET_CORE_SOURCES uget/pwmd.c)
 endif()
 
-add_executable(app src/main.c) # adjust if main file differs
-target_link_libraries(app PRIVATE core)
+add_library(uget_core STATIC ${UGET_CORE_SOURCES})
+target_include_directories(uget_core
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/uget
+    ${CMAKE_CURRENT_SOURCE_DIR}/uglib
+    ${CMAKE_BINARY_DIR}/generated)
+target_compile_definitions(uget_core PUBLIC HAVE_CONFIG_H)
+target_link_libraries(uget_core PUBLIC uglib Threads::Threads)
 
-if(_uget_private_compile_options)
-  target_compile_options(app PRIVATE ${_uget_private_compile_options})
+set(_uget_cli_dir "${CMAKE_CURRENT_SOURCE_DIR}/cli")
+if(EXISTS "${_uget_cli_dir}")
+  file(GLOB UGET_CLI_SOURCES CONFIGURE_DEPENDS "${_uget_cli_dir}/*.c")
+else()
+  set(UGET_CLI_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/core.c")
+    list(APPEND UGET_CLI_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/core.c)
+  endif()
 endif()
-if(_uget_private_include_dirs)
-  target_include_directories(app PRIVATE ${_uget_private_include_dirs})
+
+add_executable(uget ${UGET_CLI_SOURCES})
+target_link_libraries(uget PRIVATE uget_core uglib)
+target_include_directories(uget
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/uget
+    ${CMAKE_CURRENT_SOURCE_DIR}/uglib
+    ${CMAKE_BINARY_DIR}/generated)
+target_compile_definitions(uget PRIVATE HAVE_CONFIG_H)
+
+if(WITH_GUI)
+  file(GLOB UGET_GTK_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/ui-gtk/*.c")
+  if(UGET_GTK_SOURCES)
+    add_executable(uget-gtk ${UGET_GTK_SOURCES})
+    target_link_libraries(uget-gtk PRIVATE uget_core uglib)
+    target_include_directories(uget-gtk
+      PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ui-gtk
+        ${CMAKE_CURRENT_SOURCE_DIR}/uget
+        ${CMAKE_CURRENT_SOURCE_DIR}/uglib
+        ${CMAKE_BINARY_DIR}/generated)
+    target_compile_definitions(uget-gtk PRIVATE HAVE_CONFIG_H)
+  else()
+    message(WARNING "WITH_GUI=ON but no GTK sources were found in ui-gtk/")
+  endif()
 endif()
-if(_uget_private_library_dirs)
-  target_link_directories(app PRIVATE ${_uget_private_library_dirs})
+
+set(_uget_targets uglib uget_core uget)
+if(TARGET uget-gtk)
+  list(APPEND _uget_targets uget-gtk)
 endif()
-if(_uget_private_libraries)
-  target_link_libraries(app PRIVATE ${_uget_private_libraries})
+
+foreach(_target IN LISTS _uget_targets)
+  if(TARGET ${_target})
+    if(_uget_common_compile_options)
+      target_compile_options(${_target} PRIVATE ${_uget_common_compile_options})
+    endif()
+    if(_uget_common_include_dirs)
+      target_include_directories(${_target} PRIVATE ${_uget_common_include_dirs})
+    endif()
+    if(_uget_common_library_dirs)
+      target_link_directories(${_target} PRIVATE ${_uget_common_library_dirs})
+    endif()
+  endif()
+endforeach()
+
+if(_uget_common_libraries)
+  if(TARGET uglib)
+    target_link_libraries(uglib PUBLIC ${_uget_common_libraries})
+  endif()
+  if(TARGET uget_core)
+    target_link_libraries(uget_core PUBLIC ${_uget_common_libraries})
+  endif()
+endif()
+
+if(TARGET uget-gtk)
+  if(_uget_gui_compile_options)
+    target_compile_options(uget-gtk PRIVATE ${_uget_gui_compile_options})
+  endif()
+  if(_uget_gui_include_dirs)
+    target_include_directories(uget-gtk PRIVATE ${_uget_gui_include_dirs})
+  endif()
+  if(_uget_gui_library_dirs)
+    target_link_directories(uget-gtk PRIVATE ${_uget_gui_library_dirs})
+  endif()
+  if(_uget_gui_libraries)
+    target_link_libraries(uget-gtk PRIVATE ${_uget_gui_libraries})
+  endif()
 endif()
 
 # --- Project-wide compile warnings (already set globally, but ensure targets inherit) ---
-if(MSVC)
-  target_compile_options(core PRIVATE /W4 /permissive- /utf-8)
-  target_compile_options(app  PRIVATE /W4 /permissive- /utf-8)
-else()
-  target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
-  target_compile_options(app  PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+foreach(_target IN LISTS _uget_targets)
+  if(TARGET ${_target})
+    if(MSVC)
+      target_compile_options(${_target} PRIVATE /W4 /permissive- /utf-8)
+    else()
+      target_compile_options(${_target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+  endif()
+endforeach()
 
 # --- Sanitizers: only in Debug, only on non-MSVC ---
 if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
-  target_compile_options(core PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-  target_link_options(  core PRIVATE -fsanitize=address,undefined)
-
-  target_compile_options(app  PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-  target_link_options(  app  PRIVATE -fsanitize=address,undefined)
+  foreach(_target IN LISTS _uget_targets)
+    if(TARGET ${_target})
+      target_compile_options(${_target} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+      target_link_options(${_target} PRIVATE -fsanitize=address,undefined)
+    endif()
+  endforeach()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmake/config.h.in
@@ -329,4 +467,11 @@ if(BUILD_TESTING)
   endif()
 endif()
 
-install(TARGETS app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS uget RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(TARGET uget-gtk)
+  install(TARGETS uget-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")
+  install(DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/uget)
+endif()
