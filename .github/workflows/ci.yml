@@ -81,10 +81,10 @@ jobs:
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
         if: runner.os == 'Linux' && matrix.config == 'Debug'
-        run: cmake --preset dev
+        run: cmake --preset dev -DENABLE_MEGA=OFF
       - name: Configure (Linux RelWithDebInfo)
         if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
-        run: cmake --preset rel
+        run: cmake --preset rel -DENABLE_MEGA=OFF
       - name: Configure (Windows)
         if: runner.os == 'Windows'
         run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DWITH_GUI=OFF -DWITH_TRAY=OFF
