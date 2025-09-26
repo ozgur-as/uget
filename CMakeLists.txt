@@ -256,20 +256,47 @@ if(WITH_OPENSSL)
   set(HAVE_OPENSSL 1)
 endif()
 
+if(PkgConfig_FOUND)
+  # Optional crypto stacks used by the Mega plug-in and alternative TLS backends
+  pkg_check_modules(GNUTLS QUIET gnutls)
+  pkg_check_modules(GCRYPT QUIET gcrypt)
+endif()
+
+if(NOT DEFINED GNUTLS_FOUND)
+  set(GNUTLS_FOUND 0)
+endif()
+if(NOT DEFINED GCRYPT_FOUND)
+  set(GCRYPT_FOUND 0)
+endif()
+
+set(HAVE_GNUTLS ${GNUTLS_FOUND})
+set(HAVE_LIBGCRYPT ${GCRYPT_FOUND})
+
+if(OPENSSL_FOUND)
+  set(HAVE_OPENSSL 1)
+endif()
+
 if(WITH_GNUTLS)
   if(PkgConfig_FOUND)
-    pkg_check_modules(GNUTLS REQUIRED gnutls)
-    pkg_check_modules(GCRYPT REQUIRED libgcrypt)
+    if(NOT GNUTLS_FOUND)
+      message(FATAL_ERROR "WITH_GNUTLS=ON but gnutls was not found")
+    endif()
+    if(NOT GCRYPT_FOUND)
+      message(FATAL_ERROR "WITH_GNUTLS=ON but libgcrypt was not found")
+    endif()
     add_compile_definitions(HAVE_GNUTLS=1 HAVE_LIBGCRYPT=1)
     set(HAVE_GNUTLS 1)
     set(HAVE_LIBGCRYPT 1)
-
-    list(APPEND _uget_common_include_dirs ${GNUTLS_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
-    list(APPEND _uget_common_library_dirs ${GNUTLS_LIBRARY_DIRS} ${GCRYPT_LIBRARY_DIRS})
-    list(APPEND _uget_common_libraries ${GNUTLS_LIBRARIES} ${GCRYPT_LIBRARIES})
   else()
     message(FATAL_ERROR "WITH_GNUTLS=ON requires pkg-config.")
   endif()
+else()
+  # Treat GnuTLS as unavailable if the feature is explicitly disabled
+  set(HAVE_GNUTLS 0)
+endif()
+
+if(HAVE_LIBGCRYPT)
+  add_compile_definitions(HAVE_LIBGCRYPT=1)
 endif()
 
 # ---- Libraries and executables ----
@@ -332,7 +359,6 @@ set(UGET_CORE_SOURCES
   uget/UgetPluginCurl.c
   uget/UgetPluginEmpty.c
   uget/UgetPluginMedia.c
-  uget/UgetPluginMega.c
   uget/UgetRpc.c
   uget/UgetRss.c
   uget/UgetSequence.c
@@ -352,6 +378,27 @@ target_include_directories(uget_core
     ${CMAKE_BINARY_DIR}/generated)
 target_compile_definitions(uget_core PUBLIC HAVE_CONFIG_H)
 target_link_libraries(uget_core PUBLIC uglib Threads::Threads)
+
+if(HAVE_GNUTLS)
+  target_include_directories(uget_core PRIVATE ${GNUTLS_INCLUDE_DIRS})
+  target_link_libraries(uget_core PUBLIC ${GNUTLS_LIBRARIES})
+  target_compile_definitions(uget_core PRIVATE HAVE_GNUTLS=1)
+endif()
+
+if(HAVE_LIBGCRYPT)
+  target_include_directories(uget_core PRIVATE ${GCRYPT_INCLUDE_DIRS})
+  target_link_libraries(uget_core PUBLIC ${GCRYPT_LIBRARIES})
+  target_compile_definitions(uget_core PRIVATE HAVE_LIBGCRYPT=1)
+endif()
+
+# Mega requires (OpenSSL OR GnuTLS) AND libgcrypt
+if((HAVE_OPENSSL OR HAVE_GNUTLS) AND HAVE_LIBGCRYPT)
+  target_sources(uget_core PRIVATE uget/UgetPluginMega.c)
+  target_compile_definitions(uget_core PRIVATE HAVE_MEGA=1)
+  message(STATUS "Mega: enabled")
+else()
+  message(STATUS "Mega: disabled (needs OpenSSL or GnuTLS AND libgcrypt)")
+endif()
 
 set(_uget_cli_dir "${CMAKE_CURRENT_SOURCE_DIR}/cli")
 if(EXISTS "${_uget_cli_dir}")
