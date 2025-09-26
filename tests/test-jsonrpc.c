@@ -82,12 +82,12 @@ free_rpc_array (UgJsonrpcObject* array, int length)
 static void
 free_rpc_array_container (UgJsonrpcArray* array)
 {
-        int index;
+        size_t index;
 
         if (array == NULL)
                 return;
 
-        for (index = 0; index < array->length; index++)
+        for (index = 0; index < (size_t)array->length; index++)
                 free_rpc_obj (array->at[index]);
 
         ug_jsonrpc_array_clear (array, 0);
@@ -96,18 +96,18 @@ free_rpc_array_container (UgJsonrpcArray* array)
 static void
 free_uget_aria2_cached_objects (UgetAria2* uaria2)
 {
-        unsigned int index;
+        size_t index;
 
         if (uaria2 == NULL)
                 return;
 
         ug_mutex_lock (&uaria2->mutex);
 
-        for (index = 0; index < uaria2->queuing.length; index++)
+        for (index = 0; index < (size_t)uaria2->queuing.length; index++)
                 free_rpc_obj (uaria2->queuing.at[index]);
         ug_jsonrpc_array_clear (&uaria2->queuing, 0);
 
-        for (index = 0; index < uaria2->recycled.length; index++)
+        for (index = 0; index < (size_t)uaria2->recycled.length; index++)
                 free_rpc_obj (uaria2->recycled.at[index]);
         ug_jsonrpc_array_clear (&uaria2->recycled, 0);
 
@@ -117,7 +117,8 @@ free_uget_aria2_cached_objects (UgetAria2* uaria2)
 static void socket_receiver (UgSocketServer* server,
                              SOCKET  client_fd, void* data)
 {
-	char  buf[5];
+        (void)data;
+        char  buf[5];
 
 	ug_socket_server_ref (server);
 
@@ -208,20 +209,6 @@ void  parse_rpc_object (UgJsonrpcObject* jobj, const char* json_string)
 	printf ("ug_json_end_parse response %d\n", code);
 
 	ug_json_final (&json);
-}
-
-static void
-free_rpc_array_container (UgJsonrpcArray* array)
-{
-	int index;
-
-	if (array == NULL)
-		return;
-
-	for (index = 0; index < array->length; index++)
-		ug_jsonrpc_object_free (array->at[index]);
-
-	ug_jsonrpc_array_clear (array, 0);
 }
 
 void  print_rpc_object (UgJsonrpcObject* jobj)
@@ -340,8 +327,10 @@ void test_jsonrpc_curl (void)
 
 static void jsonrpc_accepted (UgJsonrpc* jrpc, void* data, void* data2)
 {
-	UgJsonrpcObject* request;
-	UgJsonrpcObject* response;
+        (void)data;
+        (void)data2;
+        UgJsonrpcObject* request;
+        UgJsonrpcObject* response;
 	int  result;
 
 	request  = ug_jsonrpc_object_new ();
