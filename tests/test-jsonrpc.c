@@ -35,6 +35,7 @@
  */
 
 #include <stdio.h>
+#include <glib.h>
 #include <UgSocket.h>
 #include <UgJsonrpc.h>
 #include <UgJsonrpcCurl.h>
@@ -54,6 +55,64 @@
 #else
 #define  ug_sleep(millisecond)    usleep (millisecond * 1000)
 #endif
+
+static void
+free_rpc_obj (UgJsonrpcObject* object)
+{
+        if (object == NULL)
+                return;
+
+        ug_jsonrpc_object_free (object);
+}
+
+static void G_GNUC_UNUSED
+free_rpc_array (UgJsonrpcObject* array, int length)
+{
+        int index;
+
+        if (array == NULL)
+                return;
+
+        for (index = 0; index < length; index++)
+                ug_jsonrpc_object_clear (&array[index]);
+
+        g_free (array);
+}
+
+static void
+free_rpc_array_container (UgJsonrpcArray* array)
+{
+        int index;
+
+        if (array == NULL)
+                return;
+
+        for (index = 0; index < array->length; index++)
+                free_rpc_obj (array->at[index]);
+
+        ug_jsonrpc_array_clear (array, 0);
+}
+
+static void
+free_uget_aria2_cached_objects (UgetAria2* uaria2)
+{
+        unsigned int index;
+
+        if (uaria2 == NULL)
+                return;
+
+        ug_mutex_lock (&uaria2->mutex);
+
+        for (index = 0; index < uaria2->queuing.length; index++)
+                free_rpc_obj (uaria2->queuing.at[index]);
+        ug_jsonrpc_array_clear (&uaria2->queuing, 0);
+
+        for (index = 0; index < uaria2->recycled.length; index++)
+                free_rpc_obj (uaria2->recycled.at[index]);
+        ug_jsonrpc_array_clear (&uaria2->recycled, 0);
+
+        ug_mutex_unlock (&uaria2->mutex);
+}
 
 static void socket_receiver (UgSocketServer* server,
                              SOCKET  client_fd, void* data)
@@ -152,7 +211,7 @@ void  parse_rpc_object (UgJsonrpcObject* jobj, const char* json_string)
 }
 
 static void
-free_rpc_array (UgJsonrpcArray* array)
+free_rpc_array_container (UgJsonrpcArray* array)
 {
 	int index;
 
@@ -213,7 +272,7 @@ void  test_rpc_parser (void)
 	parse_rpc_object (jobj, json_string3);
 	print_rpc_object (jobj);
 
-	free_rpc_array (jarray);
+        free_rpc_array_container (jarray);
 	free (jarray);
 }
 
@@ -272,7 +331,7 @@ void test_jsonrpc_curl (void)
 	ug_jsonrpc_curl_final (jrcurl);
 	free (jrcurl);
 
-	free_rpc_array (jarray);
+        free_rpc_array_container (jarray);
 	free (jarray);
 }
 
@@ -434,8 +493,9 @@ void test_uget_aria2 (void)
 	test_uget_aria2_rpc_object (uaria2);
 //	uget_aria2_shutdown (uaria2);
 
-	uget_aria2_stop_thread (uaria2);
-	uget_aria2_unref (uaria2);
+        uget_aria2_stop_thread (uaria2);
+        free_uget_aria2_cached_objects (uaria2);
+        uget_aria2_unref (uaria2);
 	ug_sleep (2000);
 }
 
