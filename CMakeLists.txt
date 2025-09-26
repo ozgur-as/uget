@@ -7,7 +7,12 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-option(WITH_GUI "Build GTK-based UI and GStreamer integrations" ON)
+option(UGET_WITH_GUI "Build the GTK front-end" ON)
+if(DEFINED WITH_GUI)
+  set(UGET_WITH_GUI ${WITH_GUI})
+endif()
+set_property(CACHE UGET_WITH_GUI PROPERTY VALUE ${UGET_WITH_GUI})
+set(WITH_GUI ${UGET_WITH_GUI})
 option(WITH_TRAY "Build system tray integration (requires GUI)" ON)
 option(WITH_OPENSSL "Enable OpenSSL-based crypto/TLS" ON)
 option(WITH_GNUTLS "Enable GnuTLS/libgcrypt backend" OFF)
@@ -35,7 +40,7 @@ else()
   message(STATUS "pkg-config not found on PATH yet; FindPkgConfig may fail unless the toolchain provides it.")
 endif()
 
-find_package(PkgConfig QUIET)
+find_package(PkgConfig REQUIRED)
 
 # Feature test macros on non-MSVC to expose POSIX prototypes (getaddrinfo, ftruncate, popen, etc.)
 if(NOT MSVC)
@@ -89,8 +94,8 @@ check_symbol_exists(popen "stdio.h" HAVE_POPEN)
 check_symbol_exists(pclose "stdio.h" HAVE_PCLOSE)
 
 # pkg-config deps
-if(NOT WITH_GUI AND WITH_TRAY)
-  message(STATUS "WITH_GUI=OFF -> disabling system tray support")
+if(NOT UGET_WITH_GUI AND WITH_TRAY)
+  message(STATUS "UGET_WITH_GUI=OFF -> disabling system tray support")
   set(WITH_TRAY OFF CACHE BOOL "" FORCE)
 endif()
 
@@ -103,49 +108,26 @@ set(_uget_common_include_dirs)
 set(_uget_common_library_dirs)
 set(_uget_common_libraries)
 set(_uget_common_compile_options)
-set(_uget_gui_include_dirs)
-set(_uget_gui_library_dirs)
-set(_uget_gui_libraries)
-set(_uget_gui_compile_options)
 
-if(PkgConfig_FOUND)
-  pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
-  add_compile_definitions(HAVE_GLIB=1)
-  set(HAVE_GLIB 1)
+pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
+add_compile_definitions(HAVE_GLIB=1)
+set(HAVE_GLIB 1)
 
-  list(APPEND _uget_common_include_dirs ${GLIB_INCLUDE_DIRS})
-  list(APPEND _uget_common_library_dirs ${GLIB_LIBRARY_DIRS})
-  list(APPEND _uget_common_libraries ${GLIB_LIBRARIES})
-  list(APPEND _uget_common_compile_options ${GLIB_CFLAGS_OTHER})
-else()
-  message(FATAL_ERROR "GLib detection requires pkg-config.")
+list(APPEND _uget_common_include_dirs ${GLIB_INCLUDE_DIRS})
+list(APPEND _uget_common_library_dirs ${GLIB_LIBRARY_DIRS})
+list(APPEND _uget_common_libraries ${GLIB_LIBRARIES})
+list(APPEND _uget_common_compile_options ${GLIB_CFLAGS_OTHER})
+
+pkg_check_modules(GTK3 QUIET gtk+-3.0>=3.24)
+pkg_check_modules(GST QUIET gstreamer-1.0 gstreamer-base-1.0)
+pkg_check_modules(AYATANA QUIET ayatana-appindicator3-0.1)
+pkg_check_modules(APPINDICATOR QUIET appindicator3-0.1)
+
+if(GTK3_FOUND)
+  set(HAVE_GTK 1)
 endif()
-
-if(WITH_GUI)
-  if(PkgConfig_FOUND)
-    pkg_check_modules(GTK REQUIRED gtk+-3.0>=3.24)
-    pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-base-1.0)
-
-    set(HAVE_GTK 1)
-    set(HAVE_GSTREAMER 1)
-
-    list(APPEND _uget_gui_include_dirs
-      ${GTK_INCLUDE_DIRS}
-      ${GST_INCLUDE_DIRS})
-    list(APPEND _uget_gui_library_dirs
-      ${GTK_LIBRARY_DIRS}
-      ${GST_LIBRARY_DIRS})
-    list(APPEND _uget_gui_libraries
-      ${GTK_LIBRARIES}
-      ${GST_LIBRARIES})
-    list(APPEND _uget_gui_compile_options
-      ${GTK_CFLAGS_OTHER}
-      ${GST_CFLAGS_OTHER})
-  else()
-    message(FATAL_ERROR "WITH_GUI=ON but pkg-config is unavailable on this toolchain.")
-  endif()
-else()
-  message(STATUS "WITH_GUI=OFF: skipping GTK/GStreamer detection")
+if(GST_FOUND)
+  set(HAVE_GSTREAMER 1)
 endif()
 
 if(WIN32)
@@ -203,37 +185,23 @@ set(HAVE_OPENSSL 0)
 set(HAVE_LIBGCRYPT 0)
 
 # ---------- TRAY (Ayatana/AppIndicator) ----------
-if(WITH_GUI AND WITH_TRAY)
-  if(PkgConfig_FOUND)
-    pkg_check_modules(AYATANA QUIET ayatana-appindicator3-0.1)
-    if(AYATANA_FOUND)
-      add_compile_definitions(HAVE_AYATANA=1)
-      list(APPEND _uget_gui_include_dirs ${AYATANA_INCLUDE_DIRS})
-      list(APPEND _uget_gui_library_dirs ${AYATANA_LIBRARY_DIRS})
-      list(APPEND _uget_gui_libraries ${AYATANA_LIBRARIES})
-      set(HAVE_TRAY 1)
-      set(HAVE_AYATANA 1)
-      message(STATUS "Tray: using ayatana-appindicator3")
-    else()
-      pkg_check_modules(APPINDICATOR QUIET appindicator3-0.1)
-      if(APPINDICATOR_FOUND)
-        add_compile_definitions(HAVE_APPINDICATOR=1)
-        list(APPEND _uget_gui_include_dirs ${APPINDICATOR_INCLUDE_DIRS})
-        list(APPEND _uget_gui_library_dirs ${APPINDICATOR_LIBRARY_DIRS})
-        list(APPEND _uget_gui_libraries ${APPINDICATOR_LIBRARIES})
-        set(HAVE_TRAY 1)
-        set(HAVE_APPINDICATOR 1)
-        message(STATUS "Tray: using appindicator3-0.1 (fallback)")
-      else()
-        message(STATUS "Tray requested, but no Ayatana/AppIndicator found -> tray disabled")
-        set(WITH_TRAY OFF CACHE BOOL "" FORCE)
-      endif()
-    endif()
+if(UGET_WITH_GUI AND WITH_TRAY)
+  if(AYATANA_FOUND)
+    add_compile_definitions(HAVE_AYATANA=1)
+    set(HAVE_TRAY 1)
+    set(HAVE_AYATANA 1)
+    message(STATUS "Tray: using ayatana-appindicator3")
+  elseif(APPINDICATOR_FOUND)
+    add_compile_definitions(HAVE_APPINDICATOR=1)
+    set(HAVE_TRAY 1)
+    set(HAVE_APPINDICATOR 1)
+    message(STATUS "Tray: using appindicator3-0.1 (fallback)")
   else()
-    message(FATAL_ERROR "WITH_TRAY=ON requires pkg-config.")
+    message(STATUS "Tray requested, but no Ayatana/AppIndicator found -> tray disabled")
+    set(WITH_TRAY OFF CACHE BOOL "" FORCE)
   endif()
 elseif(WITH_TRAY)
-  message(STATUS "WITH_TRAY requested but WITH_GUI=OFF -> disabling tray support")
+  message(STATUS "WITH_TRAY requested but UGET_WITH_GUI=OFF -> disabling tray support")
   set(WITH_TRAY OFF CACHE BOOL "" FORCE)
 endif()
 
@@ -263,18 +231,8 @@ if(WITH_OPENSSL)
   set(HAVE_OPENSSL 1)
 endif()
 
-if(PkgConfig_FOUND)
-  # Optional crypto stacks used by the Mega plug-in and alternative TLS backends
-  pkg_check_modules(GNUTLS QUIET gnutls)
-  pkg_check_modules(GCRYPT QUIET gcrypt)
-endif()
-
-if(NOT DEFINED GNUTLS_FOUND)
-  set(GNUTLS_FOUND 0)
-endif()
-if(NOT DEFINED GCRYPT_FOUND)
-  set(GCRYPT_FOUND 0)
-endif()
+pkg_check_modules(GNUTLS QUIET gnutls)
+pkg_check_modules(GCRYPT QUIET libgcrypt)
 
 set(HAVE_GNUTLS ${GNUTLS_FOUND})
 set(HAVE_LIBGCRYPT ${GCRYPT_FOUND})
@@ -284,19 +242,15 @@ if(OPENSSL_FOUND)
 endif()
 
 if(WITH_GNUTLS)
-  if(PkgConfig_FOUND)
-    if(NOT GNUTLS_FOUND)
-      message(FATAL_ERROR "WITH_GNUTLS=ON but gnutls was not found")
-    endif()
-    if(NOT GCRYPT_FOUND)
-      message(FATAL_ERROR "WITH_GNUTLS=ON but libgcrypt was not found")
-    endif()
-    add_compile_definitions(HAVE_GNUTLS=1 HAVE_LIBGCRYPT=1)
-    set(HAVE_GNUTLS 1)
-    set(HAVE_LIBGCRYPT 1)
-  else()
-    message(FATAL_ERROR "WITH_GNUTLS=ON requires pkg-config.")
+  if(NOT GNUTLS_FOUND)
+    message(FATAL_ERROR "WITH_GNUTLS=ON but gnutls was not found")
   endif()
+  if(NOT GCRYPT_FOUND)
+    message(FATAL_ERROR "WITH_GNUTLS=ON but libgcrypt was not found")
+  endif()
+  add_compile_definitions(HAVE_GNUTLS=1 HAVE_LIBGCRYPT=1)
+  set(HAVE_GNUTLS 1)
+  set(HAVE_LIBGCRYPT 1)
 else()
   # Treat GnuTLS as unavailable if the feature is explicitly disabled
   set(HAVE_GNUTLS 0)
@@ -345,7 +299,7 @@ target_include_directories(uglib
 target_compile_definitions(uglib PUBLIC HAVE_CONFIG_H)
 target_link_libraries(uglib PUBLIC Threads::Threads)
 
-set(UGET_CORE_SOURCES
+set(uget_core_sources
   uget/UgetA2cf.c
   uget/UgetApp.c
   uget/UgetAria2.c
@@ -374,10 +328,19 @@ set(UGET_CORE_SOURCES
 )
 
 if(HAVE_PWMD)
-  list(APPEND UGET_CORE_SOURCES uget/pwmd.c)
+  list(APPEND uget_core_sources uget/pwmd.c)
 endif()
 
-add_library(uget_core STATIC ${UGET_CORE_SOURCES})
+set(_uget_core_has_mega OFF)
+if(GCRYPT_FOUND AND (OPENSSL_FOUND OR GNUTLS_FOUND))
+  message(STATUS "Core: enabling Mega plugin")
+  list(APPEND uget_core_sources uget/UgetPluginMega.c)
+  set(_uget_core_has_mega ON)
+else()
+  message(STATUS "Core: skipping Mega plugin (needs libgcrypt and OpenSSL/GnuTLS)")
+endif()
+
+add_library(uget_core STATIC ${uget_core_sources})
 target_include_directories(uget_core
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/uget
@@ -398,13 +361,8 @@ if(HAVE_LIBGCRYPT)
   target_compile_definitions(uget_core PRIVATE HAVE_LIBGCRYPT=1)
 endif()
 
-# Mega requires (OpenSSL OR GnuTLS) AND libgcrypt
-if((HAVE_OPENSSL OR HAVE_GNUTLS) AND HAVE_LIBGCRYPT)
-  target_sources(uget_core PRIVATE uget/UgetPluginMega.c)
+if(_uget_core_has_mega)
   target_compile_definitions(uget_core PRIVATE HAVE_MEGA=1)
-  message(STATUS "Mega: enabled")
-else()
-  message(STATUS "Mega: disabled (needs OpenSSL or GnuTLS AND libgcrypt)")
 endif()
 
 # --- CLI entrypoint discovery
@@ -457,21 +415,39 @@ if(TARGET uget)
   install(TARGETS uget RUNTIME DESTINATION bin)
 endif()
 
-if(WITH_GUI)
-  file(GLOB UGET_GTK_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/ui-gtk/*.c")
+if(UGET_WITH_GUI AND GTK3_FOUND)
+  file(GLOB UGET_GTK_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/ui-gtk/*.c")
   if(UGET_GTK_SOURCES)
     add_executable(uget-gtk ${UGET_GTK_SOURCES})
-    target_link_libraries(uget-gtk PRIVATE uget_core uglib)
-    target_include_directories(uget-gtk
-      PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/ui-gtk
-        ${CMAKE_CURRENT_SOURCE_DIR}/uget
-        ${CMAKE_CURRENT_SOURCE_DIR}/uglib
-        ${CMAKE_BINARY_DIR}/generated)
+    target_include_directories(uget-gtk PRIVATE
+      ${CMAKE_SOURCE_DIR}/uget
+      ${CMAKE_SOURCE_DIR}/uglib
+      ${CMAKE_SOURCE_DIR}/ui-gtk
+      ${GLIB_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS} ${GST_INCLUDE_DIRS} ${AYATANA_INCLUDE_DIRS}
+      ${CMAKE_BINARY_DIR}/generated)
+    target_compile_options(uget-gtk PRIVATE
+      ${GLIB_CFLAGS_OTHER} ${GTK3_CFLAGS_OTHER} ${GST_CFLAGS_OTHER} ${AYATANA_CFLAGS_OTHER})
     target_compile_definitions(uget-gtk PRIVATE HAVE_CONFIG_H)
+    target_link_libraries(uget-gtk PRIVATE
+      uget_core
+      uglib
+      Threads::Threads
+      ${GLIB_LIBRARIES}
+      ${GTK3_LIBRARIES}
+      ${GST_LIBRARIES}
+      ${AYATANA_LIBRARIES})
+    if(UNIX AND NOT APPLE)
+      target_link_libraries(uget-gtk PRIVATE m dl)
+      target_link_options(uget-gtk PRIVATE -Wl,--as-needed)
+    endif()
+    install(TARGETS uget-gtk RUNTIME DESTINATION bin)
+    message(STATUS "GUI: enabled (gtk+-3.0)")
   else()
-    message(WARNING "WITH_GUI=ON but no GTK sources were found in ui-gtk/")
+    message(WARNING "UGET_WITH_GUI=ON but no GTK sources were found in ui-gtk/")
+    message(STATUS "GUI: disabled (gtk+-3.0 not found or UGET_WITH_GUI=OFF)")
   endif()
+else()
+  message(STATUS "GUI: disabled (gtk+-3.0 not found or UGET_WITH_GUI=OFF)")
 endif()
 
 set(_uget_targets uglib uget_core)
@@ -505,20 +481,6 @@ if(_uget_common_libraries)
   endif()
 endif()
 
-if(TARGET uget-gtk)
-  if(_uget_gui_compile_options)
-    target_compile_options(uget-gtk PRIVATE ${_uget_gui_compile_options})
-  endif()
-  if(_uget_gui_include_dirs)
-    target_include_directories(uget-gtk PRIVATE ${_uget_gui_include_dirs})
-  endif()
-  if(_uget_gui_library_dirs)
-    target_link_directories(uget-gtk PRIVATE ${_uget_gui_library_dirs})
-  endif()
-  if(_uget_gui_libraries)
-    target_link_libraries(uget-gtk PRIVATE ${_uget_gui_libraries})
-  endif()
-endif()
 
 # --- Project-wide compile warnings (already set globally, but ensure targets inherit) ---
 foreach(_target IN LISTS _uget_targets)
@@ -547,15 +509,11 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 
 if(BUILD_TESTING)
-  if(WITH_GUI)
+  if(UGET_WITH_GUI)
     add_subdirectory(tests)
   else()
-    message(STATUS "BUILD_TESTING=ON but WITH_GUI=OFF -> skipping GLib/GTK tests on this platform")
+    message(STATUS "BUILD_TESTING=ON but UGET_WITH_GUI=OFF -> skipping GLib/GTK tests on this platform")
   endif()
-endif()
-
-if(TARGET uget-gtk)
-  install(TARGETS uget-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")

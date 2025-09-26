@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0079 NEW)
 
-if(NOT WITH_GUI)
-  message(STATUS "tests/: WITH_GUI=OFF -> not building legacy GLib/GTK tests")
+if(NOT UGET_WITH_GUI)
+  message(STATUS "tests/: UGET_WITH_GUI=OFF -> not building legacy GLib/GTK tests")
   return()
 endif()
 
@@ -30,7 +30,7 @@ function(add_uget_test target)
   target_link_libraries(${target} PRIVATE ${TEST_LIBS})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
 
-  add_test(NAME ${target} COMMAND ${target})
+  add_test(NAME ${target} COMMAND $<TARGET_FILE:${target}>)
 
   if(TEST_LABELS)
     set(_labels "${TEST_LABELS}")
