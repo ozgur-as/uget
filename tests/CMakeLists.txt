@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0079 NEW)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
+
 if(NOT UGET_WITH_GUI)
   message(STATUS "tests/: UGET_WITH_GUI=OFF -> not building legacy GLib/GTK tests")
   return()
@@ -27,7 +30,7 @@ function(add_uget_test target)
   endif()
 
   add_executable(${target} ${TEST_SOURCES})
-  target_link_libraries(${target} PRIVATE ${TEST_LIBS})
+  target_link_libraries(${target} PRIVATE PkgConfig::GLIB ${TEST_LIBS})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
 
   add_test(NAME ${target} COMMAND $<TARGET_FILE:${target}>)
