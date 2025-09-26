@@ -34,6 +34,8 @@
  *
  */
 
+#include <glib.h>
+
 #include <UgString.h>
 #include <UgUri.h>
 #include <UgUtil.h>
@@ -72,8 +74,7 @@
 
 struct UgetAria2Thread
 {
-	UgThread         thread;
-	UgetAria2*       uaria2;
+        UgetAria2*       uaria2;
 	UgJsonrpcArray   queuing;
 	UgJsonrpcArray   request;
 	UgJsonrpcArray   response;
@@ -81,27 +82,24 @@ struct UgetAria2Thread
 	int              finalized;
 };
 
-static UgThreadResult  uget_aria2_thread (UgetAria2Thread* uathread);
+static gpointer  uget_aria2_thread (gpointer data);
 
 static UgetAria2Thread* uget_aria2_thread_new (UgetAria2* uaria2)
 {
-	UgetAria2Thread*  uat;
-	UgThread          thread;
+        UgetAria2Thread*  uat;
 
-	uat = ug_malloc (sizeof (UgetAria2Thread));
-	uat->uaria2 = uaria2;
-	ug_jsonrpc_array_init (&uat->queuing, 16);
-	ug_jsonrpc_array_init (&uat->request, 16);
-	ug_jsonrpc_array_init (&uat->response, 16);
-	ug_jsonrpc_curl_init (&uat->json);
-	ug_jsonrpc_curl_set_url (&uat->json, uaria2->uri);
-	uat->finalized = FALSE;
+        uat = ug_malloc (sizeof (UgetAria2Thread));
+        uat->uaria2 = uaria2;
+        ug_jsonrpc_array_init (&uat->queuing, 16);
+        ug_jsonrpc_array_init (&uat->request, 16);
+        ug_jsonrpc_array_init (&uat->response, 16);
+        ug_jsonrpc_curl_init (&uat->json);
+        ug_jsonrpc_curl_set_url (&uat->json, uaria2->uri);
+        uat->finalized = FALSE;
 
-	uget_aria2_ref (uaria2);
-	ug_thread_create (&thread, (UgThreadFunc) uget_aria2_thread, uat);
-	ug_thread_unjoin (&thread);
+        uget_aria2_ref (uaria2);
 
-	return uat;
+        return uat;
 }
 
 static void uget_aria2_thread_free (UgetAria2Thread* uat)
@@ -285,23 +283,26 @@ static void  recycle_speed_request (UgetAria2* uaria2, UgJsonrpcObject* jreq)
 	uget_aria2_recycle (uaria2, jres);
 }
 
-static UgThreadResult  uget_aria2_thread (UgetAria2Thread* uathread)
+static gpointer  uget_aria2_thread (gpointer data)
 {
-	UgetAria2*       uaria2;
-	UgJsonrpcObject* jreq = NULL;
-	UgJsonrpcObject* jobj = NULL;
-	UgJsonrpcObject* jreq_shutdown = NULL;
-	int  counts;
+        UgetAria2Thread* uathread = data;
+        UgetAria2*       uaria2;
+        UgJsonrpcObject* jreq = NULL;
+        UgJsonrpcObject* jobj = NULL;
+        UgJsonrpcObject* jreq_shutdown = NULL;
+        int  counts;
 
 	uaria2 = uathread->uaria2;
 //	temp.index = ug_jsonrpc_array_find_ptr (uaria2);
 
-	for (counts = 0;  ;  counts++) {
-		// finalize
-		if (uathread->finalized == TRUE) {
-			// shutdown request
-			if (uaria2->shutdown && jreq_shutdown == NULL) {
-				jreq_shutdown = uget_aria2_alloc (uaria2, TRUE, TRUE);
+        for (counts = 0;  ;  counts++) {
+                if (g_atomic_int_get (&uaria2->stop))
+                        uathread->finalized = TRUE;
+                // finalize
+                if (uathread->finalized == TRUE) {
+                        // shutdown request
+                        if (uaria2->shutdown && jreq_shutdown == NULL) {
+                                jreq_shutdown = uget_aria2_alloc (uaria2, TRUE, TRUE);
 				jreq_shutdown->method_static = "aria2.shutdown";
 				uget_aria2_request (uaria2, jreq_shutdown);
 			}
@@ -329,11 +330,19 @@ static UgThreadResult  uget_aria2_thread (UgetAria2Thread* uathread)
 		}
 
 		// get requests from queue
-		if (uget_aria2_thread_queuing (uathread) == 0) {
-			// default: sleep 0.5 second
-			ug_sleep (uaria2->polling_interval);
-			continue;
-		}
+                if (uget_aria2_thread_queuing (uathread) == 0) {
+                        g_mutex_lock (&uaria2->thread_lock);
+                        if (!g_atomic_int_get (&uaria2->stop) &&
+                            uathread->finalized == FALSE) {
+                                gint64 end_time = g_get_monotonic_time () +
+                                        (gint64) uaria2->polling_interval * G_TIME_SPAN_MILLISECOND;
+                                g_cond_wait_until (&uaria2->thread_cond,
+                                                   &uaria2->thread_lock,
+                                                   end_time);
+                        }
+                        g_mutex_unlock (&uaria2->thread_lock);
+                        continue;
+                }
 
 		// send requests & get responses
 		uget_aria2_thread_request (uathread);
@@ -357,9 +366,13 @@ static UgThreadResult  uget_aria2_thread (UgetAria2Thread* uathread)
 		uget_aria2_recycle (uaria2, jobj);
 	}
 
-	uget_aria2_thread_free (uathread);
-	uget_aria2_unref (uaria2);
-	return UG_THREAD_RESULT;
+        g_mutex_lock (&uaria2->thread_lock);
+        uaria2->worker = NULL;
+        g_mutex_unlock (&uaria2->thread_lock);
+
+        uget_aria2_thread_free (uathread);
+        uget_aria2_unref (uaria2);
+        return NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -377,20 +390,23 @@ UgetAria2* uget_aria2_new (void)
 #endif // _WIN32 || _WIN64
 	curl_global_init (CURL_GLOBAL_ALL);
 
-	uaria2 = ug_malloc0 (sizeof (UgetAria2));
-	uaria2->ref_count = 1;
-	uaria2->batch_len = RPC_BATCH_LEN;
-	uaria2->polling_interval = RPC_INTERVAL;
-	uaria2->speed_required = FALSE;
-	uaria2->limit_required = FALSE;
-	uaria2->uri = ug_strdup (RPC_URI);
-	uaria2->path = ug_strdup (ARIA2_PATH);
-	uaria2->args = ug_strdup (ARIA2_ARGS);
-	ug_mutex_init (&uaria2->mutex);
-	ug_mutex_init (&uaria2->completed_mutex);
+        uaria2 = ug_malloc0 (sizeof (UgetAria2));
+        uaria2->ref_count = 1;
+        uaria2->batch_len = RPC_BATCH_LEN;
+        uaria2->polling_interval = RPC_INTERVAL;
+        uaria2->speed_required = FALSE;
+        uaria2->limit_required = FALSE;
+        uaria2->uri = ug_strdup (RPC_URI);
+        uaria2->path = ug_strdup (ARIA2_PATH);
+        uaria2->args = ug_strdup (ARIA2_ARGS);
+        ug_mutex_init (&uaria2->mutex);
+        ug_mutex_init (&uaria2->completed_mutex);
+        g_mutex_init (&uaria2->thread_lock);
+        g_cond_init (&uaria2->thread_cond);
+        g_atomic_int_set (&uaria2->stop, 0);
 
-	ug_jsonrpc_array_init (&uaria2->queuing,  16);
-	ug_jsonrpc_array_init (&uaria2->recycled, 16);
+        ug_jsonrpc_array_init (&uaria2->queuing,  16);
+        ug_jsonrpc_array_init (&uaria2->recycled, 16);
 	ug_slinks_init (&uaria2->requested, 16);
 	ug_slinks_init (&uaria2->responsed, 16);
 	uaria2->completed_changed = 0;
@@ -441,6 +457,8 @@ uget_aria2_dispose (UgetAria2* uaria2)
         if (uaria2 == NULL)
                 return;
 
+        uget_aria2_stop_thread (uaria2);
+
         ug_mutex_lock (&uaria2->mutex);
         for (index = 0; index < uaria2->queuing.length; index++)
                 if (uaria2->queuing.at[index])
@@ -463,6 +481,8 @@ uget_aria2_dispose (UgetAria2* uaria2)
 
         ug_mutex_clear (&uaria2->completed_mutex);
         ug_mutex_clear (&uaria2->mutex);
+        g_cond_clear (&uaria2->thread_cond);
+        g_mutex_clear (&uaria2->thread_lock);
 
         ug_free (uaria2->token);
         ug_free (uaria2->uri);
@@ -496,14 +516,65 @@ void uget_aria2_free (UgetAria2* uaria2)
 
 void uget_aria2_start_thread (UgetAria2* uaria2)
 {
-	if (uaria2->thread == NULL)
-		uaria2->thread = uget_aria2_thread_new (uaria2);
+        UgetAria2Thread* worker;
+
+        if (uaria2 == NULL)
+                return;
+
+        g_mutex_lock (&uaria2->thread_lock);
+        if (uaria2->thread != NULL) {
+                g_mutex_unlock (&uaria2->thread_lock);
+                return;
+        }
+
+        if (uaria2->worker == NULL)
+                uaria2->worker = uget_aria2_thread_new (uaria2);
+
+        g_atomic_int_set (&uaria2->stop, 0);
+        worker = uaria2->worker;
+        uaria2->thread = g_thread_new ("uget-aria2", uget_aria2_thread, worker);
+
+        if (uaria2->thread == NULL) {
+                uaria2->worker = NULL;
+                g_mutex_unlock (&uaria2->thread_lock);
+                if (worker) {
+                        uget_aria2_thread_free (worker);
+                        uget_aria2_unref (uaria2);
+                }
+                return;
+        }
+
+        g_mutex_unlock (&uaria2->thread_lock);
 }
 
 void uget_aria2_stop_thread (UgetAria2* uaria2)
 {
-	uaria2->thread->finalized = TRUE;
-	uaria2->thread = NULL;
+        GThread* thread;
+
+        if (uaria2 == NULL)
+                return;
+
+        g_mutex_lock (&uaria2->thread_lock);
+        if (uaria2->thread == NULL && uaria2->worker == NULL) {
+                g_mutex_unlock (&uaria2->thread_lock);
+                return;
+        }
+
+        g_atomic_int_set (&uaria2->stop, 1);
+        if (uaria2->worker)
+                uaria2->worker->finalized = TRUE;
+        g_cond_broadcast (&uaria2->thread_cond);
+
+        thread = uaria2->thread;
+        uaria2->thread = NULL;
+        g_mutex_unlock (&uaria2->thread_lock);
+
+        if (thread && thread != g_thread_self())
+                g_thread_join (thread);
+
+        g_mutex_lock (&uaria2->thread_lock);
+        uaria2->worker = NULL;
+        g_mutex_unlock (&uaria2->thread_lock);
 }
 
 void uget_aria2_set_uri (UgetAria2* uaria2, const char* uri)
@@ -745,9 +816,13 @@ UgJsonrpcObject*  uget_aria2_alloc (UgetAria2* uaria2, int is_request, int has_r
 
 void  uget_aria2_request (UgetAria2* uaria2, UgJsonrpcObject* request)
 {
-	ug_mutex_lock (&uaria2->mutex);
-	*(UgJsonrpcObject**)ug_array_alloc (&uaria2->queuing, 1) = request;
-	ug_mutex_unlock (&uaria2->mutex);
+        ug_mutex_lock (&uaria2->mutex);
+        *(UgJsonrpcObject**)ug_array_alloc (&uaria2->queuing, 1) = request;
+        ug_mutex_unlock (&uaria2->mutex);
+
+        g_mutex_lock (&uaria2->thread_lock);
+        g_cond_signal (&uaria2->thread_cond);
+        g_mutex_unlock (&uaria2->thread_lock);
 }
 
 UgJsonrpcObject*  uget_aria2_respond (UgetAria2* uaria2, UgJsonrpcObject* request)
