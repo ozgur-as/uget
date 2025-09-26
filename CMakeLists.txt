@@ -26,6 +26,9 @@ else()
 endif()
 
 include(GNUInstallDirs)
+
+set(UG_DATADIR "${CMAKE_INSTALL_FULL_DATADIR}/uget" CACHE STRING
+    "Path used for UG_DATADIR (where shared data files live)")
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 
@@ -427,7 +430,7 @@ if(UGET_WITH_GUI AND GTK3_FOUND)
       ${CMAKE_BINARY_DIR}/generated)
     target_compile_options(uget-gtk PRIVATE
       ${GLIB_CFLAGS_OTHER} ${GTK3_CFLAGS_OTHER} ${GST_CFLAGS_OTHER} ${AYATANA_CFLAGS_OTHER})
-    target_compile_definitions(uget-gtk PRIVATE HAVE_CONFIG_H)
+    target_compile_definitions(uget-gtk PRIVATE HAVE_CONFIG_H UG_DATADIR="${UG_DATADIR}")
     target_link_libraries(uget-gtk PRIVATE
       uget_core
       uglib
