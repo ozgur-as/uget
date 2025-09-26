@@ -29,46 +29,17 @@ jobs:
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libcurl4-openssl-dev libayatana-appindicator3-dev
 
-      # ---------- Resolve a vcpkg commit ----------
-      - name: Resolve vcpkg commit (Windows)
+      # ---------- Windows build tooling ----------
+      - name: Setup Ninja (Windows)
         if: runner.os == 'Windows'
-        id: vcpkgsha
-        shell: bash
-        run: |
-          set -e
-          SHA=$(git ls-remote https://github.com/microsoft/vcpkg refs/heads/master | cut -f1)
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
-          echo "Using vcpkg commit: $SHA"
+        uses: seanmiddleditch/gha-setup-ninja@v4
 
       # ---------- Windows deps via vcpkg ----------
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
-        uses: lukka/run-vcpkg@v11
+        uses: microsoft/vcpkg-action@v0
         with:
-          vcpkgJsonGlob: 'vcpkg.json'
-          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
-
-      - name: Add vcpkg tools to PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $root = "$env:RUNVCPKG_VCPKG_ROOT"
-          $paths = @(
-            Join-Path $root 'installed\x64-windows\tools\pkgconf'
-            Join-Path $root 'installed\x64-windows\tools'
-          )
-          foreach ($p in $paths) {
-            if (Test-Path $p) {
-              Write-Host "Adding $p to PATH"
-              $p | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            }
-          }
-          Write-Host "pkgconf = " (Get-Command pkgconf -ErrorAction SilentlyContinue)
-          Write-Host "pkg-config = " (Get-Command pkg-config -ErrorAction SilentlyContinue)
-
-      - name: Setup Ninja (Windows)
-        if: runner.os == 'Windows'
-        uses: seanmiddleditch/gha-setup-ninja@v4
+          cacheHitVar: VCPKG_CACHE_HIT
 
       - name: Setup MSVC dev environment (x64)
         if: runner.os == 'Windows'

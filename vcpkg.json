@@ -1,11 +1,10 @@
 {
   "name": "uget",
   "version-string": "dev",
-  "builtin-baseline": "3b3f41a3cf0e0a2e0610d9b9e2a3e3a5a3f9f9b2",
   "dependencies": [
-    { "name": "glib" },
-    { "name": "openssl" },
-    { "name": "curl" },
-    { "name": "pkgconf" }
+    "glib",
+    "openssl",
+    "curl",
+    "pkgconf"
   ]
 }
