@@ -85,6 +85,10 @@ jobs:
         with:
           vcpkgJsonGlob: vcpkg.json
           runVcpkgInstall: true
+          vcpkgArguments: >-
+            install --downloads-root "${{ github.workspace }}\\.vcpkg_downloads"
+        env:
+          VCPKG_DOWNLOADS: ${{ env.VCPKG_DOWNLOADS }}
 
       - name: Setup MSVC dev environment (x64)
         if: runner.os == 'Windows'
