@@ -13,7 +13,7 @@ add_library(uglib_alias ALIAS uglib)
 add_library(uget_core_alias ALIAS uget_core)
 
 set(_uget_has_mega FALSE)
-if(HAVE_LIBGCRYPT AND HAVE_OPENSSL)
+if(HAVE_LIBGCRYPT AND (HAVE_OPENSSL OR HAVE_GNUTLS))
   set(_uget_has_mega TRUE)
 else()
   message(STATUS "Skipping test_plugin_app (Mega plug-in not available)")

@@ -25,6 +25,27 @@ else()
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+if(ENABLE_SANITIZERS AND NOT MSVC)
+  set(_uget_sanitize_flags -fsanitize=address,undefined)
+  if(CMAKE_CONFIGURATION_TYPES)
+    add_compile_options($<$<CONFIG:Debug>:${_uget_sanitize_flags}>)
+    add_compile_options($<$<CONFIG:Debug>:-fno-omit-frame-pointer>)
+    add_link_options($<$<CONFIG:Debug>:${_uget_sanitize_flags}>)
+    if(UNIX AND NOT APPLE)
+      add_link_options($<$<CONFIG:Debug>:-Wl,--no-as-needed>)
+    endif()
+  else()
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" _uget_build_type_upper)
+    if(_uget_build_type_upper STREQUAL "DEBUG")
+      add_compile_options(${_uget_sanitize_flags} -fno-omit-frame-pointer)
+      add_link_options(${_uget_sanitize_flags})
+      if(UNIX AND NOT APPLE)
+        add_link_options(-Wl,--no-as-needed)
+      endif()
+    endif()
+  endif()
+endif()
+
 include(GNUInstallDirs)
 
 set(UG_DATADIR "${CMAKE_INSTALL_FULL_DATADIR}/uget" CACHE STRING
@@ -235,7 +256,17 @@ if(WITH_OPENSSL)
 endif()
 
 pkg_check_modules(GNUTLS QUIET gnutls)
-pkg_check_modules(GCRYPT QUIET libgcrypt)
+
+set(GCRYPT_FOUND FALSE)
+set(_uget_gcrypt_module "")
+foreach(_gcrypt_candidate libgcrypt gcrypt)
+  if(NOT GCRYPT_FOUND)
+    pkg_check_modules(GCRYPT QUIET ${_gcrypt_candidate})
+    if(GCRYPT_FOUND)
+      set(_uget_gcrypt_module "${_gcrypt_candidate}")
+    endif()
+  endif()
+endforeach()
 
 set(HAVE_GNUTLS ${GNUTLS_FOUND})
 set(HAVE_LIBGCRYPT ${GCRYPT_FOUND})
@@ -261,6 +292,9 @@ endif()
 
 if(HAVE_LIBGCRYPT)
   add_compile_definitions(HAVE_LIBGCRYPT=1)
+  if(_uget_gcrypt_module)
+    message(STATUS "libgcrypt: enabled via pkg-config module '${_uget_gcrypt_module}'")
+  endif()
 endif()
 
 # ---- Libraries and executables ----
@@ -495,16 +529,6 @@ foreach(_target IN LISTS _uget_targets)
     endif()
   endif()
 endforeach()
-
-# --- Sanitizers: only in Debug, only on non-MSVC ---
-if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT MSVC)
-  foreach(_target IN LISTS _uget_targets)
-    if(TARGET ${_target})
-      target_compile_options(${_target} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-      target_link_options(${_target} PRIVATE -fsanitize=address,undefined)
-    endif()
-  endforeach()
-endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmake/config.h.in
                ${CMAKE_BINARY_DIR}/generated/config.h @ONLY)
