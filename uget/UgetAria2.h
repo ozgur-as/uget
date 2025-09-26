@@ -112,6 +112,7 @@ struct UgetAria2
 UgetAria2* uget_aria2_new (void);
 void uget_aria2_ref (UgetAria2* ua2);
 void uget_aria2_unref (UgetAria2* ua2);
+void uget_aria2_free (UgetAria2* ua2);
 
 void uget_aria2_start_thread (UgetAria2* uaria2);
 void uget_aria2_stop_thread  (UgetAria2* uaria2);

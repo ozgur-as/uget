@@ -57,62 +57,9 @@
 #endif
 
 static void
-free_rpc_obj (UgJsonrpcObject* object)
-{
-        if (object == NULL)
-                return;
-
-        ug_jsonrpc_object_free (object);
-}
-
-static void G_GNUC_UNUSED
-free_rpc_array (UgJsonrpcObject* array, int length)
-{
-        int index;
-
-        if (array == NULL)
-                return;
-
-        for (index = 0; index < length; index++)
-                ug_jsonrpc_object_clear (&array[index]);
-
-        g_free (array);
-}
-
-static void
 free_rpc_array_container (UgJsonrpcArray* array)
 {
-        size_t index;
-
-        if (array == NULL)
-                return;
-
-        for (index = 0; index < (size_t) array->length; index++)
-                free_rpc_obj (array->at[index]);
-
-        ug_jsonrpc_array_clear (array, 0);
-        g_free (array);
-}
-
-static void
-free_uget_aria2_cached_objects (UgetAria2* uaria2)
-{
-        size_t index;
-
-        if (uaria2 == NULL)
-                return;
-
-        ug_mutex_lock (&uaria2->mutex);
-
-        for (index = 0; index < (size_t)uaria2->queuing.length; index++)
-                free_rpc_obj (uaria2->queuing.at[index]);
-        ug_jsonrpc_array_clear (&uaria2->queuing, 0);
-
-        for (index = 0; index < (size_t)uaria2->recycled.length; index++)
-                free_rpc_obj (uaria2->recycled.at[index]);
-        ug_jsonrpc_array_clear (&uaria2->recycled, 0);
-
-        ug_mutex_unlock (&uaria2->mutex);
+        ug_jsonrpc_array_free (array);
 }
 
 static void socket_receiver (UgSocketServer* server,
@@ -482,8 +429,7 @@ void test_uget_aria2 (void)
 //	uget_aria2_shutdown (uaria2);
 
         uget_aria2_stop_thread (uaria2);
-        free_uget_aria2_cached_objects (uaria2);
-        uget_aria2_unref (uaria2);
+        uget_aria2_free (uaria2);
 	ug_sleep (2000);
 }
 

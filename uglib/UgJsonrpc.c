@@ -430,7 +430,22 @@ int  ug_jsonrpc_call_batch(UgJsonrpc* jrpc,
 		jrpc->error = n;
 	// parser --- end ---
 
-	return 0;   // no error
+        return 0;   // no error
+}
+
+void ug_jsonrpc_array_free (UgJsonrpcArray* array)
+{
+        if (array == NULL)
+                return;
+
+        for (int index = 0; index < array->length; ++index) {
+                UgJsonrpcObject* object = array->at[index];
+                if (object)
+                        ug_jsonrpc_object_free (object);
+        }
+
+        ug_array_clear (array);
+        ug_free (array);
 }
 
 // ------------------------------------

@@ -433,31 +433,65 @@ void uget_aria2_ref (UgetAria2* uaria2)
 	uaria2->ref_count++;
 }
 
+static void
+uget_aria2_dispose (UgetAria2* uaria2)
+{
+        int index;
+
+        if (uaria2 == NULL)
+                return;
+
+        ug_mutex_lock (&uaria2->mutex);
+        for (index = 0; index < uaria2->queuing.length; index++)
+                if (uaria2->queuing.at[index])
+                        ug_jsonrpc_object_free (uaria2->queuing.at[index]);
+        ug_jsonrpc_array_clear (&uaria2->queuing, 0);
+
+        for (index = 0; index < uaria2->recycled.length; index++)
+                if (uaria2->recycled.at[index])
+                        ug_jsonrpc_object_free (uaria2->recycled.at[index]);
+        ug_jsonrpc_array_clear (&uaria2->recycled, 0);
+        ug_mutex_unlock (&uaria2->mutex);
+
+        ug_slinks_foreach (&uaria2->requested, (void*)ug_jsonrpc_object_free, NULL);
+        ug_slinks_foreach (&uaria2->responsed, (void*)ug_jsonrpc_object_free, NULL);
+        ug_slinks_final (&uaria2->requested);
+        ug_slinks_final (&uaria2->responsed);
+
+        ug_value_foreach (&uaria2->status_keys, ug_value_set_string, NULL);
+        ug_value_clear (&uaria2->status_keys);
+
+        ug_mutex_clear (&uaria2->completed_mutex);
+        ug_mutex_clear (&uaria2->mutex);
+
+        ug_free (uaria2->token);
+        ug_free (uaria2->uri);
+        ug_free (uaria2->path);
+        ug_free (uaria2->args);
+        ug_free (uaria2);
+
+        curl_global_cleanup ();
+#if defined _WIN32 || defined _WIN64
+        WSACleanup ();
+#endif // _WIN32 || _WIN64
+}
+
 void uget_aria2_unref (UgetAria2* uaria2)
 {
-	if (--uaria2->ref_count == 0) {
-		ug_jsonrpc_array_clear (&uaria2->queuing,  TRUE);
-		ug_jsonrpc_array_clear (&uaria2->recycled, TRUE);
-		ug_slinks_foreach (&uaria2->requested, (void*)ug_jsonrpc_object_free, NULL);
-		ug_slinks_foreach (&uaria2->responsed, (void*)ug_jsonrpc_object_free, NULL);
-		ug_slinks_final (&uaria2->requested);
-		ug_slinks_final (&uaria2->responsed);
+        if (uaria2 == NULL)
+                return;
 
-		ug_value_foreach (&uaria2->status_keys, ug_value_set_string, NULL);
-		ug_value_clear (&uaria2->status_keys);
+        if (--uaria2->ref_count == 0)
+                uget_aria2_dispose (uaria2);
+}
 
-		ug_mutex_clear (&uaria2->completed_mutex);
-		ug_mutex_clear (&uaria2->mutex);
-		ug_free (uaria2->uri);
-		ug_free (uaria2->path);
-		ug_free (uaria2->args);
-		ug_free (uaria2);
+void uget_aria2_free (UgetAria2* uaria2)
+{
+        if (uaria2 == NULL)
+                return;
 
-		curl_global_cleanup ();
-#if defined _WIN32 || defined _WIN64
-		WSACleanup ();
-#endif // _WIN32 || _WIN64
-	}
+        uaria2->ref_count = 1;
+        uget_aria2_unref (uaria2);
 }
 
 void uget_aria2_start_thread (UgetAria2* uaria2)
