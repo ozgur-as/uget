@@ -104,7 +104,7 @@ set(_uget_private_compile_options)
 
 if(WITH_GUI)
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GTK REQUIRED gtk+-3.0>=3.28)
+  pkg_check_modules(GTK REQUIRED gtk+-3.0>=3.24)
   pkg_check_modules(GLIB REQUIRED glib-2.0>=2.76 gobject-2.0)
   pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-base-1.0)
   add_compile_definitions(HAVE_GLIB=1)
