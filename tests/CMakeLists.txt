@@ -40,16 +40,16 @@ target_include_directories(uglib
   PUBLIC
     ${CMAKE_SOURCE_DIR}/uglib
     ${GLIB_INCLUDE_DIRS}
-    ${CURL_INCLUDE_DIRS}
+    ${UGET_CURL_INCLUDE_DIRS}
 )
-target_link_directories(uglib PUBLIC ${GLIB_LIBRARY_DIRS} ${CURL_LIBRARY_DIRS})
+target_link_directories(uglib PUBLIC ${GLIB_LIBRARY_DIRS} ${UGET_CURL_LIBRARY_DIRS})
 target_link_libraries(uglib
   PUBLIC
     Threads::Threads
     ${GLIB_LIBRARIES}
-    ${CURL_LIBRARIES}
+    ${UGET_CURL_LIBRARIES}
 )
-target_compile_options(uglib PRIVATE ${GLIB_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
+target_compile_options(uglib PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
 target_compile_definitions(uglib PUBLIC HAVE_CONFIG_H)
 
 set(UGET_SOURCES
@@ -81,7 +81,7 @@ set(UGET_SOURCES
 )
 
 set(_uget_has_mega FALSE)
-if(HAVE_GCRYPT AND HAVE_OPENSSL)
+if(HAVE_LIBGCRYPT AND HAVE_OPENSSL)
   list(APPEND UGET_SOURCES ${CMAKE_SOURCE_DIR}/uget/UgetPluginMega.c)
   set(_uget_has_mega TRUE)
 else()
@@ -98,17 +98,17 @@ target_include_directories(uget
     ${CMAKE_SOURCE_DIR}/uget
     ${CMAKE_SOURCE_DIR}/uglib
     ${GLIB_INCLUDE_DIRS}
-    ${CURL_INCLUDE_DIRS}
+    ${UGET_CURL_INCLUDE_DIRS}
 )
-target_link_directories(uget PUBLIC ${GLIB_LIBRARY_DIRS} ${CURL_LIBRARY_DIRS})
+target_link_directories(uget PUBLIC ${GLIB_LIBRARY_DIRS} ${UGET_CURL_LIBRARY_DIRS})
 target_link_libraries(uget
   PUBLIC
     uglib
     Threads::Threads
     ${GLIB_LIBRARIES}
-    ${CURL_LIBRARIES}
+    ${UGET_CURL_LIBRARIES}
 )
-target_compile_options(uget PRIVATE ${GLIB_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
+target_compile_options(uget PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
 target_compile_definitions(uget PUBLIC HAVE_CONFIG_H)
 
 if(HAVE_PWMD)
@@ -118,45 +118,13 @@ if(HAVE_PWMD)
 endif()
 
 if(HAVE_GNUTLS)
-  target_include_directories(uget PUBLIC ${GNUTLS_INCLUDE_DIRS})
-  target_link_directories(uget PUBLIC ${GNUTLS_LIBRARY_DIRS})
-  target_link_libraries(uget PUBLIC ${GNUTLS_LIBRARIES})
+  target_include_directories(uget PUBLIC ${GNUTLS_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
+  target_link_directories(uget PUBLIC ${GNUTLS_LIBRARY_DIRS} ${GCRYPT_LIBRARY_DIRS})
+  target_link_libraries(uget PUBLIC ${GNUTLS_LIBRARIES} ${GCRYPT_LIBRARIES})
 endif()
 
 if(HAVE_OPENSSL)
-  set(_openssl_include_dirs)
-  set(_openssl_library_dirs)
-  set(_openssl_libs)
-  if(OPENSSL_FOUND)
-    list(APPEND _openssl_include_dirs ${OPENSSL_INCLUDE_DIRS})
-    list(APPEND _openssl_library_dirs ${OPENSSL_LIBRARY_DIRS})
-    list(APPEND _openssl_libs ${OPENSSL_LIBRARIES})
-  endif()
-  if(LIBSSL_FOUND)
-    list(APPEND _openssl_include_dirs ${LIBSSL_INCLUDE_DIRS})
-    list(APPEND _openssl_library_dirs ${LIBSSL_LIBRARY_DIRS})
-    list(APPEND _openssl_libs ${LIBSSL_LIBRARIES})
-  endif()
-  if(LIBCRYPTO_FOUND)
-    list(APPEND _openssl_include_dirs ${LIBCRYPTO_INCLUDE_DIRS})
-    list(APPEND _openssl_library_dirs ${LIBCRYPTO_LIBRARY_DIRS})
-    list(APPEND _openssl_libs ${LIBCRYPTO_LIBRARIES})
-  endif()
-  if(_openssl_include_dirs)
-    target_include_directories(uget PUBLIC ${_openssl_include_dirs})
-  endif()
-  if(_openssl_library_dirs)
-    target_link_directories(uget PUBLIC ${_openssl_library_dirs})
-  endif()
-  if(_openssl_libs)
-    target_link_libraries(uget PUBLIC ${_openssl_libs})
-  endif()
-endif()
-
-if(HAVE_GCRYPT)
-  target_include_directories(uget PUBLIC ${GCRYPT_INCLUDE_DIRS})
-  target_link_directories(uget PUBLIC ${GCRYPT_LIBRARY_DIRS})
-  target_link_libraries(uget PUBLIC ${GCRYPT_LIBRARIES})
+  target_link_libraries(uget PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 endif()
 
 function(add_uget_test target)
@@ -175,10 +143,10 @@ function(add_uget_test target)
     ${CMAKE_SOURCE_DIR}/uglib
     ${CMAKE_SOURCE_DIR}/uget
     ${GLIB_INCLUDE_DIRS}
-    ${CURL_INCLUDE_DIRS}
+    ${UGET_CURL_INCLUDE_DIRS}
     ${CMAKE_BINARY_DIR}/generated
   )
-  target_compile_options(${target} PRIVATE ${GLIB_CFLAGS_OTHER} ${CURL_CFLAGS_OTHER})
+  target_compile_options(${target} PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
 
   add_test(NAME ${target} COMMAND ${target})
