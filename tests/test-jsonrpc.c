@@ -151,6 +151,20 @@ void  parse_rpc_object (UgJsonrpcObject* jobj, const char* json_string)
 	ug_json_final (&json);
 }
 
+static void
+free_rpc_array (UgJsonrpcArray* array)
+{
+	int index;
+
+	if (array == NULL)
+		return;
+
+	for (index = 0; index < array->length; index++)
+		ug_jsonrpc_object_free (array->at[index]);
+
+	ug_jsonrpc_array_clear (array, 0);
+}
+
 void  print_rpc_object (UgJsonrpcObject* jobj)
 {
 	UgJson    json;
@@ -166,6 +180,7 @@ void  print_rpc_object (UgJsonrpcObject* jobj)
 
 	ug_buffer_write_char (&buffer, '\0');
 	puts (buffer.beg);
+	ug_buffer_clear (&buffer, 1);
 }
 
 void  test_rpc_parser (void)
@@ -198,7 +213,7 @@ void  test_rpc_parser (void)
 	parse_rpc_object (jobj, json_string3);
 	print_rpc_object (jobj);
 
-	ug_jsonrpc_array_clear (jarray, 1);
+	free_rpc_array (jarray);
 	free (jarray);
 }
 
@@ -257,7 +272,7 @@ void test_jsonrpc_curl (void)
 	ug_jsonrpc_curl_final (jrcurl);
 	free (jrcurl);
 
-	ug_jsonrpc_array_clear (jarray, 1);
+	free_rpc_array (jarray);
 	free (jarray);
 }
 
