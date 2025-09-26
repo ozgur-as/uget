@@ -35,6 +35,7 @@
  */
 
 #include <stdio.h>
+#include <glib.h>
 #include <UgSocket.h>
 #include <UgJsonrpc.h>
 #include <UgJsonrpcCurl.h>
@@ -55,10 +56,17 @@
 #define  ug_sleep(millisecond)    usleep (millisecond * 1000)
 #endif
 
+static void
+free_rpc_array_container (UgJsonrpcArray* array)
+{
+        ug_jsonrpc_array_free (array);
+}
+
 static void socket_receiver (UgSocketServer* server,
                              SOCKET  client_fd, void* data)
 {
-	char  buf[5];
+        (void)data;
+        char  buf[5];
 
 	ug_socket_server_ref (server);
 
@@ -166,6 +174,7 @@ void  print_rpc_object (UgJsonrpcObject* jobj)
 
 	ug_buffer_write_char (&buffer, '\0');
 	puts (buffer.beg);
+	ug_buffer_clear (&buffer, 1);
 }
 
 void  test_rpc_parser (void)
@@ -198,8 +207,7 @@ void  test_rpc_parser (void)
 	parse_rpc_object (jobj, json_string3);
 	print_rpc_object (jobj);
 
-	ug_jsonrpc_array_clear (jarray, 1);
-	free (jarray);
+        free_rpc_array_container (jarray);
 }
 
 void  test_rpc_curl_packet (UgJsonrpcCurl* jrcurl)
@@ -257,8 +265,7 @@ void test_jsonrpc_curl (void)
 	ug_jsonrpc_curl_final (jrcurl);
 	free (jrcurl);
 
-	ug_jsonrpc_array_clear (jarray, 1);
-	free (jarray);
+        free_rpc_array_container (jarray);
 }
 
 // ----------------------------------------------------------------------------
@@ -266,8 +273,10 @@ void test_jsonrpc_curl (void)
 
 static void jsonrpc_accepted (UgJsonrpc* jrpc, void* data, void* data2)
 {
-	UgJsonrpcObject* request;
-	UgJsonrpcObject* response;
+        (void)data;
+        (void)data2;
+        UgJsonrpcObject* request;
+        UgJsonrpcObject* response;
 	int  result;
 
 	request  = ug_jsonrpc_object_new ();
@@ -419,8 +428,8 @@ void test_uget_aria2 (void)
 	test_uget_aria2_rpc_object (uaria2);
 //	uget_aria2_shutdown (uaria2);
 
-	uget_aria2_stop_thread (uaria2);
-	uget_aria2_unref (uaria2);
+        uget_aria2_stop_thread (uaria2);
+        uget_aria2_free (uaria2);
 	ug_sleep (2000);
 }
 

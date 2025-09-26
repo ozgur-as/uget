@@ -73,8 +73,10 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 	// plug-in initialize
 	uget_plugin_global_set(UgetPluginCurlInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
-	uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
+        uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
+#ifdef HAVE_MEGA
+        uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
+#endif
 	// apply UgtkSetting
 	ugtk_app_set_plugin_setting (app, &app->setting);
 	ugtk_app_set_window_setting (app, &app->setting);
@@ -125,8 +127,10 @@ void  ugtk_app_final (UgtkApp* app)
 			(void*)(intptr_t) shutdown_now);
 	uget_plugin_global_set(UgetPluginCurlInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
-	uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
+        uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
+#ifdef HAVE_MEGA
+        uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
+#endif
 }
 
 void  ugtk_app_save (UgtkApp* app)
@@ -529,7 +533,9 @@ void  ugtk_app_set_plugin_setting (UgtkApp* app, UgtkSetting* setting)
 	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_MEDIA_GLOBAL_TYPE,
 	                 (void*)(intptr_t) setting->media.type);
 	// set MEGA plug-in
-	uget_app_add_plugin ((UgetApp*) app, UgetPluginMegaInfo);
+#ifdef HAVE_MEGA
+        uget_app_add_plugin ((UgetApp*) app, UgetPluginMegaInfo);
+#endif
 	// set aria2 plug-in
 	if (setting->plugin_order >= UGTK_PLUGIN_ORDER_ARIA2) {
 		uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_ARIA2_GLOBAL_URI,
