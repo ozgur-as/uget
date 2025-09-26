@@ -87,10 +87,11 @@ free_rpc_array_container (UgJsonrpcArray* array)
         if (array == NULL)
                 return;
 
-        for (index = 0; index < (size_t)array->length; index++)
+        for (index = 0; index < (size_t) array->length; index++)
                 free_rpc_obj (array->at[index]);
 
         ug_jsonrpc_array_clear (array, 0);
+        g_free (array);
 }
 
 static void
@@ -260,7 +261,6 @@ void  test_rpc_parser (void)
 	print_rpc_object (jobj);
 
         free_rpc_array_container (jarray);
-	free (jarray);
 }
 
 void  test_rpc_curl_packet (UgJsonrpcCurl* jrcurl)
@@ -319,7 +319,6 @@ void test_jsonrpc_curl (void)
 	free (jrcurl);
 
         free_rpc_array_container (jarray);
-	free (jarray);
 }
 
 // ----------------------------------------------------------------------------
