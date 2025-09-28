@@ -103,31 +103,67 @@ jobs:
           echo "Using vcpkg commit: $SHA"
 
       # ---------- Windows deps via vcpkg ----------
-      - name: Setup vcpkg (Windows)
+      - name: Checkout vcpkg (Windows)
         if: runner.os == 'Windows'
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
-          vcpkgJsonGlob: vcpkg.json
-          runVcpkgInstall: true
-          runVcpkgFormatString: |
-            [
-              `install`,
-              `--recurse`,
-              `--clean-after-build`,
-              `--x-install-root`,
-              `$[env.VCPKG_INSTALLED_DIR]`,
-              `--triplet`,
-              `$[env.VCPKG_DEFAULT_TRIPLET]`,
-              `--downloads-root`,
-              `$[env.VCPKG_DOWNLOADS_DIR]`
-            ]
+        shell: pwsh
+        run: |
+          $vcpkgDir = Join-Path $Env:GITHUB_WORKSPACE "vcpkg"
+          if (Test-Path $vcpkgDir) {
+            Remove-Item $vcpkgDir -Recurse -Force
+          }
+          git clone https://github.com/microsoft/vcpkg.git $vcpkgDir
+          git -C $vcpkgDir checkout ${{ steps.vcpkgsha.outputs.sha }}
+          "VCPKG_ROOT=$vcpkgDir" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Configure vcpkg environment (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installed = Join-Path $Env:GITHUB_WORKSPACE "build\vcpkg-installed"
+          if (-not (Test-Path $installed)) {
+            New-Item -ItemType Directory -Path $installed | Out-Null
+          }
+          "VCPKG_DEFAULT_TRIPLET=x64-windows" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          "VCPKG_INSTALLED_DIR=$installed" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Setup MSVC dev environment (x64)
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+
+      - name: Bootstrap vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & "$Env:GITHUB_WORKSPACE\vcpkg\bootstrap-vcpkg.bat" -disableMetrics
+
+      - name: Install dependencies via vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          $vcpkgExe = Join-Path $Env:GITHUB_WORKSPACE "vcpkg\vcpkg.exe"
+          if (-not (Test-Path $vcpkgExe)) {
+            throw "vcpkg.exe not found at $vcpkgExe"
+          }
+
+          $manifestRoot = $Env:GITHUB_WORKSPACE
+          $downloads = $Env:VCPKG_DOWNLOADS_DIR
+          $installRoot = $Env:VCPKG_INSTALLED_DIR
+          $triplet = $Env:VCPKG_DEFAULT_TRIPLET
+
+          $args = @(
+            "install",
+            "--triplet", $triplet,
+            "--recurse",
+            "--clean-after-build",
+            "--x-manifest-root", $manifestRoot,
+            "--downloads-root", $downloads,
+            "--x-install-root", $installRoot
+          )
+
+          & $vcpkgExe @args
 
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
