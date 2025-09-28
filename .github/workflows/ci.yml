@@ -90,11 +90,24 @@ jobs:
           $assetSources = "clear;local,$assetPath;x-remote,$env:VCPKG_FTPMIRROR_URL;x-block-origin"
           "VCPKG_ASSET_SOURCES=$assetSources" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      # ---------- Resolve vcpkg commit ----------
+      - name: Resolve vcpkg commit (Windows)
+        if: runner.os == 'Windows'
+        id: vcpkgsha
+        shell: bash
+        run: |
+          set -e
+          # Fetch latest commit on vcpkg's master (main) branch
+          SHA=$(git ls-remote https://github.com/microsoft/vcpkg refs/heads/master | cut -f1)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Using vcpkg commit: $SHA"
+
       # ---------- Windows deps via vcpkg ----------
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
         uses: lukka/run-vcpkg@v11
         with:
+          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
           vcpkgJsonGlob: vcpkg.json
           runVcpkgInstall: true
           runVcpkgFormatString: |
