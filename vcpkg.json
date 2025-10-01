@@ -6,7 +6,6 @@
     "curl",
     "glib",
     "libgcrypt",
-    "mega",
     "openssl",
     "pkgconf"
   ]
