@@ -5,7 +5,14 @@
   "dependencies": [
     "curl",
     "glib",
-    "libgcrypt",
+    {
+      "name": "libgcrypt",
+      "platform": "!windows | mingw"
+    },
+    {
+      "name": "libgpg-error",
+      "platform": "!windows | mingw"
+    },
     "openssl",
     "pkgconf"
   ]
