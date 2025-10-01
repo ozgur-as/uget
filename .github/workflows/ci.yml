@@ -13,6 +13,10 @@ jobs:
         os: [ ubuntu-24.04, windows-latest ]
         config: [ Debug, RelWithDebInfo ]
     runs-on: ${{ matrix.os }}
+    env:
+      VCPKG_DOWNLOADS_DIR: ${{ github.workspace }}\.vcpkg_downloads
+      VCPKG_DOWNLOADS: ${{ github.workspace }}\.vcpkg_downloads
+      VCPKG_FTPMIRROR_URL: https://ftpmirror.gnu.org/gnu/{path}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,9 +31,67 @@ jobs:
             ninja-build pkg-config xvfb \
             libgtk-3-dev libglib2.0-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-            libcurl4-openssl-dev libayatana-appindicator3-dev
+            libcurl4-openssl-dev libayatana-appindicator3-dev \
+            libgcrypt20-dev
 
-      # ---------- Resolve a vcpkg commit ----------
+      # ---------- Windows build tooling ----------
+      - name: Setup Ninja (Windows)
+        if: runner.os == 'Windows'
+        uses: seanmiddleditch/gha-setup-ninja@v4
+
+      - name: Restore vcpkg downloads cache (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DOWNLOADS_DIR }}
+          key: windows-vcpkg-downloads-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            windows-vcpkg-downloads-
+
+      - name: Pre-fetch GNU sources (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $downloads = (Resolve-Path -LiteralPath $env:VCPKG_DOWNLOADS_DIR -ErrorAction SilentlyContinue)
+          if (-not $downloads) {
+            $downloads = $env:VCPKG_DOWNLOADS_DIR
+          } else {
+            $downloads = $downloads.ProviderPath
+          }
+          if (-not (Test-Path $downloads)) {
+            New-Item -ItemType Directory -Path $downloads | Out-Null
+          }
+
+          $archives = @(
+            @{ Name = "gettext-0.22.5.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/gettext/gettext-0.22.5.tar.gz" },
+            @{ Name = "gettext-0.22.4.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/gettext/gettext-0.22.4.tar.gz" },
+            @{ Name = "libiconv-1.17.tar.gz"; Url = "https://ftpmirror.gnu.org/gnu/libiconv/libiconv-1.17.tar.gz" }
+          )
+
+          foreach ($archive in $archives) {
+            $target = Join-Path $downloads $archive.Name
+            if (Test-Path $target) {
+              Write-Host "Archive $($archive.Name) already cached."
+              continue
+            }
+
+            try {
+              Write-Host "Downloading $($archive.Url) ..."
+              Invoke-WebRequest -Uri $archive.Url -OutFile $target -UseBasicParsing
+            } catch {
+              Write-Warning "Could not download $($archive.Url): $($_.Exception.Message)"
+              if (Test-Path $target) {
+                Remove-Item $target -ErrorAction SilentlyContinue
+              }
+            }
+          }
+
+          "VCPKG_DOWNLOADS=$downloads" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $assetPath = $downloads -replace "\\", "/"
+          $assetSources = "clear;local,$assetPath;x-remote,$env:VCPKG_FTPMIRROR_URL;x-block-origin"
+          "VCPKG_ASSET_SOURCES=$assetSources" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      # ---------- Resolve vcpkg commit ----------
       - name: Resolve vcpkg commit (Windows)
         if: runner.os == 'Windows'
         id: vcpkgsha
@@ -42,35 +104,28 @@ jobs:
           echo "Using vcpkg commit: $SHA"
 
       # ---------- Windows deps via vcpkg ----------
-      - name: Setup vcpkg (Windows)
-        if: runner.os == 'Windows'
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: 'vcpkg.json'
-          vcpkgGitCommitId: ${{ steps.vcpkgsha.outputs.sha }}
-
-      - name: Add vcpkg tools to PATH (Windows)
+      - name: Checkout vcpkg (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $root = "$env:RUNVCPKG_VCPKG_ROOT"
-          $paths = @(
-            Join-Path $root 'installed\x64-windows\tools\pkgconf'
-            Join-Path $root 'installed\x64-windows\tools'
-          )
-          foreach ($p in $paths) {
-            if (Test-Path $p) {
-              Write-Host "Adding $p to PATH"
-              $p | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            }
+          $vcpkgDir = Join-Path $Env:GITHUB_WORKSPACE "vcpkg"
+          if (Test-Path $vcpkgDir) {
+            Remove-Item $vcpkgDir -Recurse -Force
           }
-          # show which pkgconf will be used
-          Write-Host "pkgconf = " (Get-Command pkgconf -ErrorAction SilentlyContinue)
-          Write-Host "pkg-config = " (Get-Command pkg-config -ErrorAction SilentlyContinue)
+          git clone https://github.com/microsoft/vcpkg.git $vcpkgDir
+          git -C $vcpkgDir checkout ${{ steps.vcpkgsha.outputs.sha }}
+          "VCPKG_ROOT=$vcpkgDir" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Setup Ninja (Windows)
+      - name: Configure vcpkg environment (Windows)
         if: runner.os == 'Windows'
-        uses: seanmiddleditch/gha-setup-ninja@v4
+        shell: pwsh
+        run: |
+          $installed = Join-Path $Env:GITHUB_WORKSPACE "build\vcpkg-installed"
+          if (-not (Test-Path $installed)) {
+            New-Item -ItemType Directory -Path $installed | Out-Null
+          }
+          "VCPKG_DEFAULT_TRIPLET=x64-windows" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          "VCPKG_INSTALLED_DIR=$installed" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Setup MSVC dev environment (x64)
         if: runner.os == 'Windows'
@@ -78,16 +133,49 @@ jobs:
         with:
           arch: x64
 
+      - name: Bootstrap vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & "$Env:GITHUB_WORKSPACE\vcpkg\bootstrap-vcpkg.bat" -disableMetrics
+
+      - name: Install dependencies via vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          $vcpkgExe = Join-Path $Env:GITHUB_WORKSPACE "vcpkg\vcpkg.exe"
+          if (-not (Test-Path $vcpkgExe)) {
+            throw "vcpkg.exe not found at $vcpkgExe"
+          }
+
+          $manifestRoot = $Env:GITHUB_WORKSPACE
+          $downloads = $Env:VCPKG_DOWNLOADS_DIR
+          $installRoot = $Env:VCPKG_INSTALLED_DIR
+          $triplet = $Env:VCPKG_DEFAULT_TRIPLET
+
+          $args = @(
+            "install",
+            "--triplet", $triplet,
+            "--recurse",
+            "--clean-after-build",
+            "--x-manifest-root", $manifestRoot,
+            "--downloads-root", $downloads,
+            "--x-install-root", $installRoot
+          )
+
+          & $vcpkgExe @args
+
       # ---------- Configure ----------
       - name: Configure (Linux Debug)
         if: runner.os == 'Linux' && matrix.config == 'Debug'
-        run: cmake --preset dev
+        run: cmake --preset dev -DENABLE_MEGA=OFF
       - name: Configure (Linux RelWithDebInfo)
         if: runner.os == 'Linux' && matrix.config == 'RelWithDebInfo'
-        run: cmake --preset rel
+        run: cmake --preset rel -DENABLE_MEGA=OFF
       - name: Configure (Windows)
         if: runner.os == 'Windows'
-        run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DWITH_GUI=OFF -DWITH_TRAY=OFF
+        run: cmake --preset msvc-vcpkg -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DWITH_GUI=OFF -DWITH_TRAY=OFF -DENABLE_MEGA=OFF
 
       # ---------- Build ----------
       - name: Build (Linux Debug)
@@ -98,7 +186,7 @@ jobs:
         run: cmake --build build/rel -- -v
       - name: Build (Windows)
         if: runner.os == 'Windows'
-        run: cmake --build build/msvc --config ${{ matrix.config }} -- -v
+        run: cmake --build --preset msvc-vcpkg --config ${{ matrix.config }} -- -v
 
       # ---------- Test ----------
       - name: Test (Linux)
