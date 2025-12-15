@@ -1,11 +1,19 @@
 {
-  "name": "modernizedapp",
-  "version-string": "2.3.0",
+  "name": "uget",
+  "version-string": "dev",
+  "builtin-baseline": "105f7f7e8a55403067df76e27a69bcbd7982ca06",
   "dependencies": [
     "curl",
+    "glib",
+    {
+      "name": "libgcrypt",
+      "platform": "!windows | mingw"
+    },
+    {
+      "name": "libgpg-error",
+      "platform": "!windows | mingw"
+    },
     "openssl",
-    "pkgconf",
-    { "name": "gtk", "platform": "!windows" },
-    { "name": "gstreamer", "features": ["plugins-base"], "platform": "!windows" }
+    "pkgconf"
   ]
 }
