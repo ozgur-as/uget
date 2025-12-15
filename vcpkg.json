@@ -1,7 +1,7 @@
 {
   "name": "uget",
   "version-string": "dev",
-  "builtin-baseline": "105f7f7e8a55403067df76e27a69bcbd7982ca06",
+  "builtin-baseline": "594ad8871e1e8e45f8e626c015fd611163430207",
   "dependencies": [
     "curl",
     "glib",
