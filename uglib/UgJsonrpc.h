@@ -123,10 +123,13 @@ void  ug_json_write_rpc_object(UgJson* json, UgJsonrpcObject* jrobj);
 
 //void  ug_jsonrpc_array_init(UgJsonrpcArray* joarray, int allocated_len);
 #define ug_jsonrpc_array_init(array, allocated_len)   \
-		ug_array_init(array, sizeof(UgJsonrpcObject*), allocated_len)
+                ug_array_init(array, sizeof(UgJsonrpcObject*), allocated_len)
 
 // param free_objects: TRUE or FALSE
 void  ug_jsonrpc_array_clear(UgJsonrpcArray* joarray, int free_objects);
+
+// Free a batch returned by ug_jsonrpc_call_batch (frees elements + container).
+void ug_jsonrpc_array_free (UgJsonrpcArray* array);
 
 UgJsonrpcObject*  ug_jsonrpc_array_find(UgJsonrpcArray* joarray, UgValue* id, int* index);
 UgJsonrpcObject*  ug_jsonrpc_array_alloc(UgJsonrpcArray* joarray);

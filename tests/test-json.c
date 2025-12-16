@@ -261,9 +261,34 @@ SampleJs*  sample_js_new (void)
 
 void  sample_js_free (SampleJs* samplejs)
 {
+	int index;
+
+	if (samplejs == NULL)
+		return;
+
+	ug_free (samplejs->name);
+	samplejs->name = NULL;
+
+	ug_free (samplejs->info.ftp.user);
+	samplejs->info.ftp.user = NULL;
+	ug_free (samplejs->info.ftp.password);
+	samplejs->info.ftp.password = NULL;
+
+	ug_free (samplejs->info.http.user_agent);
+	samplejs->info.http.user_agent = NULL;
+	ug_free (samplejs->info.http.referrer);
+	samplejs->info.http.referrer = NULL;
+
+	for (index = 0; index < samplejs->info.sarray.length; index++)
+		ug_free (samplejs->info.sarray.at[index]);
 	ug_array_clear (&samplejs->info.sarray);
+
 	ug_array_clear (&samplejs->info.iarray);
+
+	for (index = 0; index < samplejs->info.oarray.length; index++)
+		worked_id_final (&samplejs->info.oarray.at[index]);
 	ug_array_clear (&samplejs->info.oarray);
+
 	free (samplejs);
 }
 
@@ -508,6 +533,7 @@ void  sample_js_to_file (SampleJs* samplejs, const char* filename)
 	ug_json_end_write (&json);
 	ug_json_final (&json);
 
+	ug_buffer_clear (&buffer, 1);
 	fclose (file);
 }
 
@@ -844,6 +870,8 @@ void  test_array (void)
 			"array.length = '%d'\n"
 			"array.allocated = '%d'\n",
 			array.at, array.length, array.allocated);
+
+	ug_array_clear (&array);
 }
 
 // ----------------------------------------------------------------------------

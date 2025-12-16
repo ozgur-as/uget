@@ -371,7 +371,7 @@ int  print_option_callback (UgOption* option,
 void  test_option (void)
 {
 	UgOption    option;
-	struct Opt  dest;
+	struct Opt  dest = {0};
 
 	ug_option_init (&option);
 //	ug_option_set_parser (&option, print_option_callback, NULL, NULL);
@@ -379,6 +379,8 @@ void  test_option (void)
 	ug_option_parse (&option, "--category-index=1", -1);
 	ug_option_parse (&option, "-cn=hhk", -1);
 	ug_option_final (&option);
+
+	ug_free (dest.name);
 }
 
 void test_cmd_arg (void)
@@ -446,6 +448,8 @@ void test_html (void)
 	ug_html_parse (uhtml, "< p attr1=\"value1\" attr2=val2/><test> &lt; &xxxxx; </test><s></s>", -1);
 	ug_html_end_parse (uhtml);
 	puts("\n");
+
+	ug_html_free (uhtml);
 }
 
 void test_unicode (void)

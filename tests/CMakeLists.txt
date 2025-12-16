@@ -1,130 +1,22 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0079 NEW)
 
-if(NOT WITH_GUI)
-  message(STATUS "tests/: WITH_GUI=OFF -> not building legacy GLib/GTK tests")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
+
+if(NOT UGET_WITH_GUI)
+  message(STATUS "tests/: UGET_WITH_GUI=OFF -> not building legacy GLib/GTK tests")
   return()
 endif()
 
-set(UGLIB_SOURCES
-  ${CMAKE_SOURCE_DIR}/uglib/UgStdio.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgString.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgThread.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgSocket.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgUtil.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgFileUtil.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgArray.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgList.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgSLink.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgOption.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgUri.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgNode.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgData.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgInfo.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgRegistry.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgValue.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgEntry.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgBuffer.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJson.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJson-custom.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJsonFile.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJsonrpc.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJsonrpcSocket.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgJsonrpcCurl.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgHtml.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgHtmlEntry.c
-  ${CMAKE_SOURCE_DIR}/uglib/UgHtmlFilter.c
-)
-
-add_library(uglib STATIC ${UGLIB_SOURCES})
-target_include_directories(uglib
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}/uglib
-    ${GLIB_INCLUDE_DIRS}
-    ${UGET_CURL_INCLUDE_DIRS}
-)
-target_link_directories(uglib PUBLIC ${GLIB_LIBRARY_DIRS} ${UGET_CURL_LIBRARY_DIRS})
-target_link_libraries(uglib
-  PUBLIC
-    Threads::Threads
-    ${GLIB_LIBRARIES}
-    ${UGET_CURL_LIBRARIES}
-)
-target_compile_options(uglib PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
-target_compile_definitions(uglib PUBLIC HAVE_CONFIG_H)
-
-set(UGET_SOURCES
-  ${CMAKE_SOURCE_DIR}/uget/UgetSequence.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetRss.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetRpc.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetOption.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetData.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetFiles.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetNode.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetNode-compare.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetNode-filter.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetTask.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetHash.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetSite.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetApp.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetEvent.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPlugin.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetA2cf.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetCurl.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetAria2.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetMedia.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetMedia-youtube.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPluginCurl.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPluginAria2.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPluginMedia.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPluginAgent.c
-  ${CMAKE_SOURCE_DIR}/uget/UgetPluginEmpty.c
-)
+add_library(uglib_alias ALIAS uglib)
+add_library(uget_core_alias ALIAS uget_core)
 
 set(_uget_has_mega FALSE)
-if(HAVE_LIBGCRYPT AND HAVE_OPENSSL)
-  list(APPEND UGET_SOURCES ${CMAKE_SOURCE_DIR}/uget/UgetPluginMega.c)
+if(HAVE_LIBGCRYPT AND (HAVE_OPENSSL OR HAVE_GNUTLS))
   set(_uget_has_mega TRUE)
 else()
-  message(STATUS "Skipping UgetPluginMega.c (requires libgcrypt and OpenSSL)")
-endif()
-
-if(HAVE_PWMD)
-  list(APPEND UGET_SOURCES ${CMAKE_SOURCE_DIR}/uget/pwmd.c)
-endif()
-
-add_library(uget STATIC ${UGET_SOURCES})
-target_include_directories(uget
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}/uget
-    ${CMAKE_SOURCE_DIR}/uglib
-    ${GLIB_INCLUDE_DIRS}
-    ${UGET_CURL_INCLUDE_DIRS}
-)
-target_link_directories(uget PUBLIC ${GLIB_LIBRARY_DIRS} ${UGET_CURL_LIBRARY_DIRS})
-target_link_libraries(uget
-  PUBLIC
-    uglib
-    Threads::Threads
-    ${GLIB_LIBRARIES}
-    ${UGET_CURL_LIBRARIES}
-)
-target_compile_options(uget PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
-target_compile_definitions(uget PUBLIC HAVE_CONFIG_H)
-
-if(HAVE_PWMD)
-  target_include_directories(uget PUBLIC ${PWMD_INCLUDE_DIRS})
-  target_link_directories(uget PUBLIC ${PWMD_LIBRARY_DIRS})
-  target_link_libraries(uget PUBLIC ${PWMD_LIBRARIES})
-endif()
-
-if(HAVE_GNUTLS)
-  target_include_directories(uget PUBLIC ${GNUTLS_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
-  target_link_directories(uget PUBLIC ${GNUTLS_LIBRARY_DIRS} ${GCRYPT_LIBRARY_DIRS})
-  target_link_libraries(uget PUBLIC ${GNUTLS_LIBRARIES} ${GCRYPT_LIBRARIES})
-endif()
-
-if(HAVE_OPENSSL)
-  target_link_libraries(uget PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+  message(STATUS "Skipping test_plugin_app (Mega plug-in not available)")
 endif()
 
 function(add_uget_test target)
@@ -138,18 +30,10 @@ function(add_uget_test target)
   endif()
 
   add_executable(${target} ${TEST_SOURCES})
-  target_link_libraries(${target} PRIVATE ${TEST_LIBS})
-  target_include_directories(${target} PRIVATE
-    ${CMAKE_SOURCE_DIR}/uglib
-    ${CMAKE_SOURCE_DIR}/uget
-    ${GLIB_INCLUDE_DIRS}
-    ${UGET_CURL_INCLUDE_DIRS}
-    ${CMAKE_BINARY_DIR}/generated
-  )
-  target_compile_options(${target} PRIVATE ${GLIB_CFLAGS_OTHER} ${UGET_CURL_CFLAGS_OTHER})
+  target_link_libraries(${target} PRIVATE PkgConfig::GLIB ${TEST_LIBS})
   target_compile_definitions(${target} PRIVATE HAVE_CONFIG_H)
 
-  add_test(NAME ${target} COMMAND ${target})
+  add_test(NAME ${target} COMMAND $<TARGET_FILE:${target}>)
 
   if(TEST_LABELS)
     set(_labels "${TEST_LABELS}")
@@ -163,48 +47,45 @@ function(add_uget_test target)
   endif()
   set_tests_properties(${target} PROPERTIES
     LABELS "${_labels}"
-    WORKING_DIRECTORY "${_work_dir}" )
+    WORKING_DIRECTORY "${_work_dir}"
+    TIMEOUT 60)
 endfunction()
 
 add_uget_test(test_json
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-json.c
-  LIBS uglib
+  LIBS uglib_alias
 )
 
 add_uget_test(test_info
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-info.c
-  LIBS uglib
+  LIBS uglib_alias
 )
 
 add_uget_test(test_uglib
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-uglib.c
-  LIBS uglib
+  LIBS uglib_alias
 )
 
 add_uget_test(test_uget
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-uget.c
-  LIBS uget
+  LIBS uget_core_alias uglib_alias
   LABELS "unit;net"
 )
 
 add_uget_test(test_jsonrpc
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-jsonrpc.c
-  LIBS uget
+  LIBS uget_core_alias uglib_alias
   LABELS "unit;net"
 )
 
 if(TEST test_http)
-  set_tests_properties(test_http PROPERTIES LABELS "unit;net")
+  set_tests_properties(test_http PROPERTIES LABELS "unit;net" TIMEOUT 60)
 endif()
 
 if(_uget_has_mega)
   add_uget_test(test_plugin_app
     SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test-plugin+app.c
-    LIBS uget
+    LIBS uget_core_alias uglib_alias
     LABELS "unit;net"
   )
-else()
-  message(STATUS "Skipping test_plugin_app (Mega plug-in not available)")
 endif()
-
-set_property(TEST PROPERTY TIMEOUT 60)

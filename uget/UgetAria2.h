@@ -37,6 +37,8 @@
 #ifndef UGET_ARIA2_H
 #define UGET_ARIA2_H
 
+#include <glib.h>
+
 #include <UgRegistry.h>
 #include <UgSLink.h>
 #include <UgThread.h>
@@ -59,8 +61,13 @@ struct UgetAria2
 {
 	int       ref_count;
 
-	UgMutex              mutex;
-	UgetAria2Thread*     thread;
+        UgMutex              mutex;
+        UgetAria2Thread*     worker;
+
+        GThread*             thread;
+        GMutex               thread_lock;
+        GCond                thread_cond;
+        volatile gint        stop;
 
 	// request -> global thread -> requested + responsed
 	//
@@ -112,6 +119,7 @@ struct UgetAria2
 UgetAria2* uget_aria2_new (void);
 void uget_aria2_ref (UgetAria2* ua2);
 void uget_aria2_unref (UgetAria2* ua2);
+void uget_aria2_free (UgetAria2* ua2);
 
 void uget_aria2_start_thread (UgetAria2* uaria2);
 void uget_aria2_stop_thread  (UgetAria2* uaria2);
