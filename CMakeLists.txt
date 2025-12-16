@@ -472,6 +472,7 @@ set(UGET_CLI_CANDIDATES
   ${CMAKE_SOURCE_DIR}/uget/uget.c
   ${CMAKE_SOURCE_DIR}/uget/main.c
   ${CMAKE_SOURCE_DIR}/src/uget.c
+  ${CMAKE_SOURCE_DIR}/src/main.c
 )
 
 set(UGET_CLI_MAIN "")
