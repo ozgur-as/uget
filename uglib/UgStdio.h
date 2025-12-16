@@ -50,9 +50,11 @@
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
+#if _MSC_VER < 1900
 #ifndef snprintf
 #define snprintf	_snprintf
 #endif // snprintf
+#endif // _MSC_VER < 1900
 #endif // _MSC_VER
 
 #ifdef HAVE_GLIB
@@ -70,6 +72,10 @@
 #include <fcntl.h>       // for O_* flags
 //#include <sys/types.h>
 #include <sys/stat.h>    // for S_* mode
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 
 #ifdef __cplusplus
