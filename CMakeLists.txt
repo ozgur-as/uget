@@ -18,7 +18,7 @@ option(WITH_OPENSSL "Enable OpenSSL-based crypto/TLS" ON)
 option(WITH_GNUTLS "Enable GnuTLS/libgcrypt backend" OFF)
 option(WITH_PWMD "Enable libpwmd integration" ON)
 option(ENABLE_MEGA "Enable MEGA plugin" ON)
-option(ENABLE_SANITIZERS "Enable ASan/UBSan in Debug on non-MSVC builds" ON)
+option(ENABLE_SANITIZERS "Enable ASan/UBSan in Debug on non-MSVC builds" OFF)
 
 if(MSVC)
   add_compile_options(/W4 /permissive- /utf-8)
