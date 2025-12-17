@@ -472,7 +472,6 @@ set(UGET_CLI_CANDIDATES
   ${CMAKE_SOURCE_DIR}/uget/uget.c
   ${CMAKE_SOURCE_DIR}/uget/main.c
   ${CMAKE_SOURCE_DIR}/src/uget.c
-  ${CMAKE_SOURCE_DIR}/src/main.c
 )
 
 set(UGET_CLI_MAIN "")
@@ -523,6 +522,9 @@ if(UGET_WITH_GUI AND GTK3_FOUND)
   file(GLOB UGET_GTK_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/ui-gtk/*.c")
   if(UGET_GTK_SOURCES)
     add_executable(uget-gtk ${UGET_GTK_SOURCES})
+    if(WIN32)
+      set_target_properties(uget-gtk PROPERTIES OUTPUT_NAME "uget")
+    endif()
     target_include_directories(uget-gtk PRIVATE
       ${CMAKE_SOURCE_DIR}/uget
       ${CMAKE_SOURCE_DIR}/uglib

@@ -5,6 +5,7 @@
   "dependencies": [
     "curl",
     "glib",
+    "gtk",
     {
       "name": "libgcrypt",
       "platform": "!windows | mingw"
