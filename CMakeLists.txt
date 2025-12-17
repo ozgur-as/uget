@@ -508,9 +508,11 @@ if(TARGET uget)
   target_include_directories(uget PRIVATE
     ${CMAKE_SOURCE_DIR}/uget
     ${CMAKE_SOURCE_DIR}/uglib
+    ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/generated
     ${CURL_INCLUDE_DIRS}
   )
+  target_sources(uget PRIVATE ${CMAKE_SOURCE_DIR}/src/core.c)
   target_compile_definitions(uget PRIVATE
     $<TARGET_PROPERTY:uget_core,INTERFACE_COMPILE_DEFINITIONS>
   )
