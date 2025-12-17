@@ -95,14 +95,15 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_NEWS);
 	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_TUTORIALS);
 	uget_rss_update (app->rss_builtin, FALSE);
-	gtk_widget_hide (app->banner.self);
+	if (app->banner.self && GTK_IS_WIDGET(app->banner.self))
+		gtk_widget_hide (app->banner.self);
 
 	uget_app_use_uri_hash ((UgetApp*) app);
 	ugtk_app_init_timeout (app);
 
 	if (app->setting.ui.start_in_tray)
 		ugtk_tray_icon_set_visible (&app->trayicon, TRUE);
-	else
+	else if (app->window.self && GTK_IS_WIDGET(app->window.self))
 		gtk_widget_show ((GtkWidget*) app->window.self);
 	// offline
 	if (app->setting.ui.start_in_offline_mode)
