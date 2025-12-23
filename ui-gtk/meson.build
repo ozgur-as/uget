@@ -35,6 +35,17 @@ ui_gtk_sources = files(
 
 ui_gtk_inc = include_directories('.')
 
+# Windows resource file (icon + version info)
+if host_system == 'windows'
+  windows = import('windows')
+  ui_gtk_res = windows.compile_resources(
+    '../Windows/resources/uget.rc',
+    include_directories: include_directories('../Windows/resources'),
+  )
+else
+  ui_gtk_res = []
+endif
+
 # Collect all dependencies
 ui_gtk_deps = [
   uget_dep,
@@ -77,7 +88,9 @@ endif
 
 uget_gtk = executable('uget-gtk',
   ui_gtk_sources,
+  ui_gtk_res,
   include_directories: [ui_gtk_inc, config_inc],
   dependencies: ui_gtk_deps,
+  win_subsystem: 'windows',  # GUI app, no console window
   install: true,
 )
