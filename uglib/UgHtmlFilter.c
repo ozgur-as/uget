@@ -34,6 +34,7 @@
  *
  */
 
+#include <strings.h>
 #include <UgArray.h>
 #include <UgString.h>
 #include <UgHtmlFilter.h>

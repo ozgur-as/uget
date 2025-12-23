@@ -135,7 +135,7 @@ void  ug_json_file_end_write (UgJsonFile* jfile)
 {
 	ug_json_end_write (&jfile->json);
 	ug_buffer_clear (&jfile->buffer, FALSE);
-	ug_write (jfile->fd, "\n\n", 2);
+	if (ug_write (jfile->fd, "\n\n", 2)) {}
 
 	// close() doesn't call fsync()
 	// If you want to avoid delayed write, call fsync() before close()
@@ -154,7 +154,7 @@ static int  buffer_to_fd (UgBuffer* buffer)
 	int     fd;
 
 	fd = (uintptr_t)buffer->data;
-	ug_write (fd, buffer->beg, ug_buffer_length (buffer));
+	if (ug_write (fd, buffer->beg, ug_buffer_length (buffer))) {}
 	buffer->cur = buffer->beg;
 	return 0;
 }

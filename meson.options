@@ -1,0 +1,30 @@
+# uGet Build Options
+
+# Optional features - auto-detect by default
+option('notify', type: 'feature', value: 'auto',
+       description: 'Enable libnotify desktop notifications')
+
+option('gstreamer', type: 'feature', value: 'auto',
+       description: 'Enable GStreamer audio support')
+
+option('appindicator', type: 'feature', value: 'auto',
+       description: 'Enable AppIndicator system tray support (Unix only)')
+
+# Opt-in features
+option('pwmd', type: 'feature', value: 'disabled',
+       description: 'Enable pwmd password manager support')
+
+# Crypto backend selection
+option('openssl', type: 'boolean', value: true,
+       description: 'Use OpenSSL for crypto (MEGA plugin)')
+
+option('gnutls', type: 'boolean', value: false,
+       description: 'Use GnuTLS/libgcrypt for crypto instead of OpenSSL')
+
+# Unix domain socket for JSON-RPC
+option('unix_socket', type: 'boolean', value: false,
+       description: 'Use UNIX domain socket for JSON-RPC')
+
+# RSS notify feature
+option('rss_notify', type: 'boolean', value: true,
+       description: 'Enable RSS notification support')

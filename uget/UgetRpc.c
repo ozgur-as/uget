@@ -37,6 +37,13 @@
 #include <errno.h>
 #include <stdlib.h>   // srand()
 #include <time.h>     // time()
+
+#if !defined(_WIN32) && !defined(_WIN64)
+#include <sys/types.h>
+#include <sys/select.h>
+#include <unistd.h>
+#endif
+
 #include <UgUtil.h>
 #include <UgString.h>
 #include <UgSocket.h>
