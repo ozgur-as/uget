@@ -43,6 +43,19 @@ EXE="${BUILD_DIR}/ui-gtk/uget-gtk.exe"
 MINGW_BIN="/mingw64/bin"
 MINGW_PREFIX="/mingw64"
 
+# Build project
+echo "Building project..."
+
+# Clean build
+if [ -d "$BUILD_DIR" ]; then
+    echo "Cleaning build directory..."
+    rm -rf "$BUILD_DIR"
+fi
+
+echo "Configuring build directory..."
+meson setup "$BUILD_DIR" "$PROJECT_ROOT" --cross-file "$PROJECT_ROOT/build/cross/mingw-w64-x86_64.txt"
+meson compile -C "$BUILD_DIR"
+
 # Check if exe exists
 if [ ! -f "$EXE" ]; then
     echo "Error: $EXE not found. Run 'meson compile -C builddir' first."
