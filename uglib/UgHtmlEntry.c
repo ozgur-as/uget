@@ -36,6 +36,7 @@
 
 #include <time.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <UgString.h>
 #include <UgHtmlEntry.h>
 

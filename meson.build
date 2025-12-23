@@ -4,7 +4,7 @@
 project('uget', 'c',
   version: '2.2.3',
   license: 'LGPL-2.1-or-later',
-  meson_version: '>= 0.56.0',
+  meson_version: '>= 1.1.0',
   default_options: [
     'c_std=c11',
     'warning_level=1',
@@ -71,7 +71,7 @@ if use_gnutls
   crypto_dep = libgcrypt_dep
   use_openssl = false
 elif use_openssl
-  libcrypto_dep = dependency('libcrypto', required: true)
+  libcrypto_dep = dependency('openssl', required: true)
   crypto_dep = libcrypto_dep
 else
   crypto_dep = dependency('', required: false)

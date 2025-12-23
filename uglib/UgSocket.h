@@ -48,6 +48,8 @@
 //#include <winsock2.h>
 #include <Ws2tcpip.h>
 #else
+#include <sys/types.h>
+#include <sys/select.h>
 #include <sys/socket.h>     // socket api
 #include <sys/un.h>         // struct sockaddr_un
 #include <netinet/in.h>     // struct sockaddr_in

@@ -34,6 +34,7 @@
  *
  */
 
+#define _XOPEN_SOURCE 700
 #include <string.h>
 #include <UgDefine.h>
 #include <UgThread.h>

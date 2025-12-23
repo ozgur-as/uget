@@ -34,6 +34,7 @@
  *
  */
 
+#define _XOPEN_SOURCE 700
 // ----------------------------------------------------------------------------
 // Windows
 
@@ -110,7 +111,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
 static UgMutex* lockarray;
 
-static void  lock_callback (int mode, int type, char *file, int line)
+static void __attribute__((unused)) lock_callback (int mode, int type, char *file, int line)
 {
 	(void)file;
 	(void)line;
@@ -123,7 +124,7 @@ static void  lock_callback (int mode, int type, char *file, int line)
 	}
 }
 
-static unsigned long  thread_id (void)
+static unsigned long __attribute__((unused)) thread_id (void)
 {
 	unsigned long ret;
 
