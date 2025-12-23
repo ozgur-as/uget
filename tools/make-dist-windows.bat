@@ -53,7 +53,7 @@ if [ -d "$BUILD_DIR" ]; then
 fi
 
 echo "Configuring build directory..."
-meson setup "$BUILD_DIR" "$PROJECT_ROOT" --cross-file "$PROJECT_ROOT/build/cross/mingw-w64-x86_64.txt"
+meson setup "$BUILD_DIR" "$PROJECT_ROOT"
 meson compile -C "$BUILD_DIR"
 
 # Check if exe exists

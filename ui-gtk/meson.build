@@ -39,8 +39,8 @@ ui_gtk_inc = include_directories('.')
 if host_system == 'windows'
   windows = import('windows')
   ui_gtk_res = windows.compile_resources(
-    '../Windows/resources/uget.rc',
-    include_directories: include_directories('../Windows/resources'),
+    '../packaging/windows/uget.rc',
+    include_directories: include_directories('../packaging/windows'),
   )
 else
   ui_gtk_res = []
