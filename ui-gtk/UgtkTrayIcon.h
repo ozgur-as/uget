@@ -66,7 +66,7 @@ struct UgtkTrayIcon
 	AppIndicator*  indicator;
 	AppIndicator*  indicator_temp;
 #endif
-	GtkStatusIcon* self;
+	// GtkStatusIcon* self;
 	gboolean       visible;
 	gboolean       error_occurred;
 	guint          state;    // UgtkTrayIconState

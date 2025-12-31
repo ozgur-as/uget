@@ -61,8 +61,8 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 	dialog = g_malloc0 (sizeof (UgtkSettingDialog));
 	dialog->self = (GtkDialog*) gtk_dialog_new_with_buttons (title, parent,
 			GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
+			_("_Cancel"), GTK_RESPONSE_CANCEL,
+			_("_OK"),     GTK_RESPONSE_OK,
 			NULL);
 #if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
 	gtk_window_set_has_resize_grip ((GtkWindow*) dialog->self, FALSE);
@@ -70,11 +70,11 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 	gtk_dialog_set_default_response (dialog->self, GTK_RESPONSE_OK);
 	vbox = (GtkBox*) gtk_dialog_get_content_area (dialog->self);
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, GTK_WIDGET (hbox), FALSE, FALSE, 2);
+	gtk_box_append (vbox, GTK_WIDGET (hbox));
 	// Notebook
 	widget = gtk_notebook_new ();
 	gtk_widget_set_size_request (widget, 430, 320);
-	gtk_box_pack_end (hbox, widget, TRUE, TRUE, 3);
+	gtk_box_append (hbox, widget);
 	dialog->notebook = (GtkNotebook*) widget;
 	gtk_notebook_set_show_tabs (dialog->notebook, FALSE);
 	gtk_notebook_set_show_border (dialog->notebook, FALSE);
@@ -92,7 +92,7 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 	widget = gtk_tree_view_new_with_model (
 			GTK_TREE_MODEL (dialog->list_store));
 	gtk_widget_set_size_request (widget, text_width, 120);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_prepend (hbox, widget);
 	dialog->tree_view = (GtkTreeView*) widget;
 	gtk_tree_view_set_headers_visible (dialog->tree_view, FALSE);
 	renderer = gtk_cell_renderer_text_new ();
@@ -107,57 +107,57 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 	// ------------------------------------------------------------------------
 	// UI settings page
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	g_object_set (vbox, "margin", 2, NULL);
 	ugtk_user_interface_form_init (&dialog->ui);
-	gtk_box_pack_start (vbox, dialog->ui.self, FALSE, FALSE, 2);
+	gtk_box_append (vbox, dialog->ui.self);
 	ugtk_setting_dialog_add (dialog, _("User Interface"), (GtkWidget*) vbox);
 
 	// ------------------------------------------------------------------------
 	// Clipboard settings page
 	ugtk_clipboard_form_init (&dialog->clipboard);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog->clipboard.self), 2);
+	g_object_set (dialog->clipboard.self, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Clipboard"), dialog->clipboard.self);
 
 	// ------------------------------------------------------------------------
 	// Bandwidth settings page
 	ugtk_bandwidth_form_init (&dialog->bandwidth);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog->bandwidth.self), 2);
+	g_object_set (dialog->bandwidth.self, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Bandwidth"), dialog->bandwidth.self);
 
 	// ------------------------------------------------------------------------
 	// Scheduler settings page
 	ugtk_schedule_form_init (&dialog->scheduler);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog->scheduler.self), 2);
+	g_object_set (dialog->scheduler.self, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Scheduler"), dialog->scheduler.self);
 
 	// ------------------------------------------------------------------------
 	// Plugin settings page
 	ugtk_plugin_form_init (&dialog->plugin);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog->plugin.self), 2);
+	g_object_set (dialog->plugin.self, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Plug-in"), dialog->plugin.self);
 
 	// ------------------------------------------------------------------------
 	// Plugin Media & Media Website settings page
 	ugtk_media_website_form_init (&dialog->media_website);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog->media_website.self), 2);
+	g_object_set (dialog->media_website.self, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Media website"), dialog->media_website.self);
 
 	// ------------------------------------------------------------------------
 	// Others settings page
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	g_object_set (vbox, "margin", 2, NULL);
 	ugtk_setting_dialog_add (dialog, _("Others"), (GtkWidget*) vbox);
 
 	ugtk_commandline_form_init (&dialog->commandline);
-	gtk_box_pack_start (vbox, dialog->commandline.self, FALSE, FALSE, 4);
-	gtk_box_pack_start (vbox, gtk_label_new (""), FALSE, FALSE, 0);
+	gtk_box_append (vbox, dialog->commandline.self);
+	gtk_box_append (vbox, gtk_label_new (""));
 	ugtk_auto_save_form_init (&dialog->auto_save);
-	gtk_box_pack_start (vbox, dialog->auto_save.self, FALSE, FALSE, 2);
-	gtk_box_pack_start (vbox, gtk_label_new (""), FALSE, FALSE, 0);
+	gtk_box_append (vbox, dialog->auto_save.self);
+	gtk_box_append (vbox, gtk_label_new (""));
 	ugtk_completion_form_init (&dialog->completion);
-	gtk_box_pack_start (vbox, dialog->completion.self, FALSE, FALSE, 2);
+	gtk_box_append (vbox, dialog->completion.self);
 
-	gtk_widget_show_all ((GtkWidget*) hbox);
+	gtk_widget_set_visible ((GtkWidget*) hbox, TRUE);
 //	gtk_container_set_focus_child (GTK_CONTAINER (dialog->self), dialog->pattern_entry);
 //	g_signal_connect (dialog->pattern_entry, "key-press-event", G_CALLBACK (on_key_press_event), dialog);
 
@@ -166,7 +166,7 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 
 void  ugtk_setting_dialog_free (UgtkSettingDialog* dialog)
 {
-	gtk_widget_destroy ((GtkWidget*) dialog->self);
+	gtk_window_destroy (GTK_WINDOW (dialog->self));
 	g_free (dialog);
 }
 

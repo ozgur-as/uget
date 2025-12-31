@@ -83,35 +83,35 @@ UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp
 
 	temp = g_strconcat (UGTK_APP_NAME " - ", title, NULL);
 	cdialog->self = (GtkDialog*) gtk_dialog_new_with_buttons (temp,
-			app->window.self,
+			(GtkWindow*) app->window.self,
 			GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_STOCK_NO,  GTK_RESPONSE_NO,
-			GTK_STOCK_YES, GTK_RESPONSE_YES,
+			_("_No"),  GTK_RESPONSE_NO,
+			_("_Yes"), GTK_RESPONSE_YES,
 			NULL);
 	g_free (temp);
 #if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
-	gtk_window_set_has_resize_grip ((GtkWindow*) cdialog->self, FALSE);
+//	gtk_window_set_has_resize_grip ((GtkWindow*) cdialog->self, FALSE);
 #endif
 
-	gtk_container_set_border_width (GTK_CONTAINER (cdialog->self), 4);
+//	gtk_container_set_border_width (GTK_CONTAINER (cdialog->self), 4);
 	vbox = (GtkBox*) gtk_dialog_get_content_area (cdialog->self);
 	// image and label
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (hbox,
-			gtk_image_new_from_stock (GTK_STOCK_DIALOG_QUESTION, GTK_ICON_SIZE_DIALOG),
-			FALSE, FALSE, 8);
-	gtk_box_pack_start (hbox,
-			gtk_label_new (label),
-			FALSE, FALSE, 4);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 6);
+	gtk_box_append (hbox,
+			gtk_image_new_from_icon_name ("dialog-question")
+			);
+	gtk_box_append (hbox,
+			gtk_label_new (label)
+			);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	// check button
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 	button = gtk_check_button_new_with_label (_("Don't ask me again"));
-	gtk_box_pack_end (hbox, button, TRUE, TRUE, 20);
-	gtk_box_pack_end (vbox, (GtkWidget*) hbox, FALSE, FALSE, 10);
+	gtk_box_append (hbox, button);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	cdialog->confirmation = (GtkToggleButton*) button;
 	//
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_widget_set_visible ((GtkWidget*) vbox, TRUE);
 
 	switch (mode) {
 	case UGTK_CONFIRM_DIALOG_EXIT:
@@ -135,7 +135,7 @@ UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp
 
 	default:
 		g_signal_connect (cdialog->self, "response",
-				G_CALLBACK (gtk_widget_destroy), NULL);
+				G_CALLBACK (gtk_window_destroy), NULL);
 		break;
 	}
 
@@ -144,7 +144,7 @@ UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp
 
 void ugtk_confirm_dialog_free (UgtkConfirmDialog* cdialog)
 {
-	gtk_widget_destroy ((GtkWidget*) cdialog->self);
+	gtk_window_destroy ((GtkWindow*) cdialog->self);
 	g_free (cdialog);
 }
 
@@ -154,7 +154,7 @@ void  ugtk_confirm_dialog_run (UgtkConfirmDialog* cdialog)
 
 	app = cdialog->app;
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, FALSE);
-	gtk_widget_show ((GtkWidget*) cdialog->self);
+	gtk_widget_set_visible ((GtkWidget*) cdialog->self, TRUE);
 }
 
 static void on_confirm_to_exit_response (GtkWidget* dialog, gint response,
@@ -165,7 +165,7 @@ static void on_confirm_to_exit_response (GtkWidget* dialog, gint response,
 	app = cdialog->app;
 	app->dialogs.exit_confirmation = NULL;
 	if (response == GTK_RESPONSE_YES) {
-		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
+		if (gtk_check_button_get_active ((GtkCheckButton*) cdialog->confirmation) == FALSE)
 			app->setting.ui.exit_confirmation = TRUE;
 		else
 			app->setting.ui.exit_confirmation = FALSE;
@@ -183,7 +183,7 @@ static void on_confirm_to_delete_response (GtkWidget* dialog, gint response,
 	app = cdialog->app;
 	app->dialogs.delete_confirmation = NULL;
 	if (response == GTK_RESPONSE_YES) {
-		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
+		if (gtk_check_button_get_active ((GtkCheckButton*) cdialog->confirmation) == FALSE)
 			app->setting.ui.delete_confirmation = TRUE;
 		else
 			app->setting.ui.delete_confirmation = FALSE;
@@ -201,7 +201,7 @@ static void on_confirm_to_delete_category_response (GtkWidget* dialog, gint resp
 	app = cdialog->app;
 	app->dialogs.delete_category_confirmation = NULL;
 	if (response == GTK_RESPONSE_YES) {
-//		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
+//		if (gtk_check_button_get_active ((GtkCheckButton*) cdialog->confirmation) == FALSE)
 //			app->setting.ui.delete_category_confirmation = TRUE;
 //		else
 //			app->setting.ui.delete_category_confirmation = FALSE;

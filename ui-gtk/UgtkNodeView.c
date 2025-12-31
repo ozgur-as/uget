@@ -1071,11 +1071,11 @@ void  ugtk_node_view_use_large_icon (GtkTreeView* view, gboolean is_large, int f
 	GList*              list;
 
 	if (is_large) {
-		icon_size = GTK_ICON_SIZE_LARGE_TOOLBAR;
+		icon_size = GTK_ICON_SIZE_LARGE;
 		icon_width = 24 + 2;    // icon size + 2 pixel
 	}
 	else {
-		icon_size = GTK_ICON_SIZE_SMALL_TOOLBAR;
+		icon_size = GTK_ICON_SIZE_NORMAL;
 		icon_width = 16 + 2;    // icon size + 2 pixel
 	}
 

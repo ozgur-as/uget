@@ -57,7 +57,10 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 
 	cform->self = gtk_grid_new ();
 	top_grid  = (GtkGrid*) cform->self;
-	gtk_container_set_border_width (GTK_CONTAINER (top_grid), 2);
+	gtk_grid_set_row_spacing (top_grid, 2);
+	gtk_grid_set_column_spacing (top_grid, 2);
+	g_object_set (top_grid, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
+	// gtk_container_set_border_width (GTK_CONTAINER (top_grid), 2);
 
 	label = gtk_label_new_with_mnemonic (_("Category _name:"));
 	entry = gtk_entry_new ();
@@ -113,7 +116,8 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	gtk_grid_attach (top_grid, widget, 0, 2, 2, 1);
 	grid = (GtkGrid*) gtk_grid_new ();
 	g_object_set (grid, "margin-top", 2, "margin-bottom", 2, NULL);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) grid);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) grid);
+	// gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) grid);
 
 	label = gtk_label_new_with_mnemonic (_("Matched _Hosts:"));
 	entry = gtk_entry_new ();
@@ -148,7 +152,8 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	cform->types_entry = entry;
 	cform->types_label = label;
 
-	gtk_widget_show_all (GTK_WIDGET (top_grid));
+	gtk_widget_show (GTK_WIDGET (top_grid));
+	// gtk_widget_show_all (GTK_WIDGET (top_grid));
 }
 
 void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
@@ -160,7 +165,7 @@ void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category = ug_info_realloc(cnode_info, UgetCategoryInfo);
 	common   = ug_info_realloc(cnode_info, UgetCommonInfo);
 	if (gtk_widget_is_sensitive (cform->name_entry) == TRUE) {
-		text = gtk_entry_get_text ((GtkEntry*) cform->name_entry);
+		text = gtk_editable_get_text ((GtkEditable*) cform->name_entry);
 		ug_free(common->name);
 		common->name = (*text) ? ug_strdup(text) : NULL;
 	}
@@ -181,11 +186,11 @@ void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category->schemes.length = 0;
 	category->file_exts.length = 0;
 	// matching - set
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->hosts_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->hosts_entry),
 			&category->hosts);
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->schemes_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->schemes_entry),
 			&category->schemes);
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->types_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->types_entry),
 			&category->file_exts);
 }
 
@@ -198,7 +203,7 @@ void  ugtk_category_form_set (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category = ug_info_realloc(cnode_info, UgetCategoryInfo);
 	common   = ug_info_get(cnode_info, UgetCommonInfo);
 	if (gtk_widget_is_sensitive (cform->name_entry) == TRUE) {
-		gtk_entry_set_text ((GtkEntry*) cform->name_entry,
+		gtk_editable_set_text ((GtkEditable*) cform->name_entry,
 				(common->name) ? common->name : "");
 	}
 	gtk_spin_button_set_value ((GtkSpinButton*) cform->spin_active,
@@ -212,27 +217,27 @@ void  ugtk_category_form_set (UgtkCategoryForm* cform, UgInfo* cnode_info)
 
 	// matching
 	str = string_from_ug_array (&category->hosts);
-	gtk_entry_set_text ((GtkEntry*) cform->hosts_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->hosts_entry, str);
 	g_free (str);
 	str = string_from_ug_array (&category->schemes);
-	gtk_entry_set_text ((GtkEntry*) cform->schemes_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->schemes_entry, str);
 	g_free (str);
 	str = string_from_ug_array (&category->file_exts);
-	gtk_entry_set_text ((GtkEntry*) cform->types_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->types_entry, str);
 	g_free (str);
 }
 
 void  ugtk_category_form_set_multiple (UgtkCategoryForm*  cform, gboolean multiple_mode)
 {
 	if (multiple_mode) {
-		gtk_widget_hide (cform->name_entry);
-		gtk_widget_hide (cform->name_label);
+		gtk_widget_set_visible (cform->name_entry, FALSE);
+		gtk_widget_set_visible (cform->name_label, FALSE);
 		gtk_widget_set_sensitive (cform->name_entry, FALSE);
 		gtk_widget_set_sensitive (cform->name_label, FALSE);
 	}
 	else {
-		gtk_widget_show (cform->name_entry);
-		gtk_widget_show (cform->name_label);
+		gtk_widget_set_visible (cform->name_entry, TRUE);
+		gtk_widget_set_visible (cform->name_label, TRUE);
 		gtk_widget_set_sensitive (cform->name_entry, TRUE);
 		gtk_widget_set_sensitive (cform->name_label, TRUE);
 	}

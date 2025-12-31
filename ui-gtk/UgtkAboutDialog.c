@@ -68,12 +68,18 @@ UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent)
 	adialog = g_malloc (sizeof (UgtkAboutDialog));
 	adialog->self = (GtkDialog*) gtk_about_dialog_new ();
 	gtk_window_set_transient_for ((GtkWindow*) adialog->self, parent);
-	gtk_dialog_set_default_response (adialog->self, GTK_RESPONSE_CANCEL);
+	gtk_window_set_transient_for ((GtkWindow*) adialog->self, parent);
+	// gtk_dialog_set_default_response (adialog->self, GTK_RESPONSE_CANCEL);
 
 	path = g_build_filename (
 			ugtk_get_data_dir (), "pixmaps", "uget", "logo.png", NULL);
 	adialog->pixbuf = gdk_pixbuf_new_from_file (path, NULL);
 	g_free (path);
+
+	// GTK4: Convert pixbuf to texture for GtkAboutDialog logo property
+	GdkTexture* texture = NULL;
+	if (adialog->pixbuf)
+		texture = gdk_texture_new_for_pixbuf (adialog->pixbuf);
 
 	comments = g_strconcat (
 			gettext (uget_comments),     "\n",
@@ -83,7 +89,7 @@ UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent)
 
 	g_object_set (adialog->self,
 //			"logo-icon-name", UGTK_APP_ICON_NAME,
-			"logo", adialog->pixbuf,
+			"logo", texture,
 			"program-name", UGTK_APP_NAME,
 			"version", PACKAGE_VERSION,
 			"comments", comments,
@@ -105,17 +111,21 @@ UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent)
 	textbuf = gtk_text_view_get_buffer ((GtkTextView*) textview);
 	adialog->textbuf = textbuf;
 
-	adialog->scrolled = gtk_scrolled_window_new (NULL, NULL);
+	adialog->scrolled = gtk_scrolled_window_new ();
+	// adialog->scrolled = gtk_scrolled_window_new (NULL, NULL);
 	scrolled = (GtkScrolledWindow*) adialog->scrolled;
 	gtk_widget_set_size_request ((GtkWidget*) scrolled, 200, 120);
-	gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scrolled,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled), textview);
-	gtk_widget_hide ((GtkWidget*) scrolled);
+	gtk_scrolled_window_set_child (scrolled, textview);
+	// gtk_container_add (GTK_CONTAINER (scrolled), textview);
+	gtk_widget_set_visible ((GtkWidget*) scrolled, FALSE);
+	// gtk_widget_hide ((GtkWidget*) scrolled);
 
 	box = (GtkBox*) gtk_dialog_get_content_area (adialog->self);
-	gtk_box_pack_end (box, (GtkWidget*) scrolled, TRUE, TRUE, 2);
+	// gtk_box_pack_end (box, (GtkWidget*) scrolled, TRUE, TRUE, 2);
+	gtk_box_prepend (box, (GtkWidget*) scrolled);
 
 	g_signal_connect (adialog->self, "response",
 			G_CALLBACK (ugtk_about_dialog_on_response), adialog);
@@ -125,7 +135,8 @@ UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent)
 
 void ugtk_about_dialog_free (UgtkAboutDialog* adialog)
 {
-	gtk_widget_destroy ((GtkWidget*) adialog->self);
+	gtk_window_destroy ((GtkWindow*) adialog->self);
+	// gtk_widget_destroy ((GtkWidget*) adialog->self);
 	if (adialog->pixbuf)
 		g_object_unref (adialog->pixbuf);
 	g_free (adialog);
@@ -134,10 +145,12 @@ void ugtk_about_dialog_free (UgtkAboutDialog* adialog)
 void ugtk_about_dialog_set_info (UgtkAboutDialog* adialog, const gchar* info_text)
 {
 	gtk_text_buffer_set_text (adialog->textbuf, info_text, -1);
-	gtk_widget_show_all ((GtkWidget*) adialog->scrolled);
+	gtk_widget_show ((GtkWidget*) adialog->scrolled);
+	// gtk_widget_show_all ((GtkWidget*) adialog->scrolled);
 }
 
 void ugtk_about_dialog_run (UgtkAboutDialog* adialog)
 {
-	gtk_dialog_run (adialog->self);
+	gtk_widget_set_visible (GTK_WIDGET (adialog->self), TRUE);
+	// gtk_dialog_run (adialog->self);
 }

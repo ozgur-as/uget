@@ -310,7 +310,7 @@ static gboolean  ugtk_app_timeout_queuing (UgtkApp* app)
 static void  on_keep_above_window_show (GtkWindow *window, gpointer  user_data)
 {
 	gtk_window_present (window);
-	gtk_window_set_keep_above (window, FALSE);
+//	gtk_window_set_keep_above (window, FALSE);
 }
 
 static void  ugtk_app_add_uris_quietly (UgtkApp* app,       GList* list,
@@ -412,7 +412,7 @@ static void  ugtk_app_add_uris_selected (UgtkApp* app,       GList* list,
 	}
 	// add URIs
 	if (list->next == NULL) {
-		gtk_entry_set_text (GTK_ENTRY (bdialog->download.uri_entry),
+		gtk_editable_set_text (GTK_EDITABLE (bdialog->download.uri_entry),
 		                    list->data);
 		bdialog->download.changed.uri = TRUE;
 	}
@@ -462,14 +462,15 @@ static void  ugtk_app_add_uris_selected (UgtkApp* app,       GList* list,
 			G_CALLBACK (on_keep_above_window_show), NULL);
 	// Make sure dilaog will show on top first time.
 	// uget_on_keep_above_window_show ()  will set keep_above = FALSE
-	gtk_window_set_keep_above ((GtkWindow*) bdialog->self, TRUE);
+	// gtk_window_set_keep_above ((GtkWindow*) bdialog->self, TRUE);
 	ugtk_batch_dialog_run (bdialog);
 }
 
-static void on_clipboard_text_received (GtkClipboard*  clipboard,
+static void on_clipboard_text_received (GdkClipboard*  clipboard,
                                         const gchar*   text,
                                         gpointer       user_data)
 {
+#if 0
 	UgtkApp*  app;
 	GList*    list;
 
@@ -487,16 +488,19 @@ static void on_clipboard_text_received (GtkClipboard*  clipboard,
 	}
 
 	app->clipboard.processing = FALSE;
+#endif
 }
 
 static gboolean  ugtk_app_timeout_clipboard (UgtkApp* app)
 {
+#if 0
 	if (app->setting.clipboard.monitor && app->clipboard.processing == FALSE) {
 		// set FALSE in on_clipboard_text_received()
 		app->clipboard.processing = TRUE;
 		gtk_clipboard_request_text (app->clipboard.self,
 				on_clipboard_text_received, app);
 	}
+#endif
 	// return FALSE if the source should be removed.
 	return TRUE;
 }
@@ -521,10 +525,12 @@ static gboolean  ugtk_app_timeout_rpc (UgtkApp* app)
 //				gtk_window_deiconify (app->window.self);
 			gtk_window_present (app->window.self);
 			// set position and size
+			/*
 			gtk_window_move (app->window.self,
 					app->setting.window.x, app->setting.window.y);
 			gtk_window_resize (app->window.self,
 					app->setting.window.width, app->setting.window.height);
+			*/
 			break;
 
 		case UGET_RPC_SEND_COMMAND:
@@ -533,16 +539,20 @@ static gboolean  ugtk_app_timeout_rpc (UgtkApp* app)
 			switch (cmd->value.ctrl.offline) {
 			case 0:
 				app->setting.offline_mode = FALSE;
+				/*
 				gtk_check_menu_item_set_active (
 						(GtkCheckMenuItem*) app->menubar.file.offline_mode,
 						FALSE);
+				*/
 				break;
 
 			case 1:
 				app->setting.offline_mode = TRUE;
+				/*
 				gtk_check_menu_item_set_active (
 						(GtkCheckMenuItem*) app->menubar.file.offline_mode,
 						TRUE);
+				*/
 				break;
 
 			default:
@@ -752,11 +762,12 @@ static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* body
 		pNotifyData->hWnd = FindWindowA ("gtkstatusicon-observer", NULL);
 	}
 
+    /*
 	if (pNotifyData->hWnd == NULL)
 		return;
 	// gtkstatusicon.c
 	// (gtk_status_icon_init): priv->nid.uID = GPOINTER_TO_UINT (status_icon);
-	pNotifyData->uID = GPOINTER_TO_UINT (app->trayicon.self);
+	// pNotifyData->uID = GPOINTER_TO_UINT (app->trayicon.self);
 	// title
 	string = g_strconcat (UGTK_APP_NAME " - ", title, NULL);
 	string_wcs = g_utf8_to_utf16 (string,  -1, NULL, NULL, NULL);
@@ -769,6 +780,7 @@ static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* body
 	g_free (string_wcs);
 
 	Shell_NotifyIconW (NIM_MODIFY, pNotifyData);
+    */
 }
 #else
 static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* info)

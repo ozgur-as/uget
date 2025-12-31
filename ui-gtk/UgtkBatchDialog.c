@@ -59,17 +59,17 @@ UgtkBatchDialog*  ugtk_batch_dialog_new (const char* title,
 #if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
 	gtk_window_set_has_resize_grip ((GtkWindow*)bdialog->self, FALSE);
 #endif
-	gtk_window_resize ((GtkWindow*)bdialog->self, 500, 350);
+	gtk_window_set_default_size ((GtkWindow*)bdialog->self, 500, 350);
 	// back button
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_GO_BACK,
+	gtk_dialog_add_button (bdialog->self, _("_Back"),
 	                       GTK_RESPONSE_REJECT);
 	// forward button
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_GO_FORWARD,
+	gtk_dialog_add_button (bdialog->self, _("_Forward"),
 	                       GTK_RESPONSE_ACCEPT);
 	// OK & cancel buttons
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_CANCEL,
+	gtk_dialog_add_button (bdialog->self, _("_Cancel"),
 	                       GTK_RESPONSE_CANCEL);
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_OK,
+	gtk_dialog_add_button (bdialog->self, _("_OK"),
 	                       GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (bdialog->self, GTK_RESPONSE_OK);
 
@@ -104,7 +104,9 @@ void  ugtk_batch_dialog_use_selector (UgtkBatchDialog* bdialog)
 	gtk_widget_get_preferred_size (bdialog->notebook, &requisition, NULL);
 	gtk_widget_set_size_request (bdialog->selector.self,
 			requisition.width, requisition.height);
-	gtk_box_pack_end (bdialog->hbox, bdialog->selector.self, TRUE, TRUE, 0);
+	gtk_widget_set_hexpand (bdialog->selector.self, TRUE);
+	gtk_widget_set_vexpand (bdialog->selector.self, TRUE);
+	gtk_box_append (GTK_BOX(bdialog->hbox), bdialog->selector.self);
 	// hide Page 2
 	gtk_widget_hide (bdialog->notebook);
 	// set focus
@@ -126,7 +128,9 @@ void  ugtk_batch_dialog_use_sequencer (UgtkBatchDialog* bdialog)
 	gtk_widget_get_preferred_size (bdialog->notebook, &requisition, NULL);
 	gtk_widget_set_size_request (bdialog->sequencer.self,
 			requisition.width, requisition.height);
-	gtk_box_pack_end (bdialog->hbox, bdialog->sequencer.self, TRUE, TRUE, 0);
+	gtk_widget_set_hexpand (bdialog->sequencer.self, TRUE);
+	gtk_widget_set_vexpand (bdialog->sequencer.self, TRUE);
+	gtk_box_append (GTK_BOX(bdialog->hbox), bdialog->sequencer.self);
 	// hide Page 2
 	gtk_widget_hide (bdialog->notebook);
 	// set focus
@@ -195,7 +199,7 @@ static void on_no_batch_response (UgtkBatchDialog* bdialog)
 	ugtk_download_form_get_folders (&bdialog->download,
 	                                &app->setting);
 
-	uri = gtk_entry_get_text ((GtkEntry*)bdialog->download.uri_entry);
+	uri = gtk_editable_get_text ((GtkEditable*)bdialog->download.uri_entry);
 	if (ugtk_node_dialog_confirm_existing((UgtkNodeDialog*) bdialog, uri)) {
 		dnode = uget_node_new (NULL);
 		ugtk_node_dialog_get ((UgtkNodeDialog*) bdialog, dnode->info);

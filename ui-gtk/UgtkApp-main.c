@@ -287,7 +287,11 @@ int  main (int argc, char** argv)
 	}
 
 	// GTK+
-	gtk_init (&argc, &argv);
+	// Disable CSD to prefer native Windows titlebar
+#if defined _WIN32 || defined _WIN64
+	g_setenv ("GTK_CSD", "0", TRUE);
+#endif
+	gtk_init ();
 	// SSL
 #if defined USE_GNUTLS || defined USE_OPENSSL
 	init_locks ();
@@ -311,7 +315,8 @@ int  main (int argc, char** argv)
 //	signal (SIGSEGV, sys_signal_handler);
 //	signal (SIGQUIT, sys_signal_handler);
 
-	gtk_main ();
+	while (g_list_model_get_n_items (gtk_window_get_toplevels ()) > 0)
+		g_main_context_iteration (NULL, TRUE);
 
 	// avoid crash when program re-enter signal handler.
 	ugtk_quitting = TRUE;

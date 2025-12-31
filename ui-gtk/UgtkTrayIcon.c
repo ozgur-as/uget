@@ -47,228 +47,17 @@
 
 void ugtk_tray_icon_init (UgtkTrayIcon* trayicon)
 {
-	GtkWidget*  image;
-	GtkWidget*  menu;
-	GtkWidget*  menu_item;
-	gchar*      icon_name;
-	gchar*      file_name;
-
-	// UgTrayIcon.menu
-	menu = gtk_menu_new ();
-	// New Download
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New _Download..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-new", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_download = menu_item;
-
-	// New Clipboard batch
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Clipboard _batch..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("edit-paste", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_clipboard = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// New Torrent
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Torrent..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_torrent = menu_item;
-
-	// New Metalink
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Metalink..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_metalink = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// Settings shortcut
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Clipboard _Monitor"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.clipboard_monitor = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Clipboard works quietly"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.clipboard_quiet = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Command-line works quietly"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.commandline_quiet = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Skip existing URI"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.skip_existing = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Apply recent download settings"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.apply_recent = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// Settings
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("_Settings..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-properties", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.settings = menu_item;
-
-	// About
-	menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, NULL);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.about = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-#ifdef HAVE_APP_INDICATOR
-	// Show window
-	menu_item = gtk_menu_item_new_with_mnemonic (_("Show window"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.show_window = menu_item;
-#endif
-
-	// Offline mode
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("_Offline Mode"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.offline_mode = menu_item;
-
-	// Quit
-	menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, NULL);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.quit = menu_item;
-
-	gtk_widget_show_all (menu);
-	trayicon->menu.self = menu;
-
-	// decide tray icon
-	file_name = g_build_filename (UG_DATADIR, "icons",
-	                         "hicolor", "16x16", "apps",
-	                         "uget-icon.png", NULL);
-	if (g_file_test (file_name, G_FILE_TEST_IS_REGULAR))
-		icon_name = UGTK_TRAY_ICON_NAME;
-	else
-		icon_name = GTK_STOCK_GO_DOWN;
-	g_free (file_name);
-#ifdef HAVE_APP_INDICATOR
-	trayicon->indicator = app_indicator_new ("uget-gtk", icon_name,
-			APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-	trayicon->indicator_temp = trayicon->indicator;
-	if (trayicon->indicator) {
-		app_indicator_set_menu (trayicon->indicator, GTK_MENU (trayicon->menu.self));
-//		app_indicator_set_attention_icon_full (trayicon->indicator,
-//				UGTK_TRAY_ICON_ACTIVE_NAME, NULL);
-		app_indicator_set_attention_icon (trayicon->indicator,
-				UGTK_TRAY_ICON_ACTIVE_NAME);
-		app_indicator_set_status (trayicon->indicator,
-				APP_INDICATOR_STATUS_PASSIVE);
-	}
-#endif	// HAVE_APP_INDICATOR
-	trayicon->self = gtk_status_icon_new_from_icon_name (icon_name);
-	gtk_status_icon_set_visible (trayicon->self, FALSE);
+	// Stubbed for GTK 4 port (GtkStatusIcon removed)
 }
 
 void ugtk_tray_icon_set_info (UgtkTrayIcon* trayicon, guint n_active, gint64 down_speed, gint64 up_speed)
 {
-	gchar*  string;
-	char*   string_down_speed;
-	char*   string_up_speed;
-	guint   current_state;
-
-	// change tray icon
-	if (trayicon->error_occurred) {
-		string = UGTK_TRAY_ICON_ERROR_NAME;
-		current_state = UGTK_TRAY_ICON_STATE_ERROR;
-	}
-	else if (n_active > 0) {
-		string = UGTK_TRAY_ICON_ACTIVE_NAME;
-		current_state = UGTK_TRAY_ICON_STATE_RUNNING;
-	}
-	else {
-		string = UGTK_TRAY_ICON_NAME;
-		current_state = UGTK_TRAY_ICON_STATE_NORMAL;
-	}
-
-	if (trayicon->state != current_state) {
-		trayicon->state  = current_state;
-#ifdef HAVE_APP_INDICATOR
-		if (trayicon->indicator) {
-			trayicon->error_occurred = FALSE;
-			if (app_indicator_get_status (trayicon->indicator) != APP_INDICATOR_STATUS_PASSIVE) {
-				if (current_state == UGTK_TRAY_ICON_STATE_NORMAL) {
-					app_indicator_set_status (trayicon->indicator,
-							APP_INDICATOR_STATUS_ACTIVE);
-				}
-				else {
-					app_indicator_set_attention_icon (trayicon->indicator, string);
-	//				app_indicator_set_attention_icon_full (trayicon->indicator,
-	//						string, "attention");
-					app_indicator_set_status (trayicon->indicator,
-							APP_INDICATOR_STATUS_ATTENTION);
-				}
-			}
-		}
-		else
-#endif	// HAVE_APP_INDICATOR
-		gtk_status_icon_set_from_icon_name (trayicon->self, string);
-	}
-
-	// change tooltip
-	string_down_speed = ug_str_from_int_unit (down_speed, "/s");
-	string_up_speed   = ug_str_from_int_unit (up_speed, "/s");
-	string = g_strdup_printf (
-			UGTK_APP_NAME " " PACKAGE_VERSION "\n"
-			"%u %s" "\n"
-			"\xE2\x86\x93 %s"     // "↓"
-			" , "
-			"\xE2\x86\x91 %s",    // "↑"
-			n_active, _("tasks"),
-			string_down_speed,
-			string_up_speed);
-#ifdef HAVE_APP_INDICATOR
-	if (trayicon->indicator) {
-//		g_object_set (trayicon->indicator, "icon-desc", string, NULL);
-//		g_object_set (trayicon->indicator, "attention-icon-desc", string, NULL);
-	}
-	else
-#endif	// HAVE_APP_INDICATOR
-	gtk_status_icon_set_tooltip_text (trayicon->self, string);
-
-	ug_free (string_down_speed);
-	ug_free (string_up_speed);
-	g_free (string);
+	// Stubbed for GTK 4 port
 }
 
 void  ugtk_tray_icon_set_visible (UgtkTrayIcon* trayicon, gboolean visible)
 {
-#ifdef HAVE_APP_INDICATOR
-	if (trayicon->indicator) {
-		if (visible)
-			app_indicator_set_status (trayicon->indicator,
-					APP_INDICATOR_STATUS_ACTIVE);
-		else
-			app_indicator_set_status (trayicon->indicator,
-					APP_INDICATOR_STATUS_PASSIVE);
-	}
-	else
-#endif	// HAVE_APP_INDICATOR
-	gtk_status_icon_set_visible (trayicon->self, visible);
-	trayicon->visible = visible;
+	// Stubbed for GTK 4 port
 }
 
 #ifdef HAVE_APP_INDICATOR
@@ -288,6 +77,7 @@ void  ugtk_tray_icon_use_indicator (UgtkTrayIcon* trayicon, gboolean enable)
 // ----------------------------------------------------------------------------
 // Callback
 
+#if 0
 static void	on_trayicon_activate (GtkStatusIcon* status_icon, UgtkApp* app)
 {
 	gint  x, y;
@@ -452,53 +242,11 @@ static void	on_trayicon_show_window (GtkWidget* widget, UgtkApp* app)
 	}
 }
 #endif // HAVE_APP_INDICATOR
+#endif // 0 - Stubbed callbacks
+
 
 void  ugtk_trayicon_init_callback (struct UgtkTrayIcon* trayicon, UgtkApp* app)
 {
-	g_signal_connect (trayicon->self, "activate",
-			G_CALLBACK (on_trayicon_activate), app);
-	g_signal_connect (trayicon->self, "popup-menu",
-			G_CALLBACK (on_trayicon_popup_menu), trayicon);
-
-#if defined _WIN32 || defined _WIN64
-	g_signal_connect (trayicon->menu.self, "leave-notify-event",
-			G_CALLBACK (tray_menu_leave_enter), NULL);
-	g_signal_connect (trayicon->menu.self, "enter-notify-event",
-			G_CALLBACK (tray_menu_leave_enter), NULL);
-#endif
-	g_signal_connect (trayicon->menu.create_download, "activate",
-			G_CALLBACK (on_create_download), app);
-	g_signal_connect_swapped (trayicon->menu.create_clipboard, "activate",
-			G_CALLBACK (ugtk_app_clipboard_batch), app);
-	g_signal_connect_swapped (trayicon->menu.create_torrent, "activate",
-			G_CALLBACK (ugtk_app_create_torrent), app);
-	g_signal_connect_swapped (trayicon->menu.create_metalink, "activate",
-			G_CALLBACK (ugtk_app_create_metalink), app);
-
-	trayicon->menu.emission = TRUE;
-	g_signal_connect (trayicon->menu.clipboard_monitor, "activate",
-			G_CALLBACK (on_clipboard_monitor), app);
-	g_signal_connect (trayicon->menu.clipboard_quiet, "activate",
-			G_CALLBACK (on_clipboard_quiet), app);
-	g_signal_connect (trayicon->menu.commandline_quiet, "activate",
-			G_CALLBACK (on_commandline_quiet), app);
-	g_signal_connect (trayicon->menu.skip_existing, "activate",
-			G_CALLBACK (on_skip_existing), app);
-	g_signal_connect (trayicon->menu.apply_recent, "activate",
-			G_CALLBACK (on_apply_recent), app);
-
-	g_signal_connect (trayicon->menu.settings, "activate",
-			G_CALLBACK (on_config_settings), app);
-	g_signal_connect (trayicon->menu.offline_mode, "toggled",
-			G_CALLBACK (on_offline_mode), app);
-	g_signal_connect (trayicon->menu.about, "activate",
-			G_CALLBACK (on_about), app);
-	g_signal_connect_swapped (trayicon->menu.quit, "activate",
-			G_CALLBACK (ugtk_app_decide_to_quit), app);
-
-#ifdef HAVE_APP_INDICATOR
-	g_signal_connect (trayicon->menu.show_window, "activate",
-			G_CALLBACK (on_trayicon_show_window), app);
-#endif // HAVE_APP_INDICATOR
+	// Stubbed for GTK 4 port
 }
 

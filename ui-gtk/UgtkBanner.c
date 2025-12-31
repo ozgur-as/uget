@@ -43,11 +43,13 @@
 static GdkCursor* hand_cursor = NULL;
 static GdkCursor* regular_cursor = NULL;
 
-static gboolean
-motion_notify_event (GtkWidget* tv_widget, GdkEventMotion* event, UgtkBanner* banner);
 
-static gboolean
-event_after (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner);
+// static gboolean
+// motion_notify_event (GtkWidget* tv_widget, GdkEventMotion* event, UgtkBanner* banner);
+//
+// static gboolean
+// event_after (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner);
+
 
 static GtkWidget* create_x_button (UgtkBanner* banner);
 
@@ -56,8 +58,10 @@ void ugtk_banner_init (struct UgtkBanner* banner)
 	GtkStyleContext* style_context;
 	GdkRGBA    rgba;
 
-	hand_cursor = gdk_cursor_new (GDK_HAND2);
-	regular_cursor = gdk_cursor_new (GDK_XTERM);
+	hand_cursor = gdk_cursor_new_from_name ("pointer", NULL);
+	regular_cursor = gdk_cursor_new_from_name ("text", NULL);
+	// hand_cursor = gdk_cursor_new (GDK_HAND2);
+	// regular_cursor = gdk_cursor_new (GDK_XTERM);
 
 	banner->self = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 	banner->buffer = gtk_text_buffer_new (NULL);
@@ -69,26 +73,28 @@ void ugtk_banner_init (struct UgtkBanner* banner)
 	g_object_unref (banner->buffer);
 	gtk_text_view_set_cursor_visible (banner->text_view, FALSE);
 	gtk_text_view_set_editable (banner->text_view, FALSE);
-	gtk_box_pack_start (GTK_BOX (banner->self),
-			GTK_WIDGET (banner->text_view), TRUE, TRUE, 0);
+	// gtk_box_pack_start (GTK_BOX (banner->self),
+	//		GTK_WIDGET (banner->text_view), TRUE, TRUE, 0);
+	gtk_box_append (GTK_BOX (banner->self), GTK_WIDGET (banner->text_view));
 
-	g_signal_connect (banner->text_view, "event-after",
-			G_CALLBACK (event_after), banner);
-	g_signal_connect (banner->text_view, "motion-notify-event",
-			G_CALLBACK (motion_notify_event), banner);
+	// g_signal_connect (banner->text_view, "event-after",
+	//		G_CALLBACK (event_after), banner);
+	// g_signal_connect (banner->text_view, "motion-notify-event",
+	//		G_CALLBACK (motion_notify_event), banner);
 	// style: color
 	style_context = gtk_widget_get_style_context (GTK_WIDGET (banner->text_view));
-	gtk_style_context_get_background_color (style_context,
-			GTK_STATE_FLAG_SELECTED, &rgba);
+	// gtk_style_context_get_background_color (style_context,
+	//		GTK_STATE_FLAG_SELECTED, &rgba);
 //	gtk_widget_override_background_color (
 //			GTK_WIDGET (banner->text_view), GTK_STATE_FLAG_NORMAL, &rgba);
-	gtk_style_context_get_color (style_context,
-			GTK_STATE_FLAG_SELECTED, &rgba);
+	// gtk_style_context_get_color (style_context,
+	//		GTK_STATE_FLAG_SELECTED, &rgba);
 //	gtk_widget_override_color (
 //			GTK_WIDGET (banner->text_view), GTK_STATE_FLAG_NORMAL, &rgba);
 	// close button
-	gtk_box_pack_end (GTK_BOX (banner->self),
-			create_x_button (banner), FALSE, FALSE, 0);
+	// gtk_box_pack_end (GTK_BOX (banner->self),
+	//		create_x_button (banner), FALSE, FALSE, 0);
+	gtk_box_prepend (GTK_BOX (banner->self), create_x_button (banner));
 
 	banner->show_builtin = 2;
 	banner->rss.self = NULL;
@@ -108,7 +114,8 @@ int  ugtk_banner_show_rss (UgtkBanner* banner, UgetRss* urss)
 	if (banner->rss.item)
 		ugtk_banner_show (banner, banner->rss.item->title, banner->rss.item->link);
 	else {
-		gtk_widget_hide (banner->self);
+		gtk_widget_set_visible (banner->self, FALSE);
+		// gtk_widget_hide (banner->self);
 		return FALSE;
 	}
 	return TRUE;
@@ -180,45 +187,13 @@ void  ugtk_banner_show_survey (UgtkBanner* banner)
 
 /* Links can also be activated by clicking.
  */
+/*
 static gboolean
 event_after (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner)
 {
-	GtkTextIter start, end, iter;
-	GtkTextBuffer *buffer;
-	GdkEventButton *event;
-	gint x, y;
-	GSList* slist;
-
-	if (ev->type != GDK_BUTTON_RELEASE)
-		return FALSE;
-
-	event = (GdkEventButton *)ev;
-
-	if (event->button != GDK_BUTTON_PRIMARY)
-		return FALSE;
-
-	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_view));
-
-	/* we shouldn't follow a link if the user has selected something */
-	gtk_text_buffer_get_selection_bounds (buffer, &start, &end);
-	if (gtk_text_iter_get_offset (&start) != gtk_text_iter_get_offset (&end))
-		return FALSE;
-
-	gtk_text_view_window_to_buffer_coords (GTK_TEXT_VIEW (text_view),
-                                         GTK_TEXT_WINDOW_WIDGET,
-                                         (gint) event->x, (gint) event->y, &x, &y);
-
-	gtk_text_view_get_iter_at_location (GTK_TEXT_VIEW (text_view), &iter, x, y);
-
-	slist = gtk_text_iter_get_tags (&iter);
-	if (slist) {
-		if (banner->link)
-			ugtk_launch_uri (banner->link);
-		g_slist_free (slist);
-	}
-
 	return FALSE;
 }
+*/
 
 /* Update the cursor image if the pointer moved.
  */
@@ -226,59 +201,35 @@ event_after (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner)
  * and if one of them is a link, change the cursor to the "hands" cursor
  * typically used by web browsers.
  */
+/*
 static gboolean
 motion_notify_event (GtkWidget* tv_widget, GdkEventMotion* event, UgtkBanner* banner)
 {
-	GtkTextView* text_view;
-	gint x, y;
-	gboolean  hovering = FALSE;
-	GSList* slist;
-	GtkTextIter iter;
-
-	text_view = GTK_TEXT_VIEW (tv_widget);
-	gtk_text_view_window_to_buffer_coords (text_view,
-			GTK_TEXT_WINDOW_WIDGET, (gint) event->x, (gint) event->y, &x, &y);
-
-	// set cursor if appropriate
-	gtk_text_view_get_iter_at_location (text_view, &iter, x, y);
-
-	slist = gtk_text_iter_get_tags (&iter);
-	if (slist)
-		hovering = TRUE;
-	if (banner->hovering_over_link != hovering) {
-		banner->hovering_over_link = hovering;
-
-		if (banner->hovering_over_link) {
-			gdk_window_set_cursor (gtk_text_view_get_window (text_view,
-					GTK_TEXT_WINDOW_TEXT), hand_cursor);
-		}
-		else {
-			gdk_window_set_cursor (gtk_text_view_get_window (text_view,
-					GTK_TEXT_WINDOW_TEXT), regular_cursor);
-		}
-	}
-	if (slist)
-		g_slist_free (slist);
-
 	return FALSE;
 }
+*/
 
 // ------------------------------------
 
-static gboolean
-on_x_button_release (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner)
+static void
+on_x_button_clicked (GtkButton* button, UgtkBanner* banner)
+// on_x_button_release (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner)
 {
+/*
 	GdkEventButton* event;
 
 	event = (GdkEventButton*) ev;
 	if (event->button != GDK_BUTTON_PRIMARY)
 		return FALSE;
+*/
 
 	if (banner->rss.self) {
 		if (banner->rss.feed && banner->rss.item)
 			banner->rss.feed->checked = banner->rss.item->updated;
-		if (ugtk_banner_show_rss (banner, banner->rss.self))
-			return FALSE;
+		// if (ugtk_banner_show_rss (banner, banner->rss.self))
+		//	return FALSE;
+		ugtk_banner_show_rss (banner, banner->rss.self);
+		return;
 	}
 
 	if (banner->show_builtin > 0) {
@@ -289,11 +240,13 @@ on_x_button_release (GtkWidget* text_view, GdkEvent* ev, UgtkBanner* banner)
 			ugtk_banner_show_survey (banner);
 			banner->show_builtin = 0;
 		}
-		return FALSE;
+		return;
+		// return FALSE;
 	}
 
-	gtk_widget_hide (banner->self);
-	return FALSE;
+	gtk_widget_set_visible (banner->self, FALSE);
+	// gtk_widget_hide (banner->self);
+	// return FALSE;
 }
 
 static GtkWidget* create_x_button (UgtkBanner* banner)
@@ -302,11 +255,14 @@ static GtkWidget* create_x_button (UgtkBanner* banner)
 	GtkWidget* label;
 
 	label = gtk_label_new (" X ");
-	event_box = gtk_event_box_new ();
-	gtk_container_add (GTK_CONTAINER (event_box), label);
+	// event_box = gtk_event_box_new ();
+	// gtk_container_add (GTK_CONTAINER (event_box), label);
+	event_box = gtk_button_new ();
+	gtk_button_set_has_frame (GTK_BUTTON (event_box), FALSE);
+	gtk_button_set_child (GTK_BUTTON (event_box), label);
 
-	g_signal_connect (event_box, "button-release-event",
-			G_CALLBACK (on_x_button_release), banner);
+	g_signal_connect (event_box, "clicked",
+			G_CALLBACK (on_x_button_clicked), banner);
 	return event_box;
 }
 

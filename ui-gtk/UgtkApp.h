@@ -92,6 +92,7 @@ struct UgtkApp
  */
 
 	UgetRpc*          rpc;
+	GSimpleActionGroup*  action_group;  // Menu action group for GAction state updates
 	UgtkSetting       setting;
 	UgtkScheduleState schedule_state;
 
@@ -110,7 +111,7 @@ struct UgtkApp
 	// Clipboard
 	struct UgtkClipboard
 	{
-		GtkClipboard*  self;
+		GdkClipboard*  self;
 		gchar*         text;
 		GRegex*        regex;
 		gboolean       processing;
@@ -131,12 +132,18 @@ struct UgtkApp
 
 	// -------------------------------------------------------
 	// GUI: Main Window and Tray Icon
-	GtkAccelGroup*   accel_group;
+	gpointer         accel_group;
 	UgtkTrayIcon     trayicon;
 	UgtkBanner       banner;
 	UgtkMenubar      menubar;
 	UgtkSummary      summary;
 	UgtkTraveler     traveler;   // (UgetNode) node traveler
+
+	// Context menus (GtkPopoverMenu for GTK4)
+	GtkWidget*       category_context_menu;
+	GtkWidget*       download_context_menu;
+	GtkWidget*       summary_context_menu;
+	GMenu*           menubar_move_to_menu;  // Move To submenu in menubar for dynamic population
 
 	// --------------------------------
 	// Main Window (initialize in UgtkApp-ui.c)
@@ -256,6 +263,8 @@ void  ugtk_app_add_default_category (UgtkApp* app);
 
 void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
                              const gchar* message);
+
+void  ugtk_app_open_settings (UgtkApp* app);
 
 // --------------------------------------------------------
 // UgClipboard

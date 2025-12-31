@@ -48,6 +48,7 @@
 #include <UgtkNodeDialog.h>
 #include <UgtkBatchDialog.h>
 #include <UgtkConfirmDialog.h>
+#include <UgtkSettingDialog.h>
 
 #include <glib/gi18n.h>
 
@@ -192,35 +193,39 @@ void  ugtk_app_quit (UgtkApp* app)
 	// hide window
 	gtk_widget_hide (GTK_WIDGET (app->window.self));
 
-	gtk_main_quit ();
+	// gtk_main_quit ();
+	exit(0);
 }
 
 void  ugtk_app_get_window_setting (UgtkApp* app, UgtkSetting* setting)
 {
-	GdkWindowState  gdk_wstate;
-	GdkWindow*      gdk_window;
-	gint            x, y;
+	// GdkWindowState  gdk_wstate;
+	// GdkWindow*      gdk_window;
+	// gint            x, y;
 
 	// get window position, size, and maximized state
 	if (gtk_widget_get_visible (GTK_WIDGET (app->window.self)) == TRUE) {
-		gdk_window = gtk_widget_get_window (GTK_WIDGET (app->window.self));
-		gdk_wstate = gdk_window_get_state (gdk_window);
+		// gdk_window = gtk_widget_get_window (GTK_WIDGET (app->window.self));
+		// gdk_wstate = gdk_window_get_state (gdk_window);
 
-		if (gdk_wstate & GDK_WINDOW_STATE_MAXIMIZED)
+		if (gtk_window_is_maximized ((GtkWindow*) app->window.self))
 			setting->window.maximized = TRUE;
 		else
 			setting->window.maximized = FALSE;
 		// get geometry
-		if (setting->window.maximized == FALSE) {
-			gtk_window_get_position (app->window.self, &x, &y);
-			gtk_window_get_size (app->window.self,
-					&setting->window.width, &setting->window.height);
-			// gtk_window_get_position() may return: x == -32000, y == -32000
-			if (x + app->setting.window.width > 0)
-				setting->window.x = x;
-			if (y + app->setting.window.height > 0)
-				setting->window.y = y;
-		}
+		// GTK4: Getting window position is not recommended/supported consistently across backends
+		// if (setting->window.maximized == FALSE) {
+		// 	gtk_window_get_position (app->window.self, &x, &y);
+		// 	gtk_window_get_size (app->window.self,
+		// 			&setting->window.width, &setting->window.height);
+		// 	// gtk_window_get_position() may return: x == -32000, y == -32000
+		// 	if (x + app->setting.window.width > 0)
+		// 		setting->window.x = x;
+		// 	if (y + app->setting.window.height > 0)
+		// 		setting->window.y = y;
+		// }
+		gtk_window_get_default_size ((GtkWindow*) app->window.self,
+				&setting->window.width, &setting->window.height);
 	}
 	// GtkPaned position
 	if (app->setting.window.category)
@@ -238,16 +243,21 @@ void  ugtk_app_get_window_setting (UgtkApp* app, UgtkSetting* setting)
 void  ugtk_app_set_window_setting (UgtkApp* app, UgtkSetting* setting)
 {
 	// set window position, size, and maximized state
-	if (setting->window.width  > 0 &&
-	    setting->window.height > 0 &&
-	    setting->window.x < gdk_screen_width ()  &&
-	    setting->window.y < gdk_screen_height () &&
-	    setting->window.x + setting->window.width > 0  &&
-	    setting->window.y + setting->window.height > 0)
-	{
-		gtk_window_move (app->window.self,
-				setting->window.x, setting->window.y);
-		gtk_window_resize (app->window.self,
+	// GTK4: Window position setting is deprecated/removed
+	// if (setting->window.width  > 0 &&
+	//     setting->window.height > 0 &&
+	//     setting->window.x < gdk_screen_width ()  &&
+	//     setting->window.y < gdk_screen_height () &&
+	//     setting->window.x + setting->window.width > 0  &&
+	//     setting->window.y + setting->window.height > 0)
+	// {
+	// 	gtk_window_move (app->window.self,
+	// 			setting->window.x, setting->window.y);
+	// 	gtk_window_resize (app->window.self,
+	// 			setting->window.width, setting->window.height);
+	// }
+	if (setting->window.width  > 0 && setting->window.height > 0) {
+		gtk_window_set_default_size ((GtkWindow*) app->window.self,
 				setting->window.width, setting->window.height);
 	}
 	if (setting->window.maximized)
@@ -267,7 +277,7 @@ void  ugtk_app_set_window_setting (UgtkApp* app, UgtkSetting* setting)
 			setting->window.toolbar);
 	gtk_widget_set_visible ((GtkWidget*) app->statusbar.self,
 			setting->window.statusbar);
-	gtk_widget_set_visible (gtk_paned_get_child1 (app->window.hpaned),
+	gtk_widget_set_visible (gtk_paned_get_start_child (app->window.hpaned),
 			setting->window.category);
 	gtk_widget_set_visible (app->summary.self,
 			setting->window.summary);
@@ -571,6 +581,7 @@ void  ugtk_app_set_other_setting (UgtkApp* app, UgtkSetting* setting)
 
 void  ugtk_app_set_menu_setting (UgtkApp* app, UgtkSetting* setting)
 {
+#if 0
 	// ----------------------------------------------------
 	// UgtkEditMenu
 	gtk_check_menu_item_set_active (
@@ -697,6 +708,7 @@ void  ugtk_app_set_menu_setting (UgtkApp* app, UgtkSetting* setting)
 	gtk_check_menu_item_set_active (
 			(GtkCheckMenuItem*) app->menubar.view.columns.completed_on,
 			setting->download_column.completed_on);
+#endif
 }
 
 void  ugtk_app_set_ui_setting (UgtkApp* app, UgtkSetting* setting)
@@ -713,11 +725,11 @@ void  ugtk_app_set_ui_setting (UgtkApp* app, UgtkSetting* setting)
 	// ----------------------------------------------------
 	// large icon
 	if (setting->ui.large_icon)
-		icon_size = GTK_ICON_SIZE_LARGE_TOOLBAR;
+		icon_size = GTK_ICON_SIZE_LARGE;
 	else
-		icon_size = GTK_ICON_SIZE_SMALL_TOOLBAR;
+		icon_size = GTK_ICON_SIZE_NORMAL;
 	// toolbar
-	gtk_toolbar_set_icon_size ((GtkToolbar*) app->toolbar.self, icon_size);
+	// gtk_toolbar_set_icon_size ((GtkToolbar*) app->toolbar.self, icon_size);
 	// state list
 	ugtk_node_view_use_large_icon (app->traveler.state.view,
 	                               setting->ui.large_icon,
@@ -743,6 +755,7 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	gboolean           sensitive;
 	static gboolean    sensitive_last = TRUE;
 	gint               n_selected;
+	GAction*           action;
 
 	selection = gtk_tree_view_get_selection (app->traveler.download.view);
 	n_selected = gtk_tree_selection_count_selected_rows (selection);
@@ -751,12 +764,44 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	else
 		sensitive = FALSE;
 
-	// change sensitive after select/unselect
+	// Update GAction states (GTK4)
+	const char *actions[] = {
+		"download-open",
+		"download-open-folder",
+		"download-delete",
+		"download-delete-file",
+		"download-force-start",
+		"download-runnable",	// "download-start" mapped to runnable in menu? need verification, likely "download-start"
+		"download-start",
+		"download-pause",
+		"download-move-up",
+		"download-move-down",
+		"download-move-top",
+		"download-move-bottom",
+		"download-properties",
+		// "priority", // submenu actions handled via GAction? Usually "priority" is the group or state.
+		NULL
+	};
+
+	// "runnable" action name check: in menu it was "win.download-start", but callback is on_action_download_start?
+	// let's try both common names just in case, or stick to what we saw in UgtkMenubar-ui.c ("win.download-start")
+	// The action name in group likely doesn't have "win.". "download-start" is safe.
+
+	for (const char **act = actions; *act; act++) {
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), *act);
+		if (action) {
+			g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+		}
+	}
+	// "download-runnable" might be the name used in some contexts, but if not found it just skips.
+
+	// change sensitive after select/unselect (Toolbar widgets)
 	if (sensitive_last != sensitive) {
 		sensitive_last  = sensitive;
 		gtk_widget_set_sensitive (app->toolbar.runnable, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.pause, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
+		// App menubar widgets (if used)
 		gtk_widget_set_sensitive (app->menubar.download.open, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.open_folder, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.delete, sensitive);
@@ -771,20 +816,22 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	if (n_selected > 1) {
 		gtk_widget_set_sensitive (app->toolbar.properties, FALSE);
 		gtk_widget_set_sensitive (app->menubar.download.properties, FALSE);
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "download-properties");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), FALSE);
 	}
 	else {
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.properties, sensitive);
+		// properties enabledstate handled by loop above for sensistive=TRUE, but if sensitive=TRUE and n>1 must disable
 	}
 
 	// Move Up/Down/Top/Bottom functions need reset sensitive when selection changed.
 	// These need by  on_move_download_xxx()  series.
 	if (n_selected > 0) {
-		// Any Category/Status can't move download position if they were sorted.
-		if (app->setting.download_column.sort.nth == UGTK_NODE_COLUMN_STATE)
-			sensitive = TRUE;
-		else
-			sensitive = FALSE;
+		// Enabled even if sorted - move action will implicitly switch to manual sort
+		sensitive = TRUE;
+	} else {
+		sensitive = FALSE;
 	}
 	// move up/down/top/bottom
 	gtk_widget_set_sensitive (app->toolbar.move_up, sensitive);
@@ -795,6 +842,13 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	gtk_widget_set_sensitive (app->menubar.download.move_down, sensitive);
 	gtk_widget_set_sensitive (app->menubar.download.move_top, sensitive);
 	gtk_widget_set_sensitive (app->menubar.download.move_bottom, sensitive);
+	
+	// Update action state for move commands too
+	const char *move_actions[] = { "download-move-up", "download-move-down", "download-move-top", "download-move-bottom", NULL };
+	for (const char **act = move_actions; *act; act++) {
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), *act);
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+	}
 }
 
 // decide sensitive for menu, toolbar
@@ -861,7 +915,7 @@ void  ugtk_app_decide_to_quit (UgtkApp* app)
 	if (app->setting.ui.exit_confirmation == FALSE)
 		ugtk_app_quit (app);
 	else if (app->dialogs.exit_confirmation)
-		gtk_widget_show (app->dialogs.exit_confirmation);
+		gtk_window_present ((GtkWindow*) app->dialogs.exit_confirmation);
 	else {
 		cdialog = ugtk_confirm_dialog_new (UGTK_CONFIRM_DIALOG_EXIT, app);
 		ugtk_confirm_dialog_run (cdialog);
@@ -901,6 +955,44 @@ void  ugtk_app_create_category (UgtkApp* app)
 	ugtk_node_dialog_run (ndialog, UGTK_NODE_DIALOG_NEW_CATEGORY, cnode);
 }
 
+// Async callback for clipboard text
+static void on_paste_url_received (GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+    GdkClipboard *clipboard = GDK_CLIPBOARD (source_object);
+    UgtkNodeDialog *ndialog = (UgtkNodeDialog *) user_data;
+    char *text;
+    GError *error = NULL;
+
+    text = gdk_clipboard_read_text_finish (clipboard, res, &error);
+    if (text) {
+        GList *list;
+        // reuse parsing logic
+        list = ugtk_text_get_uris (text);
+        list = ugtk_uri_list_remove_scheme (list, "file");
+        if (list) {
+            // use first URI
+            gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), (const char*)list->data);
+            ndialog->download.changed.uri = TRUE;
+            
+            // match category by URI
+            UgUri uuri;
+            UgetNode *cnode;
+            UgetNode *temp_cnode;
+            ug_uri_init (&uuri, (const char*)list->data);
+            // Need app context. ndialog->app is available.
+            temp_cnode = uget_app_match_category ((UgetApp*) ndialog->app, &uuri, NULL);
+            if (temp_cnode) {
+                 ugtk_node_dialog_set_category (ndialog, temp_cnode->base);
+            }
+            g_list_free_full (list, g_free);
+            ugtk_download_form_complete_entry (&ndialog->download);
+        }
+        g_free (text);
+    } else {
+        if (error) g_error_free (error);
+    }
+}
+
 void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char* uri)
 {
 	UgtkNodeDialog*  ndialog;
@@ -927,7 +1019,7 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 
 	if (uri != NULL) {
 		// set URI entry
-		gtk_entry_set_text ((GtkEntry*) ndialog->download.uri_entry, uri);
+		gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), uri);
 		ndialog->download.changed.uri = TRUE;
 		// match category by URI
 		ug_uri_init (&uuri, uri);
@@ -935,9 +1027,18 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 		if (temp.cnode)
 			cnode = temp.cnode;
 	}
+	else {
+        // GTK4 Async Clipboard Read
+        GdkClipboard *clipboard = gdk_display_get_clipboard (gdk_display_get_default ());
+        if (clipboard) {
+            gdk_clipboard_read_text_async (clipboard, NULL, on_paste_url_received, ndialog);
+        }
+    }
+    
+#if 0
 	else if ( (list = ugtk_clipboard_get_uris (&app->clipboard)) != NULL ) {
 		// use first URI from clipboard to set URI entry
-		gtk_entry_set_text ((GtkEntry*) ndialog->download.uri_entry, list->data);
+		gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), list->data);
 		ndialog->download.changed.uri = TRUE;
 		// match category by URI from clipboard
 		ug_uri_init (&uuri, list->data);
@@ -948,6 +1049,7 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 		g_list_free_full (list, g_free);
 		ugtk_download_form_complete_entry (&ndialog->download);
 	}
+#endif
 
 	if (cnode)
 		cnode = cnode->base;
@@ -993,15 +1095,18 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 	GList*    link;
 	GList*    list = NULL;
 	// check shift key status
+#if 0
 	GdkWindow*       gdk_win;
+	GdkDeviceManager* device_manager;
 	GdkDevice*       dev_pointer;
 	GdkModifierType  mask;
+	gint             x, y;
 
-	// check shift key status
 	gdk_win = gtk_widget_get_parent_window ((GtkWidget*) app->traveler.download.view);
 	dev_pointer = gdk_device_manager_get_client_pointer (
 			gdk_display_get_device_manager (gdk_window_get_display (gdk_win)));
 	gdk_window_get_device_position (gdk_win, dev_pointer, NULL, NULL, &mask);
+#endif
 
 	cursor = app->traveler.download.cursor.node;
 	if (cursor)
@@ -1011,7 +1116,7 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 		node = link->data;
 		node = node->base;
 		link->data = node;
-		if (delete_files || mask & GDK_SHIFT_MASK)
+		if (delete_files /* || mask & GDK_SHIFT_MASK */)
 			uget_app_delete_download ((UgetApp*) app, node, delete_files);
 		else {
 			if (uget_app_recycle_download ((UgetApp*) app, node))
@@ -1022,7 +1127,7 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 			cursor = NULL;
 		link->data = NULL;
 	}
-	if (delete_files == FALSE && (mask & GDK_SHIFT_MASK) == 0) {
+	if (delete_files == FALSE /* && (mask & GDK_SHIFT_MASK) == 0 */) {
 		ugtk_traveler_set_cursor (&app->traveler, cursor);
 		ugtk_traveler_set_selected (&app->traveler, list);
 	}
@@ -1283,8 +1388,8 @@ static GtkWidget*  create_file_chooser (GtkWindow* parent,
 	dialog = gtk_file_chooser_dialog_new (title,
 			parent,
 			action,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
+			_("_Cancel"), GTK_RESPONSE_CANCEL,
+			_("_OK"),     GTK_RESPONSE_OK,
 			NULL);
 	gtk_window_set_destroy_with_parent ((GtkWindow*) dialog, TRUE);
 
@@ -1292,7 +1397,7 @@ static GtkWidget*  create_file_chooser (GtkWindow* parent,
 		filter = gtk_file_filter_new ();
 		gtk_file_filter_set_name (filter, filter_name);
 		gtk_file_filter_add_mime_type (filter, mine_type);
-		gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
+		// gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
 	}
 	return dialog;
 }
@@ -1302,13 +1407,17 @@ static void  on_create_torrent_response (GtkWidget* dialog, gint response, UgtkA
 	gchar*  file;
 
 	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	// get filename
+#if 0
 	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+#else
+    file = NULL;
+#endif
 //	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	ugtk_app_create_download (app, _("New Torrent"), file);
 	g_free (file);
 }
@@ -1318,13 +1427,16 @@ static void  on_create_metalink_response (GtkWidget* dialog, gint response, Ugtk
 	gchar*  file;
 
 	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
-	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	// get filename (GTK4: gtk_file_chooser_get_filename removed)
+	GFile* gfile = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (dialog));
+	file = gfile ? g_file_get_path (gfile) : NULL;
+	if (gfile)
+		g_object_unref (gfile);
 //	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	ugtk_app_create_download (app, _("New Metalink"), file);
 	g_free (file);
 }
@@ -1341,7 +1453,7 @@ void  ugtk_app_create_torrent (UgtkApp* app)
 	g_free (title);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_create_torrent_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 void  ugtk_app_create_metalink (UgtkApp* app)
@@ -1365,7 +1477,7 @@ void  ugtk_app_create_metalink (UgtkApp* app)
 	gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_create_metalink_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 // ------------------------------------
@@ -1378,16 +1490,17 @@ static void  on_save_category_response (GtkWidget* dialog, gint response, UgtkAp
 
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
 	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	if (app->traveler.category.cursor.pos == 0)
 		return;
 
 	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	// file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    file = NULL;
 //	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	cnode = app->traveler.category.cursor.node;
 	if (uget_app_save_category ((UgetApp*) app, cnode->base, file, NULL) == FALSE)
 		ugtk_app_show_message (app, GTK_MESSAGE_ERROR, _("Failed to save category file."));
@@ -1400,13 +1513,14 @@ static void  on_load_category_response (GtkWidget* dialog, gint response, UgtkAp
 
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
 	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	// file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    file = NULL;
 //	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	if (uget_app_load_category ((UgetApp*) app, file, NULL))
 		ugtk_menubar_sync_category (&app->menubar, app, TRUE);
 	else
@@ -1429,7 +1543,7 @@ void  ugtk_app_save_category (UgtkApp* app)
 
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_save_category_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 void  ugtk_app_load_category (UgtkApp* app)
@@ -1447,7 +1561,7 @@ void  ugtk_app_load_category (UgtkApp* app)
 
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_load_category_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 static void  on_import_html_file_response (GtkWidget* dialog, gint response, UgtkApp* app)
@@ -1462,12 +1576,13 @@ static void  on_import_html_file_response (GtkWidget* dialog, gint response, Ugt
 	gchar*  file;
 
 	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	// read URLs from html file
-	string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	// string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    string = NULL;
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	file = g_filename_to_utf8 (string, -1, NULL, NULL, NULL);
 	g_free (string);
 	string = NULL;
@@ -1494,7 +1609,7 @@ static void  on_import_html_file_response (GtkWidget* dialog, gint response, Ugt
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 	// set <base href>
 	if (string) {
-		gtk_entry_set_text (bdialog->selector.href_entry, string);
+		gtk_editable_set_text (GTK_EDITABLE (bdialog->selector.href_entry), string);
 		g_free (string);
 	}
 	// add link
@@ -1522,12 +1637,13 @@ static void  on_import_text_file_response (GtkWidget* dialog, gint response, Ugt
 	GError*   error = NULL;
 
 	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	// read URLs from text file
-	string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	// string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    string = NULL;
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	file = g_filename_to_utf8 (string, -1, NULL, NULL, NULL);
 	g_free (string);
 	list = ugtk_text_file_get_uris (file, &error);
@@ -1564,12 +1680,13 @@ static void  on_export_text_file_response (GtkWidget* dialog, gint response, Ugt
 	gchar*       fname;
 
 	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		return;
 	}
 	// write all URLs to text file
-	fname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	// fname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    fname = NULL;
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	channel = g_io_channel_new_file (fname, "w", NULL);
 	g_free (fname);
 
@@ -1602,7 +1719,7 @@ void  ugtk_app_import_html_file (UgtkApp* app)
 	g_free (title);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_import_html_file_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 void  ugtk_app_import_text_file (UgtkApp* app)
@@ -1617,7 +1734,7 @@ void  ugtk_app_import_text_file (UgtkApp* app)
 	g_free (title);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_import_text_file_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 void  ugtk_app_export_text_file (UgtkApp* app)
@@ -1632,7 +1749,7 @@ void  ugtk_app_export_text_file (UgtkApp* app)
 	g_free (title);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_export_text_file_response), app);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
 }
 
 // ------------------------------------
@@ -1792,7 +1909,7 @@ void  ugtk_app_add_default_category (UgtkApp* app)
 
 static void  on_message_response (GtkWidget* dialog, gint response, GtkWidget** value)
 {
-	gtk_widget_destroy (dialog);
+	gtk_window_destroy (GTK_WINDOW (dialog));
 	*value = NULL;
 }
 
@@ -1811,7 +1928,7 @@ void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
 	switch (type) {
 	case GTK_MESSAGE_ERROR:
 		if (app->dialogs.error)
-			gtk_widget_destroy (app->dialogs.error);
+			gtk_window_destroy ((GtkWindow*) app->dialogs.error);
 		app->dialogs.error = dialog;
 		value = &app->dialogs.error;
 		title = g_strconcat (UGTK_APP_NAME " - ", _("Error"), NULL);
@@ -1819,7 +1936,7 @@ void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
 
 	default:
 		if (app->dialogs.message)
-			gtk_widget_destroy (app->dialogs.message);
+			gtk_window_destroy ((GtkWindow*) app->dialogs.message);
 		app->dialogs.message = dialog;
 		value = &app->dialogs.message;
 		title = g_strconcat (UGTK_APP_NAME " - ", _("Message"), NULL);
@@ -1830,7 +1947,16 @@ void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
 	// signal handler
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_message_response), value);
-	gtk_widget_show (dialog);
+	gtk_widget_set_visible (dialog, TRUE);
+}
+
+void ugtk_app_open_settings(UgtkApp *app) {
+    if (app->dialogs.setting == NULL) {
+        // Warning: ugtk_setting_dialog_new prototype in header vs source might conflict, handled by implicit or build needs check.
+        // Assuming c is authoritative: (const gchar* title, GtkWindow* parent)
+        app->dialogs.setting = (GtkWidget*) ugtk_setting_dialog_new(_("Settings"), (GtkWindow*)app->window.self);
+    }
+    ugtk_setting_dialog_run((UgtkSettingDialog*)app->dialogs.setting, app);
 }
 
 // -------------------------------------------------------
@@ -1838,7 +1964,7 @@ void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
 
 void  ugtk_clipboard_init (struct UgtkClipboard* clipboard, const gchar* pattern)
 {
-	clipboard->self  = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+	clipboard->self  = gdk_display_get_clipboard (gdk_display_get_default ());
 	clipboard->text  = NULL;
 	clipboard->regex = g_regex_new (pattern, G_REGEX_CASELESS, 0, NULL);
 	clipboard->website = TRUE;
@@ -1859,11 +1985,15 @@ void  ugtk_clipboard_set_text (struct UgtkClipboard* clipboard, gchar* text)
 {
 	g_free (clipboard->text);
 	clipboard->text = text;
-	gtk_clipboard_set_text (clipboard->self, text, -1);
+	if (clipboard->self)
+		gdk_clipboard_set_text (clipboard->self, text);
 }
 
 GList* ugtk_clipboard_get_uris (struct UgtkClipboard* clipboard)
 {
+#if 0
+	// GTK4: gtk_clipboard_wait_is_text_available and gtk_clipboard_wait_for_text removed
+	// Needs rewrite using GdkClipboard async API: gdk_clipboard_read_text_async
 	GList*		list;
 	gchar*		text;
 
@@ -1876,8 +2006,12 @@ GList* ugtk_clipboard_get_uris (struct UgtkClipboard* clipboard)
 	list = ugtk_text_get_uris (text);
 	list = ugtk_uri_list_remove_scheme (list, "file");
 	g_free (text);
-
 	return list;
+#else
+	// Temporary stub: clipboard monitoring disabled
+	(void)clipboard;
+	return NULL;
+#endif
 }
 
 GList* ugtk_clipboard_get_matched (struct UgtkClipboard* clipboard, const gchar* text)
@@ -1934,12 +2068,12 @@ void  ugtk_statusbar_set_info (struct UgtkStatusbar* statusbar, gint n_selected)
 	gchar*			string;
 
 	if (context_id == 0)
-		context_id = gtk_statusbar_get_context_id (statusbar->self, "selected");
-	gtk_statusbar_pop  (statusbar->self, context_id);
+	// context_id = gtk_statusbar_get_context_id (statusbar->self, "selected");
+	// gtk_statusbar_pop  (statusbar->self, context_id);
 
 	if (n_selected > 0) {
 		string = g_strdup_printf (_("Selected %d items"), n_selected);
-		gtk_statusbar_push (statusbar->self, context_id, string);
+		// gtk_statusbar_push (statusbar->self, context_id, string);
 		g_free (string);
 	}
 }

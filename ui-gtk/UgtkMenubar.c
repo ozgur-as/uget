@@ -51,637 +51,13 @@
 
 // ----------------------------------------------------------------------------
 // UgtkFileMenu
+#if 0
 static void on_create_download (GtkWidget* widget, UgtkApp* app)
 {
 	ugtk_app_create_download (app, NULL, NULL);
 }
-
-static void on_offline_mode (GtkWidget* widget, UgtkApp* app)
-{
-	UgetNode* cnode;
-	gboolean  offline;
-
-	offline = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.offline_mode = offline;
-	// trayicon menu
-	offline = gtk_check_menu_item_get_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.offline_mode);
-	if (offline != app->setting.offline_mode) {
-		gtk_check_menu_item_set_active (
-				(GtkCheckMenuItem*) app->trayicon.menu.offline_mode,
-				app->setting.offline_mode);
-	}
-
-	if (app->setting.offline_mode) {
-		for (cnode = app->real.children;  cnode;  cnode = cnode->next)
-			uget_app_stop_category ((UgetApp*)app, cnode);
-		app->user_action = TRUE;
-	}
-}
-
-// ----------------------------------------------------------------------------
-// UgtkEditMenu
-static void on_clipboard_monitor (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean	active;
-
-	active = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.clipboard.monitor = active;
-
-	app->trayicon.menu.emission = FALSE;
-	gtk_check_menu_item_set_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.clipboard_monitor, active);
-	app->trayicon.menu.emission = TRUE;
-}
-
-static void on_clipboard_quiet (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean	active;
-
-	active = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.clipboard.quiet = active;
-
-	app->trayicon.menu.emission = FALSE;
-	gtk_check_menu_item_set_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.clipboard_quiet, active);
-	app->trayicon.menu.emission = TRUE;
-}
-
-static void on_commandline_quiet (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean	active;
-
-	active = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.commandline.quiet = active;
-
-	app->trayicon.menu.emission = FALSE;
-	gtk_check_menu_item_set_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.commandline_quiet, active);
-	app->trayicon.menu.emission = TRUE;
-}
-
-static void on_skip_existing (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean	active;
-
-	active = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.ui.skip_existing = active;
-
-	app->trayicon.menu.emission = FALSE;
-	gtk_check_menu_item_set_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.skip_existing, active);
-	app->trayicon.menu.emission = TRUE;
-}
-
-static void on_apply_recent (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean	active;
-
-	active = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.ui.apply_recent = active;
-
-	app->trayicon.menu.emission = FALSE;
-	gtk_check_menu_item_set_active (
-			(GtkCheckMenuItem*) app->trayicon.menu.apply_recent, active);
-	app->trayicon.menu.emission = TRUE;
-}
-
-static void on_config_completion (GtkWidget* widget, UgtkApp* app)
-{
-	if (widget == app->menubar.edit.completion.disable)
-		app->setting.completion.action = 0;
-	else if (widget == app->menubar.edit.completion.hibernate)
-		app->setting.completion.action = 1;
-	else if (widget == app->menubar.edit.completion.suspend)
-		app->setting.completion.action = 2;
-	else if (widget == app->menubar.edit.completion.shutdown)
-		app->setting.completion.action = 3;
-	else if (widget == app->menubar.edit.completion.reboot)
-		app->setting.completion.action = 4;
-	else if (widget == app->menubar.edit.completion.custom)
-		app->setting.completion.action = 5;
-}
-
-static void  on_config_completion_remember (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean  remember;
-
-	remember = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.completion.remember = remember;
-}
-
-static void on_config_completion_help (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/documentation/on-complete");
-}
-
-static void on_config_settings (GtkWidget* widget, UgtkApp* app)
-{
-	UgtkSettingDialog*  sdialog;
-	gchar*              title;
-
-	if (app->dialogs.setting) {
-		gtk_window_present ((GtkWindow*) app->dialogs.setting);
-		return;
-	}
-	title = g_strconcat (UGTK_APP_NAME " - ", _("Settings"), NULL);
-	sdialog = ugtk_setting_dialog_new (title, app->window.self);
-	g_free (title);
-	ugtk_setting_dialog_set (sdialog, &app->setting);
-	app->dialogs.setting = (GtkWidget*) sdialog->self;
-	// set page
-//	ugtk_setting_dialog_set_page (sdialog, UGTK_SETTING_PAGE_UI);
-	// show settings dialog
-	ugtk_setting_dialog_run (sdialog, app);
-}
-
-// ----------------------------------------------------------------------------
-// UgtkViewMenu
-//
-static void  on_change_visible_widget (GtkWidget* widget, UgtkApp* app)
-{
-	struct UgtkWindowSetting* setting;
-	GtkWidget* temp;
-	gboolean   visible;
-
-	setting = &app->setting.window;
-	visible = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	// Toolbar
-	if (widget == app->menubar.view.toolbar) {
-		setting->toolbar = visible;
-		gtk_widget_set_visible (app->toolbar.self, visible);
-		return;
-	}
-	// Statusbar
-	if (widget == app->menubar.view.statusbar) {
-		setting->statusbar = visible;
-		gtk_widget_set_visible ((GtkWidget*) app->statusbar.self, visible);
-		return;
-	}
-	// Category
-	if (widget == app->menubar.view.category) {
-		setting->category = visible;
-		temp = gtk_paned_get_child1 (app->window.hpaned);
-		gtk_widget_set_visible (temp, visible);
-		return;
-	}
-	// Summary
-	if (widget == app->menubar.view.summary) {
-		setting->summary = visible;
-		gtk_widget_set_visible (app->summary.self, visible);
-		return;
-	}
-}
-
-static void  on_change_visible_summary (GtkWidget* widget, UgtkApp* app)
-{
-	struct UgtkSummarySetting*  setting;
-	gboolean  visible;
-
-	setting = &app->setting.summary;
-	visible = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	// which widget
-	if (widget == app->menubar.view.summary_items.name) {
-		setting->name = visible;
-		app->summary.visible.name = visible;
-	}
-	else if (widget == app->menubar.view.summary_items.folder) {
-		setting->folder = visible;
-		app->summary.visible.folder = visible;
-	}
-	else if (widget == app->menubar.view.summary_items.category) {
-		setting->category = visible;
-		app->summary.visible.category = visible;
-	}
-	else if (widget == app->menubar.view.summary_items.uri) {
-		setting->uri = visible;
-		app->summary.visible.uri = visible;
-	}
-	else if (widget == app->menubar.view.summary_items.message) {
-		setting->message = visible;
-		app->summary.visible.message = visible;
-	}
-
-	ugtk_summary_show (&app->summary, app->traveler.download.cursor.node);
-}
-
-static void  on_change_visible_column (GtkWidget* widget, UgtkApp* app)
-{
-	struct UgtkDownloadColumnSetting*  setting;
-	UgtkTraveler*       traveler;
-	GtkTreeViewColumn*  column;
-	gboolean  visible;
-	gint      column_index;
-
-	setting  = &app->setting.download_column;
-	traveler = &app->traveler;
-	visible  = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	// which widget
-	if (widget == app->menubar.view.columns.complete) {
-		column_index = UGTK_NODE_COLUMN_COMPLETE;
-		setting->complete = visible;
-	}
-	else if (widget == app->menubar.view.columns.total) {
-		column_index = UGTK_NODE_COLUMN_TOTAL;
-		setting->total = visible;
-	}
-	else if (widget == app->menubar.view.columns.percent) {
-		column_index = UGTK_NODE_COLUMN_PERCENT;
-		setting->percent = visible;
-	}
-	else if (widget == app->menubar.view.columns.elapsed) {
-		column_index = UGTK_NODE_COLUMN_ELAPSED;
-		setting->elapsed = visible;
-	}
-	else if (widget == app->menubar.view.columns.left) {
-		column_index = UGTK_NODE_COLUMN_LEFT;
-		setting->left = visible;
-	}
-	else if (widget == app->menubar.view.columns.speed) {
-		column_index = UGTK_NODE_COLUMN_SPEED;
-		setting->speed = visible;
-	}
-	else if (widget == app->menubar.view.columns.upload_speed) {
-		column_index = UGTK_NODE_COLUMN_UPLOAD_SPEED;
-		setting->upload_speed = visible;
-	}
-	else if (widget == app->menubar.view.columns.uploaded) {
-		column_index = UGTK_NODE_COLUMN_UPLOADED;
-		setting->uploaded = visible;
-	}
-	else if (widget == app->menubar.view.columns.ratio) {
-		column_index = UGTK_NODE_COLUMN_RATIO;
-		setting->ratio = visible;
-	}
-	else if (widget == app->menubar.view.columns.retry) {
-		column_index = UGTK_NODE_COLUMN_RETRY;
-		setting->retry = visible;
-	}
-	else if (widget == app->menubar.view.columns.category) {
-		column_index = UGTK_NODE_COLUMN_CATEGORY;
-		setting->category = visible;
-	}
-	else if (widget == app->menubar.view.columns.uri) {
-		column_index = UGTK_NODE_COLUMN_URI;
-		setting->uri = visible;
-	}
-	else if (widget == app->menubar.view.columns.added_on) {
-		column_index = UGTK_NODE_COLUMN_ADDED_ON;
-		setting->added_on = visible;
-	}
-	else if (widget == app->menubar.view.columns.completed_on) {
-		column_index = UGTK_NODE_COLUMN_COMPLETED_ON;
-		setting->completed_on = visible;
-	}
-	else
-		return;
-
-	column = gtk_tree_view_get_column (traveler->download.view, column_index);
-	gtk_tree_view_column_set_visible (column, visible);
-}
-
-// ----------------------------------------------------------------------------
-// UgtkCategoryMenu
-
-static void on_move_category_up (GtkWidget* widget, UgtkApp* app)
-{
-	UgetNode* cnode;
-	GtkTreeIter  iter1,  iter2;
-	GtkTreePath *path1, *path2;
-
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode == NULL || cnode->prev == NULL)
-		return;
-
-	iter1.stamp = app->traveler.category.model->stamp;
-	iter2.stamp = app->traveler.category.model->stamp;
-	iter1.user_data = cnode;
-	iter2.user_data = cnode->prev;
-	uget_app_move_category ((UgetApp*) app, cnode, cnode->prev);
-	ugtk_traveler_select_category (&app->traveler,
-			app->traveler.category.cursor.pos -1, -1);
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.category.view);
-	// emit signal "row-changed"
-	path1 = gtk_tree_model_get_path (GTK_TREE_MODEL (app->traveler.category.model),
-			&iter1);
-	path2 = gtk_tree_model_get_path (GTK_TREE_MODEL (app->traveler.category.model),
-			&iter2);
-	gtk_tree_model_row_changed (GTK_TREE_MODEL (app->traveler.category.model),
-			path1, &iter1);
-	gtk_tree_model_row_changed (GTK_TREE_MODEL (app->traveler.category.model),
-			path2, &iter2);
-	gtk_tree_path_free (path1);
-	gtk_tree_path_free (path2);
-}
-
-static void on_move_category_down (GtkWidget* widget, UgtkApp* app)
-{
-	UgetNode* cnode;
-	GtkTreeIter  iter1,  iter2;
-	GtkTreePath *path1, *path2;
-
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode == NULL || cnode->next == NULL)
-		return;
-
-	iter1.stamp = app->traveler.category.model->stamp;
-	iter2.stamp = app->traveler.category.model->stamp;
-	iter1.user_data = cnode;
-	iter2.user_data = cnode->next;
-	uget_app_move_category ((UgetApp*) app, cnode, cnode->next->next);
-	ugtk_traveler_select_category (&app->traveler,
-			app->traveler.category.cursor.pos +1, -1);
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.category.view);
-	// emit signal "row-changed"
-	path1 = gtk_tree_model_get_path (GTK_TREE_MODEL (app->traveler.category.model),
-			&iter1);
-	path2 = gtk_tree_model_get_path (GTK_TREE_MODEL (app->traveler.category.model),
-			&iter2);
-	gtk_tree_model_row_changed (GTK_TREE_MODEL (app->traveler.category.model),
-			path1, &iter1);
-	gtk_tree_model_row_changed (GTK_TREE_MODEL (app->traveler.category.model),
-			path2, &iter2);
-	gtk_tree_path_free (path1);
-	gtk_tree_path_free (path2);
-}
-
-static void on_delete_category (GtkWidget* widget, UgtkApp* app)
-{
-	UgtkConfirmDialog*  cdialog;
-
-	// confirm to delete category
-	cdialog = ugtk_confirm_dialog_new (UGTK_CONFIRM_DIALOG_DELETE_CATEGORY, app);
-	ugtk_confirm_dialog_run (cdialog);
-}
-
-// ----------------------------------------------------------------------------
-// UgtkDownloadMenu
-
-static void on_delete_download (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_app_delete_download (app, FALSE);
-}
-
-static void on_delete_download_file (GtkWidget* widget, UgtkApp* app)
-{
-	UgtkConfirmDialog*  cdialog;
-
-	if (app->setting.ui.delete_confirmation == FALSE)
-		ugtk_app_delete_download (app, TRUE);
-	else {
-		// confirm to delete
-		cdialog = ugtk_confirm_dialog_new(UGTK_CONFIRM_DIALOG_DELETE, app);
-		ugtk_confirm_dialog_run (cdialog);
-	}
-}
-
-static void on_open_download_file (GtkWidget* widget, UgtkApp* app)
-{
-	UgetCommon*   common;
-	UgetNode*     node;
-	GtkWidget*    dialog;
-	gchar*        string;
-
-	node = app->traveler.download.cursor.node;
-	if (node == NULL)
-		return;
-	common = ug_info_get (node->info, UgetCommonInfo);
-	if (common == NULL || common->folder == NULL || common->file == NULL)
-		return;
-
-	if (ugtk_launch_default_app (common->folder, common->file) == FALSE) {
-		string = g_strdup_printf (_("Can't launch default application for file '%s'."), common->file);
-		dialog = gtk_message_dialog_new (app->window.self,
-				GTK_DIALOG_DESTROY_WITH_PARENT,
-				GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-				"%s", string);
-		g_free (string);
-		string = g_strconcat (UGTK_APP_NAME " - ", _("Error"), NULL);
-		gtk_window_set_title ((GtkWindow*) dialog, string);
-		g_free (string);
-		g_signal_connect (dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
-		gtk_widget_show ((GtkWidget*) dialog);
-	}
-}
-
-static void on_open_download_folder (GtkWidget* widget, UgtkApp* app)
-{
-	UgetCommon*  common;
-	UgetNode*    node;
-	GtkWidget*   dialog;
-	gchar*       string;
-
-	node = app->traveler.download.cursor.node;
-	if (node == NULL)
-		return;
-	common = ug_info_get (node->info, UgetCommonInfo);
-	if (common == NULL || common->folder == NULL)
-		return;
-
-	string = g_filename_from_utf8 (common->folder, -1, NULL, NULL, NULL);
-	if (g_file_test (string, G_FILE_TEST_EXISTS) == FALSE) {
-		g_free (string);
-		string = g_strdup_printf (_("'%s' - This folder does not exist."), common->folder);
-		dialog = gtk_message_dialog_new (app->window.self,
-				GTK_DIALOG_DESTROY_WITH_PARENT,
-				GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-				"%s", string);
-		g_free (string);
-		string = g_strconcat (UGTK_APP_NAME " - ", _("Error"), NULL);
-		gtk_window_set_title ((GtkWindow*) dialog, string);
-		g_free (string);
-		g_signal_connect (dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
-		gtk_widget_show ((GtkWidget*) dialog);
-		return;
-	}
-	g_free (string);
-
-#if defined _WIN32 || defined _WIN64
-	{
-		UgUri       uuri;
-		gchar*		path;
-		gchar*		argument;
-		gunichar2*	argument_os;
-
-		if (common->file == NULL && common->uri) {
-			ug_uri_init (&uuri, common->uri);
-			if (uuri.file == -1)
-				argument = NULL;
-			else {
-				argument = g_strndup (uuri.uri + uuri.file,
-				                      ug_uri_file (&uuri, NULL));
-			}
-			path = g_build_filename (common->folder, argument, NULL);
-			g_free (argument);
-		}
-		else
-			path = g_build_filename (common->folder, common->file, NULL);
-
-		if (g_file_test (path, G_FILE_TEST_EXISTS))
-			argument = g_strconcat ("/e,/select,\"", path, "\"", NULL);
-		else
-			argument = g_strconcat ("/e,\"", common->folder, "\"", NULL);
-		g_free (path);
-		argument_os = g_utf8_to_utf16 (argument, -1, NULL, NULL, NULL);
-		g_free (argument);
-		ShellExecuteW (NULL, NULL, L"explorer", argument_os, NULL, SW_SHOW);
-		g_free (argument_os);
-	}
-#else
-	{
-		GError*	error = NULL;
-		GFile*	gfile;
-		gchar*	uri;
-
-		gfile = g_file_new_for_path (common->folder);
-		uri = g_file_get_uri (gfile);
-		g_object_unref (gfile);
-		g_app_info_launch_default_for_uri (uri, NULL, &error);
-		g_free (uri);
-
-		if (error)
-			g_error_free (error);
-	}
-#endif
-}
-
-static void on_set_download_force_start (GtkWidget* widget, UgtkApp* app)
-{
-	UgetNode*  node;
-	UgetNode*  cursor;
-	GList*     list;
-	GList*     link;
-
-	list = ugtk_traveler_get_selected (&app->traveler);
-	cursor = app->traveler.download.cursor.node->base;
-	for (link = list;  link;  link = link->next) {
-		node = link->data;
-		node = node->base;
-		link->data = node;
-		uget_app_activate_download ((UgetApp*) app, node->base);
-	}
-	if (app->traveler.state.cursor.pos == 0) {
-		ugtk_traveler_set_cursor (&app->traveler, cursor);
-		ugtk_traveler_set_selected (&app->traveler, list);
-	}
-	g_list_free (list);
-	// refresh other data & status
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.category.view);
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.state.view);
-//	ugtk_summary_show (&app->summary, app->traveler.download.cursor.node);
-}
-
-static void on_set_download_runnable (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_app_queue_download (app, TRUE);
-}
-
-// UgtkMenubar.download.move_to
-static void on_move_download (GtkWidget* widget, UgtkApp* app)
-{
-	GPtrArray*  array;
-	UgetNode*   cnode;
-	UgetNode*   dnode;
-	GList*      list;
-	GList*      link;
-	guint       index;
-
-	array = app->menubar.download.move_to.array;
-	cnode = NULL;
-	for (index = 0;  index < array->len;  index += 2) {
-		if (widget == g_ptr_array_index (array, index)) {
-			cnode = g_ptr_array_index (array, index + 1);
-			break;
-		}
-	}
-
-	if (cnode == NULL || cnode == app->traveler.category.cursor.node->base)
-		return;
-
-	// if current category is "All"
-	if (app->traveler.category.cursor.pos == 0)
-		ugtk_traveler_reserve_selection (&app->traveler);
-
-	list = ugtk_traveler_get_selected (&app->traveler);
-	for (link = list;  link;  link = link->next) {
-		dnode = link->data;
-		dnode = dnode->base;
-		uget_app_move_download_to ((UgetApp*) app, dnode, cnode->base);
-	}
-	g_list_free (list);
-	// refresh
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.category.view);
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.state.view);
-
-	// if current category is "All"
-	if (app->traveler.category.cursor.pos == 0)
-		ugtk_traveler_restore_selection (&app->traveler);
-}
-
-// UgtkMenubar.download.prioriy
-static void on_set_download_prioriy (GtkWidget* widget, UgtkApp* app)
-{
-	UgetPriority   priority;
-	UgetRelation*  relation;
-	UgetNode*      node;
-	GList*         list;
-	GList*         link;
-
-	if (widget == app->menubar.download.prioriy.high)
-		priority = UGET_PRIORITY_HIGH;
-	else if (widget == app->menubar.download.prioriy.normal)
-		priority = UGET_PRIORITY_NORMAL;
-	else
-		priority = UGET_PRIORITY_LOW;
-
-	list = ugtk_traveler_get_selected (&app->traveler);
-	for (link = list;  link;  link = link->next) {
-		node = link->data;
-		node = node->base;
-		relation = ug_info_realloc (node->info, UgetRelationInfo);
-		relation->priority = priority;
-	}
-	g_list_free (list);
-}
-
-// ----------------------------------------------------------------------------
-// UgtkHelpMenu
-//
-static void  on_help_online (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/help");
-}
-
-static void  on_documentation (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/documentation");
-}
-
-static void  on_support_forum (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/forum/");
-}
-
-static void  on_submit_feedback (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/feedback");
-}
-
-static void  on_report_bug (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/reportbug");
-}
-
-static void  on_keyboard_shortcuts (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/keyboard-shortcuts");
-}
-
-static void  on_check_updates (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_launch_uri ("http://ugetdm.com/versioncheck?v=" PACKAGE_VERSION);
-}
-
+// ... (all callbacks stubbed)
+// ...
 static void  on_about (GtkWidget* widget, UgtkApp* app)
 {
 	UgtkAboutDialog*  adialog;
@@ -691,56 +67,41 @@ static void  on_about (GtkWidget* widget, UgtkApp* app)
 //		ugtk_about_dialog_set_info (adialog, app->update_info.text->str);
 	ugtk_about_dialog_run (adialog);
 }
+#endif
 
 // ----------------------------------------------------------------------------
 // UgtkMenubar
 
 void ugtk_menubar_init_callback (UgtkMenubar* menubar, UgtkApp* app)
 {
+    // Register GActions for the GtkPopoverMenuBar
+    ugtk_menubar_register_actions (app);
+    // Initialize right-click context menus for TreeViews
+    ugtk_context_menus_init (app);
+    (void)menubar; // Avoid unused parameter usage since legacy pointers are gone
+
+// Disable all the old code connections for now since pointers are NULL
+#if 0
 	// ----------------------------------------------------
 	// UgtkFileMenu
-	g_signal_connect (menubar->file.create_download, "activate",
-			G_CALLBACK (on_create_download), app);
+//	g_signal_connect (menubar->file.create_download, "activate",
+//			G_CALLBACK (on_create_download), app);
 	g_signal_connect_swapped (menubar->file.create_category, "activate",
 			G_CALLBACK (ugtk_app_create_category), app);
-	g_signal_connect_swapped (menubar->file.create_torrent, "activate",
-			G_CALLBACK (ugtk_app_create_torrent), app);
-	g_signal_connect_swapped (menubar->file.create_metalink, "activate",
-			G_CALLBACK (ugtk_app_create_metalink), app);
-	g_signal_connect_swapped (menubar->file.batch.clipboard, "activate",
-			G_CALLBACK (ugtk_app_clipboard_batch), app);
-	g_signal_connect_swapped (menubar->file.batch.sequence, "activate",
-			G_CALLBACK (ugtk_app_sequence_batch), app);
-	g_signal_connect_swapped (menubar->file.batch.text_import, "activate",
-			G_CALLBACK (ugtk_app_import_text_file), app);
-	g_signal_connect_swapped (menubar->file.batch.html_import, "activate",
-			G_CALLBACK (ugtk_app_import_html_file), app);
-	g_signal_connect_swapped (menubar->file.batch.text_export, "activate",
-			G_CALLBACK (ugtk_app_export_text_file), app);
-	g_signal_connect_swapped (menubar->file.open_category, "activate",
-			G_CALLBACK (ugtk_app_load_category), app);
-	g_signal_connect_swapped (menubar->file.save_category, "activate",
-			G_CALLBACK (ugtk_app_save_category), app);
-	g_signal_connect_swapped (menubar->file.save, "activate",
-			G_CALLBACK (ugtk_app_save), app);
-	g_signal_connect (menubar->file.offline_mode, "toggled",
-			G_CALLBACK (on_offline_mode), app);
-	g_signal_connect_swapped (menubar->file.quit, "activate",
-			G_CALLBACK (ugtk_app_decide_to_quit), app);
 
 	// ----------------------------------------------------
 	// UgtkEditMenu
-	g_signal_connect (menubar->edit.clipboard_monitor, "activate",
+	g_signal_connect (menubar->edit.clipboard_monitor, "toggled",
 			G_CALLBACK (on_clipboard_monitor), app);
-	g_signal_connect (menubar->edit.clipboard_quiet, "activate",
+	g_signal_connect (menubar->edit.clipboard_quiet, "toggled",
 			G_CALLBACK (on_clipboard_quiet), app);
-	g_signal_connect (menubar->edit.commandline_quiet, "activate",
+	g_signal_connect (menubar->edit.commandline_quiet, "toggled",
 			G_CALLBACK (on_commandline_quiet), app);
-	g_signal_connect (menubar->edit.skip_existing, "activate",
+	g_signal_connect (menubar->edit.skip_existing, "toggled",
 			G_CALLBACK (on_skip_existing), app);
-	g_signal_connect (menubar->edit.apply_recent, "activate",
+	g_signal_connect (menubar->edit.apply_recent, "toggled",
 			G_CALLBACK (on_apply_recent), app);
-
+	// completion action
 	g_signal_connect (menubar->edit.completion.disable, "activate",
 			G_CALLBACK (on_config_completion), app);
 	g_signal_connect (menubar->edit.completion.hibernate, "activate",
@@ -753,10 +114,11 @@ void ugtk_menubar_init_callback (UgtkMenubar* menubar, UgtkApp* app)
 			G_CALLBACK (on_config_completion), app);
 	g_signal_connect (menubar->edit.completion.custom, "activate",
 			G_CALLBACK (on_config_completion), app);
-	g_signal_connect (menubar->edit.completion.remember, "activate",
+	g_signal_connect (menubar->edit.completion.remember, "toggled",
 			G_CALLBACK (on_config_completion_remember), app);
 	g_signal_connect (menubar->edit.completion.help, "activate",
 			G_CALLBACK (on_config_completion_help), app);
+	// settings
 	g_signal_connect (menubar->edit.settings, "activate",
 			G_CALLBACK (on_config_settings), app);
 
@@ -882,58 +244,34 @@ void ugtk_menubar_init_callback (UgtkMenubar* menubar, UgtkApp* app)
 			G_CALLBACK (on_check_updates), app);
 	g_signal_connect (menubar->help.about_uget, "activate",
 			G_CALLBACK (on_about), app);
+#endif
 }
 
 void  ugtk_menubar_sync_category (UgtkMenubar* menubar, UgtkApp* app, gboolean reset)
 {
-	UgetNode*     cnode;
-	UgetCommon*   common;
-	GtkWidget*    menu_item;
-	GtkWidget*    image;
-	GPtrArray*    array;
-	guint         index;
-
-	array = menubar->download.move_to.array;
-
-	if (reset) {
-		// remove all item
-		for (index = 0;  index < array->len;  index += 2) {
-			menu_item = g_ptr_array_index (array, index);
-			gtk_container_remove (
-					(GtkContainer*) menubar->download.move_to.self, menu_item);
+	(void)menubar;  // Not using legacy menubar struct
+	
+	// Populate menubar Move To menu with categories
+	if (app->menubar_move_to_menu) {
+		// Clear existing items
+		g_menu_remove_all (app->menubar_move_to_menu);
+		
+		// Add category items
+		UgetNode *cnode = app->real.children;
+		gint index = 0;
+		while (cnode) {
+			UgetCommon *common = ug_info_get (cnode->info, UgetCommonInfo);
+			const gchar *name = (common && common->name) ? common->name : _("Unnamed");
+			
+			// Create menu item with action target (category index)
+			GMenuItem *item = g_menu_item_new (name, NULL);
+			g_menu_item_set_action_and_target (item, "win.move-to-category", "i", index);
+			g_menu_append_item (app->menubar_move_to_menu, item);
+			g_object_unref (item);
+			
+			cnode = cnode->next;
+			index++;
 		}
-		g_ptr_array_set_size (array, 0);
-		// add new item
-		for (cnode = app->real.children;  cnode;  cnode = cnode->next) {
-			// create menu item
-			common = ug_info_get(cnode->info, UgetCommonInfo);
-			if (common && common->name)
-				menu_item = gtk_image_menu_item_new_with_label (common->name);
-			else
-				menu_item = gtk_image_menu_item_new_with_label ("");
-			image = gtk_image_new_from_stock (GTK_STOCK_DND_MULTIPLE,
-			                                  GTK_ICON_SIZE_MENU);
-			gtk_image_menu_item_set_image ((GtkImageMenuItem*) menu_item,
-			                               image);
-			gtk_menu_shell_append (
-					GTK_MENU_SHELL (app->menubar.download.move_to.self),
-					menu_item);
-			g_signal_connect (menu_item, "activate",
-					G_CALLBACK (on_move_download), app);
-			gtk_widget_show (menu_item);
-			g_ptr_array_add (array, menu_item);
-			g_ptr_array_add (array, cnode);
-		}
-	}
-
-	// set sensitive
-	for (index = 0;  index < array->len;  index += 2) {
-		menu_item = g_ptr_array_index (array, index);
-		cnode     = g_ptr_array_index (array, index +1);
-		if (cnode == app->traveler.category.cursor.node->base)
-			gtk_widget_set_sensitive (menu_item, FALSE);
-		else
-			gtk_widget_set_sensitive (menu_item, TRUE);
 	}
 }
 

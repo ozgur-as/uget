@@ -74,8 +74,9 @@ void  ugtk_proxy_form_init (UgtkProxyForm* pform)
 	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (pform->type),
 			UGET_PROXY_SOCKS5, "SOCKS v5");
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 1);
-	gtk_box_pack_start (GTK_BOX (hbox), pform->type, FALSE, FALSE, 2);
+	gtk_box_append (GTK_BOX (hbox), widget);
+	// gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 1);
+	gtk_box_append (GTK_BOX (hbox), pform->type);
 //	gtk_box_pack_start (GTK_BOX (hbox),
 //			gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), TRUE, TRUE, 2);
 	g_signal_connect (pform->type, "changed",
@@ -83,7 +84,8 @@ void  ugtk_proxy_form_init (UgtkProxyForm* pform)
 
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	ugtk_proxy_form_std_init (pform);
-	gtk_box_pack_end (GTK_BOX (vbox), pform->std, TRUE, TRUE, 0);
+	gtk_box_prepend (GTK_BOX (vbox), pform->std);
+	// gtk_box_pack_end (GTK_BOX (vbox), pform->std, TRUE, TRUE, 0);
 
 #ifdef HAVE_LIBPWMD
 	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (pform->type),
@@ -97,11 +99,14 @@ void  ugtk_proxy_form_init (UgtkProxyForm* pform)
 
 	widget = gtk_frame_new (NULL);
 	gtk_frame_set_label_widget (GTK_FRAME (widget), hbox);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
 	pform->self = widget;
+	gtk_box_append (GTK_BOX (widget), (GtkWidget*) vbox);
+	// gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
+	// gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	g_object_set (vbox, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
 
-	gtk_widget_show_all (pform->self);
+	gtk_widget_show (pform->self);
+	// gtk_widget_show_all (pform->self);
 }
 
 static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
@@ -120,7 +125,7 @@ static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
 	// host label & entry
 	widget = gtk_label_new_with_mnemonic (_("Host:"));
 	pform->host = gtk_entry_new ();
-	gtk_entry_set_width_chars (GTK_ENTRY (pform->host), 8);
+	// gtk_entry_set_width_chars (GTK_ENTRY (pform->host), 8);
 	gtk_entry_set_activates_default (GTK_ENTRY (pform->host), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), pform->host);
 	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
@@ -135,7 +140,7 @@ static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
 //	gtk_entry_set_width_chars (GTK_ENTRY (pform->port), 5);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), pform->port);
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (GTK_BOX (hbox), pform->port, FALSE, FALSE, 0);
+	gtk_box_append (GTK_BOX (hbox), pform->port);
 	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	g_object_set (hbox, "margin", 1, NULL);
@@ -148,7 +153,7 @@ static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
 	// user label & entry
 	widget = gtk_label_new_with_mnemonic (_("User:"));
 	pform->user = gtk_entry_new ();
-	gtk_entry_set_width_chars (GTK_ENTRY (pform->user), 7);
+	// gtk_entry_set_width_chars (GTK_ENTRY (pform->user), 7);  // Implicit declaration error in GTK4
 	gtk_entry_set_activates_default (GTK_ENTRY (pform->user), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), pform->user);
 	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
@@ -160,7 +165,7 @@ static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
 	widget = gtk_label_new_with_mnemonic (_("Password:"));
 	pform->password = gtk_entry_new ();
 	gtk_entry_set_visibility (GTK_ENTRY (pform->password), FALSE);
-	gtk_entry_set_width_chars (GTK_ENTRY (pform->password), 7);
+	// gtk_entry_set_width_chars (GTK_ENTRY (pform->password), 7);  // Implicit declaration error in GTK4
 	gtk_entry_set_activates_default (GTK_ENTRY (pform->password), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), pform->password);
 	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
@@ -178,7 +183,7 @@ static void  ugtk_proxy_form_std_init (UgtkProxyForm* pform)
 	g_signal_connect (GTK_EDITABLE (pform->port), "changed",
 			G_CALLBACK (on_entry_std_changed), pform);
 
-	gtk_widget_show_all (pform->std);
+	gtk_widget_set_visible (pform->std, TRUE);
 }
 
 void  ugtk_proxy_form_get (UgtkProxyForm* pform, UgInfo* node_info)
@@ -191,15 +196,15 @@ void  ugtk_proxy_form_get (UgtkProxyForm* pform, UgInfo* node_info)
 	proxy = ug_info_realloc (node_info, UgetProxyInfo);
 	proxy->type = index;
 	// user
-	text = gtk_entry_get_text ((GtkEntry*)pform->user);
+	text = gtk_editable_get_text ((GtkEditable*)pform->user);
 	ug_free (proxy->user);
 	proxy->user = (*text) ? ug_strdup (text) : NULL;
 	// password
-	text = gtk_entry_get_text ((GtkEntry*)pform->password);
+	text = gtk_editable_get_text ((GtkEditable*)pform->password);
 	ug_free (proxy->password);
 	proxy->password = (*text) ? ug_strdup (text) : NULL;
 	// host
-	text = gtk_entry_get_text ((GtkEntry*)pform->host);
+	text = gtk_editable_get_text ((GtkEditable*)pform->host);
 	ug_free (proxy->host);
 	proxy->host = (*text) ? ug_strdup (text) : NULL;
 
@@ -252,17 +257,17 @@ void  ugtk_proxy_form_set (UgtkProxyForm* pform, UgInfo* node_info, gboolean kee
 		gtk_combo_box_set_active ((GtkComboBox*) pform->type, proxy->type);
 	// User
 	if (keep_changed == FALSE  ||  pform->changed.user == FALSE) {
-		gtk_entry_set_text ((GtkEntry*) pform->user,
+		gtk_editable_set_text ((GtkEditable*) pform->user,
 				(proxy->user) ? proxy->user : "");
 	}
 	// Password
 	if (keep_changed == FALSE  ||  pform->changed.password == FALSE) {
-		gtk_entry_set_text ((GtkEntry*) pform->password,
+		gtk_editable_set_text ((GtkEditable*) pform->password,
 				(proxy->password) ? proxy->password : "");
 	}
 	// Host
 	if (keep_changed == FALSE  ||  pform->changed.host == FALSE) {
-		gtk_entry_set_text ((GtkEntry*) pform->host,
+		gtk_editable_set_text ((GtkEditable*) pform->host,
 				(proxy->host) ? proxy->host : "");
 	}
 	// Port

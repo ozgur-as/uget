@@ -43,9 +43,9 @@
 // static functions
 static GtkTreeView* ugtk_summary_view_new ();
 static void         ugtk_summary_store_realloc_next (GtkListStore* store, GtkTreeIter* iter);
-static void         ugtk_summary_menu_init (UgtkSummary* summary, GtkAccelGroup* accel_group);
+static void         ugtk_summary_menu_init (UgtkSummary* summary, gpointer accel_group);
 
-void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
+void  ugtk_summary_init (UgtkSummary* summary, gpointer accel_group)
 {
 	GtkScrolledWindow*	scroll;
 
@@ -54,14 +54,16 @@ void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
 	summary->view = ugtk_summary_view_new ();
 	gtk_tree_view_set_model (summary->view, GTK_TREE_MODEL (summary->store));
 
-	summary->self = gtk_scrolled_window_new (NULL, NULL);
+	summary->self = gtk_scrolled_window_new ();
 	scroll = GTK_SCROLLED_WINDOW (summary->self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll), GTK_WIDGET (summary->view));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (summary->view));
+	// gtk_container_add (GTK_CONTAINER (scroll), GTK_WIDGET (summary->view));
 	gtk_widget_set_size_request (summary->self, 200, 90);
-	gtk_widget_show_all (summary->self);
+	gtk_widget_show (summary->self);
+	// gtk_widget_show_all (summary->self);
 
 	// menu
 	ugtk_summary_menu_init (summary, accel_group);
@@ -107,7 +109,7 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		}
 		ugtk_summary_store_realloc_next (summary->store, &iter);
 		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_FILE,
+				UGTK_SUMMARY_COLUMN_ICON , "text-x-generic",
 				UGTK_SUMMARY_COLUMN_NAME , name,
 				UGTK_SUMMARY_COLUMN_VALUE, value,
 				-1);
@@ -119,7 +121,7 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		value = (temp.common) ? temp.common->folder : NULL;
 		ugtk_summary_store_realloc_next (summary->store, &iter);
 		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_DIRECTORY,
+				UGTK_SUMMARY_COLUMN_ICON , "folder",
 				UGTK_SUMMARY_COLUMN_NAME , name,
 				UGTK_SUMMARY_COLUMN_VALUE, value,
 				-1);
@@ -137,7 +139,7 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 			value = NULL;
 		ugtk_summary_store_realloc_next (summary->store, &iter);
 		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_DND_MULTIPLE,
+				UGTK_SUMMARY_COLUMN_ICON , "gtk-dnd-multiple",
 				UGTK_SUMMARY_COLUMN_NAME , name,
 				UGTK_SUMMARY_COLUMN_VALUE, value,
 				-1);
@@ -149,7 +151,7 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		value = (temp.common) ? temp.common->uri : NULL;
 		ugtk_summary_store_realloc_next (summary->store, &iter);
 		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_NETWORK,
+				UGTK_SUMMARY_COLUMN_ICON , "network-workgroup",
 				UGTK_SUMMARY_COLUMN_NAME , name,
 				UGTK_SUMMARY_COLUMN_VALUE, value,
 				-1);
@@ -161,20 +163,20 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		temp.event = (UgetEvent*) temp.log->messages.head;
 	if (summary->visible.message) {
 		if (temp.event == NULL) {
-			stock = GTK_STOCK_INFO;
+			stock = "dialog-information";
 			value = NULL;
 		}
 		else {
 			value = temp.event->string;
 			switch (temp.event->type) {
 			case UGET_EVENT_ERROR:
-				stock = GTK_STOCK_DIALOG_ERROR;
+				stock = "dialog-error";
 				break;
 			case UGET_EVENT_WARNING:
-				stock = GTK_STOCK_DIALOG_WARNING;
+				stock = "dialog-warning";
 				break;
 			default:
-				stock = GTK_STOCK_INFO;
+				stock = "dialog-information";
 				break;
 			}
 		}
@@ -259,7 +261,7 @@ static GtkTreeView* ugtk_summary_view_new ()
 	gtk_tree_view_insert_column_with_attributes (
 			view, UGTK_SUMMARY_COLUMN_ICON,
 			NULL, renderer,
-			"stock-id", UGTK_SUMMARY_COLUMN_ICON,
+			"icon-name", UGTK_SUMMARY_COLUMN_ICON,
 			NULL);
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (
@@ -288,8 +290,9 @@ static void ugtk_summary_store_realloc_next (GtkListStore* store, GtkTreeIter* i
 		gtk_list_store_append (store, iter);
 }
 
-static void ugtk_summary_menu_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
+static void ugtk_summary_menu_init (UgtkSummary* summary, gpointer accel_group)
 {
+	/*
 	GtkWidget*		image;
 	GtkWidget*		menu;
 	GtkWidget*		menu_item;
@@ -309,5 +312,6 @@ static void ugtk_summary_menu_init (UgtkSummary* summary, GtkAccelGroup* accel_g
 
 	gtk_widget_show_all (menu);
 	summary->menu.self = GTK_MENU (menu);
+	*/
 }
 

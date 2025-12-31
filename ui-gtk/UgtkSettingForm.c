@@ -59,39 +59,39 @@ void  ugtk_clipboard_form_init (struct UgtkClipboardForm* cbform)
 	vbox = (GtkBox*) cbform->self;
 	// Monitor button
 	widget = gtk_check_button_new_with_mnemonic (_("_Enable clipboard monitor"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	cbform->monitor = (GtkToggleButton*) widget;
 
 	// quiet mode
 	widget = gtk_check_button_new_with_mnemonic (_("_Quiet mode"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (vbox, widget);
 	cbform->quiet = (GtkToggleButton*) widget;
 	// Nth category
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Default category index"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	cbform->nth_label = widget;
 	widget = gtk_spin_button_new_with_range (0.0, 1000.0, 1.0);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	cbform->nth_spin = (GtkSpinButton*) widget;
 	// hint
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (" - ");
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	widget = gtk_label_new (_("Adding to Nth category if no matched category."));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 
-	gtk_box_pack_start (vbox, gtk_label_new (""), FALSE, FALSE, 2);
+	gtk_box_append (vbox, gtk_label_new (""));
 
 	// media or storage website
 	widget = gtk_check_button_new_with_mnemonic (_("_Monitor URL of website"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	cbform->website = (GtkToggleButton*) widget;
 
-	gtk_box_pack_start (vbox, gtk_label_new (""), FALSE, FALSE, 2);
+	gtk_box_append (vbox, gtk_label_new (""));
 
 	// get text height --- begin ---
 	context = gtk_widget_get_pango_context (widget);
@@ -101,34 +101,31 @@ void  ugtk_clipboard_form_init (struct UgtkClipboardForm* cbform)
 	g_object_unref (layout);
 	//  get text height --- end ---
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Monitor clipboard for specified file types:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (hbox, widget);
 	// Scrolled Window
-	scroll = (GtkScrolledWindow*) gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
+	scroll = (GtkScrolledWindow*) gtk_scrolled_window_new ();
+	// gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);  // GTK_SHADOW_IN removed in GTK4
 	gtk_widget_set_size_request (GTK_WIDGET (scroll), 100, text_height * 6);
-	gtk_box_pack_start (vbox, GTK_WIDGET (scroll), FALSE, FALSE, 2);
+	gtk_box_append (vbox, GTK_WIDGET (scroll));
 	// file type pattern : TextView
 	cbform->buffer = gtk_text_buffer_new (NULL);
 	cbform->pattern = gtk_text_view_new_with_buffer (cbform->buffer);
 	g_object_unref (cbform->buffer);
 	textview = (GtkTextView*) cbform->pattern;
 	gtk_text_view_set_wrap_mode (textview, GTK_WRAP_WORD_CHAR);
-	gtk_container_add (GTK_CONTAINER (scroll),
-			GTK_WIDGET (cbform->pattern));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (cbform->pattern));
 
 	// tips
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
-	gtk_box_pack_end (hbox,
-			gtk_label_new (_("Separate the types with character '|'.")),
-			FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
+	gtk_box_append (hbox,
+			gtk_label_new (_("Separate the types with character '|'.")));
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
-	gtk_box_pack_end (hbox,
-			gtk_label_new (_("You can use regular expressions here.")),
-			FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
+	gtk_box_append (hbox,
+			gtk_label_new (_("You can use regular expressions here.")));
 }
 
 void  ugtk_clipboard_form_set (struct UgtkClipboardForm* cbform, UgtkSetting* setting)
@@ -174,61 +171,61 @@ void  ugtk_user_interface_form_init (struct UgtkUserInterfaceForm* uiform)
 	// Confirmation
 	vbox = (GtkBox*) uiform->self;
 	widget = gtk_frame_new (_("Confirmation"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
+	g_object_set (vbox, "margin", 2, NULL);
 	// Confirmation check buttons
 	widget = gtk_check_button_new_with_label (_("Show confirmation dialog on exit"));
 	uiform->confirm_exit = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Confirm when deleting files"));
 	uiform->confirm_delete = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 
 	// System Tray
 	vbox = (GtkBox*) uiform->self;
 	widget = gtk_frame_new (_("System Tray"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
+	g_object_set (vbox, "margin", 2, NULL);
 	// System Tray check buttons
 	widget = gtk_check_button_new_with_label (_("Always show tray icon"));
 	uiform->show_trayicon = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Minimize to tray on startup"));
 	uiform->start_in_tray = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Close to tray on window close"));
 	uiform->close_to_tray = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 #ifdef HAVE_APP_INDICATOR
 	widget = gtk_check_button_new_with_label (_("Use Ubuntu's App Indicator"));
 	uiform->app_indicator = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 #endif
 
 	// Others
 	vbox = (GtkBox*) uiform->self;
 	widget = gtk_check_button_new_with_label (_("Enable offline mode on startup"));
 	uiform->start_in_offline_mode = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Download starting notification"));
 	uiform->start_notification = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Sound when download is finished"));
 	uiform->sound_notification = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Apply recent download settings"));
 	uiform->apply_recent = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 //	widget = gtk_check_button_new_with_label (_("Skip existing URI from clipboard and command-line"));
 //	uiform->skip_existing = (GtkToggleButton*) widget;
-//	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+//	gtk_box_append (vbox, widget);
 	widget = gtk_check_button_new_with_label (_("Display large icon"));
 	uiform->large_icon = (GtkToggleButton*) widget;
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 }
 
 void  ugtk_user_interface_form_set (struct UgtkUserInterfaceForm* uiform, UgtkSetting* setting)
@@ -293,40 +290,45 @@ void  ugtk_bandwidth_form_init (struct UgtkBandwidthForm* bwform)
 	box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	bwform->self = (GtkWidget*) box;
 	widget = gtk_label_new (_("These will affect all plug-ins."));
-	gtk_box_pack_start (box, widget, FALSE, FALSE, 2);
+	gtk_box_append (box, widget);
 	widget = gtk_label_new ("");
-	gtk_box_pack_start (box, widget, FALSE, FALSE, 2);
+	gtk_box_append (box, widget);
 
 	// Global speed limit
 	widget = gtk_frame_new (_("Global speed limit"));
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
-	gtk_box_pack_start (box, widget, FALSE, FALSE, 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
+	g_object_set (vbox, "margin", 2, NULL);
+	gtk_box_append (box, widget);
 	// Max upload speed
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Max upload speed"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
-	widget = gtk_label_new (_("KiB/s"));
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
+	
 	widget = gtk_spin_button_new_with_range (0.0, 4000000000.0, 5.0);
-	gtk_entry_set_width_chars (GTK_ENTRY (widget), 15);
+	gtk_editable_set_width_chars (GTK_EDITABLE (widget), 15);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	bwform->upload = (GtkSpinButton*) widget;
+
+	widget = gtk_label_new (_("KiB/s"));
+	gtk_box_append (hbox, widget);
+
 	// Max download speed
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Max download speed"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
-	widget = gtk_label_new (_("KiB/s"));
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
+	
 	widget = gtk_spin_button_new_with_range (0.0, 4000000000.0, 5.0);
-	gtk_entry_set_width_chars (GTK_ENTRY (widget), 15);
+	gtk_editable_set_width_chars (GTK_EDITABLE (widget), 15);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	bwform->download = (GtkSpinButton*) widget;
+
+	widget = gtk_label_new (_("KiB/s"));
+	gtk_box_append (hbox, widget);
 }
 
 void  ugtk_bandwidth_form_set (struct UgtkBandwidthForm* bwform, UgtkSetting* setting)
@@ -353,39 +355,41 @@ void  ugtk_completion_form_init (struct UgtkCompletionForm* csform)
 
 	widget = gtk_frame_new (_("Completion Auto-Actions"));
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
+	g_object_set (vbox, "margin", 2, NULL);
 	csform->self = widget;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Custom command:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-	gtk_box_pack_start (vbox, entry, TRUE, TRUE, 2);
+	gtk_widget_set_hexpand (entry, TRUE);
+	gtk_box_append (vbox, entry);
 	csform->command = (GtkEntry*) entry;
 
-	gtk_box_pack_start (vbox, gtk_label_new (""), FALSE, FALSE, 2);
+	gtk_box_append (vbox, gtk_label_new (""));
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Custom command if error occurred:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-	gtk_box_pack_start (vbox, entry, TRUE, TRUE, 2);
+	gtk_widget_set_hexpand (entry, TRUE);
+	gtk_box_append (vbox, entry);
 	csform->on_error = (GtkEntry*) entry;
 }
 
 void  ugtk_completion_form_set (struct UgtkCompletionForm* csform, UgtkSetting* setting)
 {
 	if (setting->completion.command)
-		gtk_entry_set_text (csform->command, setting->completion.command);
+		gtk_editable_set_text (GTK_EDITABLE (csform->command), setting->completion.command);
 	if (setting->completion.on_error)
-		gtk_entry_set_text (csform->command, setting->completion.on_error);
+		gtk_editable_set_text (GTK_EDITABLE (csform->on_error), setting->completion.on_error);
 }
 
 void  ugtk_completion_form_get (struct UgtkCompletionForm* csform, UgtkSetting* setting)
@@ -393,11 +397,11 @@ void  ugtk_completion_form_get (struct UgtkCompletionForm* csform, UgtkSetting* 
 	const char*  string;
 
 	ug_free (setting->completion.command);
-	string = gtk_entry_get_text (csform->command);
+	string = gtk_editable_get_text (GTK_EDITABLE (csform->command));
 	setting->completion.command = (string[0]) ? ug_strdup (string) : NULL;
 
 	ug_free (setting->completion.on_error);
-	string = gtk_entry_get_text (csform->on_error);
+	string = gtk_editable_get_text (GTK_EDITABLE (csform->on_error));
 	setting->completion.on_error = (string[0]) ? ug_strdup (string) : NULL;
 }
 
@@ -422,29 +426,30 @@ void  ugtk_auto_save_form_init (struct UgtkAutoSaveForm* asform)
 	asform->self = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 	hbox = (GtkBox*) asform->self;
 	widget = gtk_check_button_new_with_mnemonic (_("_Autosave"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	g_signal_connect (widget, "toggled",
 			G_CALLBACK (on_auto_save_toggled), asform);
 	asform->enable = (GtkToggleButton*) widget;
 
 	// space
 	widget = gtk_label_new ("");
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 30);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_box_append (hbox, widget);
 
 	// auto save interval label
 	widget = gtk_label_new_with_mnemonic (_("_Interval:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	asform->interval_label = widget;
 	gtk_label_set_mnemonic_widget (GTK_LABEL (asform->interval_label),
 			(GtkWidget*) asform->interval_spin);
 	// auto save interval spin
 	widget = gtk_spin_button_new_with_range (1.0, 120.0, 1.0);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	asform->interval_spin = (GtkSpinButton*) widget;
 	// auto save interval unit label
 	widget = gtk_label_new_with_mnemonic (_("minutes"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	asform->minutes_label = widget;
 }
 
@@ -475,30 +480,30 @@ void  ugtk_commandline_form_init (struct UgtkCommandlineForm* clform)
 	widget = gtk_frame_new (_("Commandline Settings"));
 	clform->self = widget;
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
+	g_object_set (vbox, "margin", 2, NULL);
 
 	// --quiet
 	widget = gtk_check_button_new_with_mnemonic (_("Use '--quiet' by default"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (vbox, widget);
 	clform->quiet = (GtkToggleButton*) widget;
 	// --category-index
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Default category index"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	clform->index_label = widget;
 	widget = gtk_spin_button_new_with_range (0.0, 1000.0, 1.0);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	clform->index_spin = (GtkSpinButton*) widget;
 	// hint
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (" - ");
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	widget = gtk_label_new (_("Adding to Nth category if no matched category."));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 }
 
 void  ugtk_commandline_form_set (struct UgtkCommandlineForm* clform, UgtkSetting* setting)
@@ -550,9 +555,9 @@ void  ugtk_plugin_form_init (struct UgtkPluginForm* psform)
 	vbox = (GtkBox*) psform->self;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Plug-in matching order:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	widget = gtk_combo_box_text_new ();
 	psform->order = (GtkComboBoxText*) widget;
 	gtk_combo_box_text_insert_text (psform->order,
@@ -565,102 +570,112 @@ void  ugtk_plugin_form_init (struct UgtkPluginForm* psform)
 			UGTK_PLUGIN_ORDER_ARIA2_CURL, "aria2 + curl");
 	g_signal_connect (psform->order, "changed",
 			G_CALLBACK (on_order_changed), psform);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 4);
+	gtk_box_append (hbox, widget);
 
 	widget = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_pack_start (vbox, widget, TRUE, TRUE, 2);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_widget_set_vexpand (widget, TRUE);
+	gtk_box_append (vbox, widget);
 	psform->aria2_opts = widget;
 	vbox = (GtkBox*) widget;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 4);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Aria2 plug-in options"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
-	gtk_box_pack_start (hbox, gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), TRUE, TRUE, 4);
+	gtk_box_append (hbox, widget);
+	gtk_box_append (hbox, gtk_separator_new (GTK_ORIENTATION_HORIZONTAL));
 
 	// URI entry
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("URI"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, TRUE,  TRUE,  4);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_box_append (hbox, widget);
 	psform->uri = (GtkEntry*) widget;
 	// Token entry
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("RPC authorization secret token"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, TRUE,  TRUE,  4);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_box_append (hbox, widget);
 	psform->token = (GtkEntry*) widget;
 
 	// ------------------------------------------------------------------------
 	// Speed Limits
 	widget = gtk_frame_new (_("Global speed limit for aria2 only"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 4);
+	gtk_box_append (vbox, widget);
 	box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) box);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) box);
+	g_object_set (box, "margin", 2, NULL);
 	// Max upload speed
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (box, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (box, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Max upload speed"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
-	widget = gtk_label_new (_("KiB/s"));
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
+	
 	widget = gtk_spin_button_new_with_range (0.0, 4000000000.0, 5.0);
-	gtk_entry_set_width_chars (GTK_ENTRY (widget), 15);
+	gtk_editable_set_width_chars (GTK_EDITABLE (widget), 15);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	psform->upload = (GtkSpinButton*) widget;
+
+	widget = gtk_label_new (_("KiB/s"));
+	gtk_box_append (hbox, widget);
+
 	// Max download speed
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (box, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (box, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Max download speed"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
-	widget = gtk_label_new (_("KiB/s"));
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
+	
 	widget = gtk_spin_button_new_with_range (0.0, 4000000000.0, 5.0);
-	gtk_entry_set_width_chars (GTK_ENTRY (widget), 15);
+	gtk_editable_set_width_chars (GTK_EDITABLE (widget), 15);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_end (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	psform->download = (GtkSpinButton*) widget;
+
+	widget = gtk_label_new (_("KiB/s"));
+	gtk_box_append (hbox, widget);
 
 	// ------------------------------------------------------------------------
 	// aria2 works on local device
 	// launch
 	widget = gtk_check_button_new_with_mnemonic (_("_Launch aria2 on startup"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (vbox, widget);
 	g_signal_connect (widget, "toggled",
 			G_CALLBACK (on_plugin_launch_toggled), psform);
 	psform->launch = (GtkToggleButton*) widget;
 	// shutdown
 	widget = gtk_check_button_new_with_mnemonic (_("_Shutdown aria2 on exit"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (vbox, widget);
 	psform->shutdown = (GtkToggleButton*) widget;
 
 	// ------------------------------------------------------------------------
 	// Local options
 	widget = gtk_frame_new (_("Launch aria2 on local device"));
-	gtk_box_pack_start (vbox, widget, FALSE, FALSE, 4);
+	gtk_box_append (vbox, widget);
 	psform->local = widget;
 	box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) box);
-	gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) box);
+	g_object_set (box, "margin", 2, NULL);
 	// Path
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (box, (GtkWidget*) hbox, FALSE, TRUE, 4);
+	gtk_box_append (box, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Path"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	gtk_box_pack_start (hbox, widget, TRUE,  TRUE,  2);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_box_append (hbox, widget);
 	psform->path = (GtkEntry*) widget;
 	//
-	gtk_box_pack_start (box, gtk_label_new (""), FALSE, FALSE, 0);
+	gtk_box_append (box, gtk_label_new (""));
 	// Arguments
 	// get text height --- begin ---
 	context = gtk_widget_get_pango_context (widget);
@@ -670,25 +685,27 @@ void  ugtk_plugin_form_init (struct UgtkPluginForm* psform)
 	g_object_unref (layout);
 	//  get text height --- end ---
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (box, (GtkWidget*) hbox, FALSE, TRUE, 2);
+	gtk_box_append (box, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Arguments"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 2);
+	gtk_box_append (hbox, widget);
 	widget = gtk_label_new (" - ");
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	// Arguments - hint
 	widget = gtk_label_new (_("You must restart uGet after modifying it."));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	// Arguments - Scrolled Window
-	scroll = (GtkScrolledWindow*) gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
+	scroll = (GtkScrolledWindow*) gtk_scrolled_window_new ();
+	// gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);  // GTK_SHADOW_IN removed in GTK4
 	gtk_widget_set_size_request (GTK_WIDGET (scroll), 100, text_height * 3);
-	gtk_box_pack_start (box, GTK_WIDGET (scroll), FALSE, TRUE, 2);
+	gtk_widget_set_hexpand (GTK_WIDGET (scroll), TRUE);
+    gtk_widget_set_vexpand (GTK_WIDGET (scroll), TRUE);
+	gtk_box_append (box, GTK_WIDGET (scroll));
 	// Arguments - text view
 	psform->args_buffer = gtk_text_buffer_new (NULL);
 	psform->args = gtk_text_view_new_with_buffer (psform->args_buffer);
 	g_object_unref (psform->args_buffer);
 	gtk_text_view_set_wrap_mode ((GtkTextView*) psform->args, GTK_WRAP_CHAR);
-	gtk_container_add (GTK_CONTAINER (scroll), GTK_WIDGET (psform->args));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (psform->args));
 
 	// ------------------------------------------------------------------------
 	on_plugin_launch_toggled ((GtkWidget*) psform->launch, psform);
@@ -703,11 +720,11 @@ void  ugtk_plugin_form_set (struct UgtkPluginForm* psform, UgtkSetting* setting)
 	gtk_toggle_button_set_active (psform->shutdown, setting->aria2.shutdown);
 
 	if (setting->aria2.uri)
-		gtk_entry_set_text (psform->uri,  setting->aria2.uri);
+		gtk_editable_set_text (GTK_EDITABLE (psform->uri),  setting->aria2.uri);
 	if (setting->aria2.token)
-		gtk_entry_set_text (psform->token,  setting->aria2.token);
+		gtk_editable_set_text (GTK_EDITABLE (psform->token),  setting->aria2.token);
 	if (setting->aria2.path)
-		gtk_entry_set_text (psform->path, setting->aria2.path);
+		gtk_editable_set_text (GTK_EDITABLE (psform->path), setting->aria2.path);
 //	if (setting->aria2.args)
 //		gtk_entry_set_text (psform->args, setting->aria2.args);
 	if (setting->aria2.args)
@@ -732,13 +749,13 @@ void  ugtk_plugin_form_get (struct UgtkPluginForm* psform, UgtkSetting* setting)
 	ug_free (setting->aria2.token);
 	ug_free (setting->aria2.path);
 	ug_free (setting->aria2.args);
-	setting->aria2.uri = ug_strdup (gtk_entry_get_text (psform->uri));
-	token = gtk_entry_get_text (psform->token);
+	setting->aria2.uri = (gchar*) ug_strdup (gtk_editable_get_text (GTK_EDITABLE (psform->uri)));
+	token = gtk_editable_get_text (GTK_EDITABLE (psform->token));
 	if (token[0] == 0)
 		setting->aria2.token = NULL;
 	else
-		setting->aria2.token = ug_strdup (token);
-	setting->aria2.path = ug_strdup (gtk_entry_get_text (psform->path));
+		setting->aria2.token = (gchar*) ug_strdup (token);
+	setting->aria2.path = (gchar*) ug_strdup (gtk_editable_get_text (GTK_EDITABLE (psform->path)));
 //	setting->aria2.args = ug_strdup (gtk_entry_get_text (psform->args));
 	gtk_text_buffer_get_start_iter (psform->args_buffer, &iter1);
 	gtk_text_buffer_get_end_iter (psform->args_buffer, &iter2);
@@ -779,9 +796,9 @@ void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform)
 	vbox = (GtkBox*) mwform->self;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Media matching mode:"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
+	gtk_box_append (hbox, widget);
 	widget = gtk_combo_box_text_new ();
 	mwform->match_mode = (GtkComboBoxText*) widget;
 	gtk_combo_box_text_insert_text (mwform->match_mode,
@@ -794,21 +811,20 @@ void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform)
 			UGET_MEDIA_MATCH_NEAR, _("Near quality"));
 	g_signal_connect (mwform->match_mode, "changed",
 			G_CALLBACK (on_match_mode_changed), mwform);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 4);
+	gtk_box_append (hbox, widget);
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, TRUE, 4);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_label_new (_("Match conditions"));
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 0);
-	gtk_box_pack_start (hbox,
-			gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), TRUE, TRUE, 4);
+	gtk_box_append (hbox, widget);
+	gtk_box_append (hbox, gtk_separator_new (GTK_ORIENTATION_HORIZONTAL));
 
 	// conditions
 	grid = (GtkGrid*) gtk_grid_new ();
-	gtk_box_pack_start (vbox, (GtkWidget*) grid, FALSE, FALSE, 0);
+	gtk_box_append (vbox, (GtkWidget*) grid);
 	// Quality
 	widget = gtk_label_new (_("Quality:"));
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, widget, 0, 0, 1, 1);
 	widget = gtk_combo_box_text_new ();
@@ -823,12 +839,12 @@ void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform)
 			UGET_MEDIA_QUALITY_720P, "720p");
 	gtk_combo_box_text_insert_text (mwform->quality,
 			UGET_MEDIA_QUALITY_1080P, "1080p");
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, widget, 1, 0, 1, 1);
 	// Type
 	widget = gtk_label_new (_("Type:"));
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, widget, 0, 1, 1, 1);
 	widget = gtk_combo_box_text_new ();
@@ -841,7 +857,7 @@ void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform)
 			UGET_MEDIA_TYPE_3GPP, "3gpp");
 	gtk_combo_box_text_insert_text (mwform->type,
 			UGET_MEDIA_TYPE_FLV, "flv");
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, widget, 1, 1, 1, 1);
 

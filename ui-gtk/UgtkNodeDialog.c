@@ -56,6 +56,12 @@ static void on_response_edit_category (GtkDialog *dialog, gint response_id,
                                        UgtkNodeDialog* ndialog);
 static void on_response_edit_download (GtkDialog *dialog, gint response_id,
                                        UgtkNodeDialog* ndialog);
+
+static void on_dialog_run_response (GtkDialog *dialog, gint response_id, gpointer user_data)
+{
+	gint *response = (gint*)user_data;
+	*response = response_id;
+}
 // Callback for Main Window operate
 static void on_category_row_changed (GtkTreeModel*   model,
                                      GtkTreePath*    path,
@@ -131,9 +137,9 @@ UgtkNodeDialog*  ugtk_node_dialog_new (const char* title,
 	ndialog = g_malloc0 (sizeof (UgtkNodeDialog));
 	ugtk_node_dialog_init (ndialog, title, app, has_category_form);
 	// OK & cancel buttons
-	gtk_dialog_add_button (ndialog->self, GTK_STOCK_CANCEL,
+	gtk_dialog_add_button (ndialog->self, _("_Cancel"),
 	                       GTK_RESPONSE_CANCEL);
-	gtk_dialog_add_button (ndialog->self, GTK_STOCK_OK,
+	gtk_dialog_add_button (ndialog->self, _("_OK"),
 	                       GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (ndialog->self, GTK_RESPONSE_OK);
 
@@ -143,7 +149,7 @@ UgtkNodeDialog*  ugtk_node_dialog_new (const char* title,
 void  ugtk_node_dialog_free (UgtkNodeDialog* ndialog)
 {
 	ugtk_node_dialog_set_category (ndialog, NULL);
-	gtk_widget_destroy (GTK_WIDGET (ndialog->self));
+	gtk_window_destroy (GTK_WINDOW (ndialog->self));
 	g_free (ndialog);
 }
 
@@ -165,7 +171,7 @@ void  ugtk_node_dialog_run (UgtkNodeDialog* ndialog,
 		break;
 
 	case UGTK_NODE_DIALOG_NEW_CATEGORY:
-		gtk_window_resize ((GtkWindow*) ndialog->self, 300, 380);
+		gtk_window_set_default_size ((GtkWindow*) ndialog->self, 300, 380);
 		g_signal_connect (ndialog->self, "response",
 				G_CALLBACK (on_response_new_category), ndialog);
 		break;
@@ -176,7 +182,7 @@ void  ugtk_node_dialog_run (UgtkNodeDialog* ndialog,
 		break;
 
 	case UGTK_NODE_DIALOG_EDIT_CATEGORY:
-		gtk_window_resize ((GtkWindow*) ndialog->self, 300, 380);
+		gtk_window_set_default_size ((GtkWindow*) ndialog->self, 300, 380);
 		g_signal_connect (ndialog->self, "response",
 				G_CALLBACK (on_response_edit_category), ndialog);
 		break;
@@ -225,8 +231,15 @@ gboolean  ugtk_node_dialog_confirm_existing (UgtkNodeDialog* ndialog, const char
 		gtk_window_set_title ((GtkWindow*) dialog, title);
 		g_free (title);
 		// run and get response
-		response = gtk_dialog_run (GTK_DIALOG (dialog));
-		gtk_widget_destroy (dialog);
+		// run and get response
+		// response = gtk_dialog_run (GTK_DIALOG (dialog));
+		g_signal_connect (dialog, "response", G_CALLBACK (on_dialog_run_response), &response);
+		gtk_widget_show (dialog);
+		response = GTK_RESPONSE_NONE;
+		while (response == GTK_RESPONSE_NONE)
+			g_main_context_iteration (NULL, TRUE);
+
+		gtk_window_destroy (GTK_WINDOW (dialog));
 		if (response == GTK_RESPONSE_NO)
 			return FALSE;
 	}
@@ -341,13 +354,13 @@ static void ugtk_node_dialog_init_ui (UgtkNodeDialog* ndialog,
 	// content
 	box = (GtkBox*) gtk_dialog_get_content_area (ndialog->self);
 	widget = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (box, widget, TRUE, TRUE, 0);
+	gtk_box_append (box, widget);
 	ndialog->hbox = (GtkBox*) widget;
 	widget = gtk_notebook_new ();
-	gtk_box_pack_end (ndialog->hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (ndialog->hbox, widget);
 	ndialog->notebook = widget;
 	notebook = (GtkNotebook*) widget;
-	gtk_widget_show_all (GTK_WIDGET (box));
+	gtk_widget_set_visible (GTK_WIDGET (box), TRUE);
 
 	// Download form (Page 1, 2)
 	ugtk_proxy_form_init (&ndialog->proxy);
@@ -405,21 +418,20 @@ static void ugtk_node_dialog_init_list_ui (UgtkNodeDialog* ndialog,
 			ndialog->app->setting.ui.large_icon,
 			ndialog->app->setting.download_column.width.state);
 
-	scrolled = gtk_scrolled_window_new (NULL, NULL);
+	scrolled = gtk_scrolled_window_new ();
 	gtk_widget_set_size_request (scrolled, width, 200);
 	gtk_widget_show (scrolled);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
-			GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled), GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled),
+	gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrolled),
 			GTK_WIDGET (ndialog->node_view));
 	// pack vbox
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-	gtk_box_pack_start (vbox, gtk_label_new (_("Category")), FALSE, FALSE, 0);
-	gtk_box_pack_start (vbox, (GtkWidget*) scrolled, TRUE, TRUE, 0);
-	gtk_box_pack_start (ndialog->hbox, (GtkWidget*) vbox, FALSE, FALSE, 1);
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_box_append (vbox, gtk_label_new (_("Category")));
+	gtk_box_append (vbox, (GtkWidget*) scrolled);
+	gtk_box_prepend (ndialog->hbox, (GtkWidget*) vbox);
+	gtk_widget_set_visible ((GtkWidget*) vbox, TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -481,7 +493,7 @@ static void on_response_new_download (GtkDialog *dialog, gint response_id,
 		dnode = uget_node_new (NULL);
 		ugtk_node_dialog_get(ndialog, dnode->info);
 		ugtk_node_dialog_get_category (ndialog, &cnode);
-		uri = gtk_entry_get_text ((GtkEntry*) ndialog->download.uri_entry);
+		uri = gtk_editable_get_text ((GtkEditable*) ndialog->download.uri_entry);
 		if (ugtk_node_dialog_confirm_existing (ndialog, uri)) {
 			uget_app_add_download ((UgetApp*) ndialog->app, dnode, cnode, FALSE);
 			ugtk_download_form_get_folders (&ndialog->download,

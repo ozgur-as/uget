@@ -2,7 +2,7 @@
 # Migrated from Autotools (configure.ac)
 
 project('uget', 'c',
-  version: '2.2.3',
+  version: '2.3.0',
   license: 'LGPL-2.1-or-later',
   meson_version: '>= 1.1.0',
   default_options: [
@@ -19,9 +19,9 @@ host_system = host_machine.system()
 # Required Dependencies
 # ============================================================================
 
-glib_dep = dependency('glib-2.0', required: true)
-gtk_dep = dependency('gtk+-3.0', version: '>= 3.4', required: true)
-curl_dep = dependency('libcurl', version: '>= 7.19.1', required: true)
+glib_dep = dependency('glib-2.0', version: '>= 2.86.3', required: true)
+gtk_dep = dependency('gtk4', version: '>= 4.20.3', required: true)
+curl_dep = dependency('libcurl', version: '>= 8.17.0', required: true)
 threads_dep = dependency('threads', required: true)
 
 # ============================================================================

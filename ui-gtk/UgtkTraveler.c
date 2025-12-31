@@ -42,7 +42,9 @@ static void on_state_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
 static void on_category_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
 static void on_download_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
 static void on_category_row_deleted (GtkTreeModel* model, GtkTreePath* path, UgtkTraveler* traveler);
+static void on_category_row_deleted (GtkTreeModel* model, GtkTreePath* path, UgtkTraveler* traveler);
 static void on_download_row_deleted (GtkTreeModel* model, GtkTreePath* path, UgtkTraveler* traveler);
+static void on_download_view_clicked (GtkGestureClick* gesture, int n_press, double x, double y, gpointer user_data);
 // static data
 const static void*          sort_callbacks[UGTK_NODE_N_COLUMNS];
 const static UgCompareFunc  compare_funcs[UGTK_NODE_N_COLUMNS];
@@ -63,7 +65,7 @@ void  ugtk_traveler_init (UgtkTraveler* traveler, UgtkApp* app)
 			GTK_TREE_MODEL (traveler->state.model));
 
 	// category
-	traveler->category.self = gtk_scrolled_window_new (NULL, NULL);
+	traveler->category.self = gtk_scrolled_window_new ();
 	traveler->category.view = (GtkTreeView*) ugtk_node_view_new_for_category ();
 	traveler->category.model = ugtk_node_tree_new (&app->sorted, TRUE);
 	ugtk_node_tree_set_prefix (traveler->category.model, &app->mix, 1);
@@ -71,24 +73,30 @@ void  ugtk_traveler_init (UgtkTraveler* traveler, UgtkApp* app)
 			GTK_TREE_MODEL (traveler->category.model));
 	gtk_widget_set_size_request (traveler->category.self, 165, 100);
 	scroll = GTK_SCROLLED_WINDOW (traveler->category.self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll),
+	gtk_scrolled_window_set_child (scroll,
 			GTK_WIDGET (traveler->category.view));
 
 	// download
-	traveler->download.self = gtk_scrolled_window_new (NULL, NULL);
+	traveler->download.self = gtk_scrolled_window_new ();
 	traveler->download.view = (GtkTreeView*) ugtk_node_view_new_for_download ();
 	traveler->download.model = ugtk_node_tree_new (NULL, TRUE);
 	gtk_tree_view_set_model (traveler->download.view,
 			GTK_TREE_MODEL (traveler->download.model));
 	scroll = GTK_SCROLLED_WINDOW (traveler->download.self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll),
+	gtk_scrolled_window_set_child (scroll,
 			GTK_WIDGET (traveler->download.view));
+
+	// Click to unselect (UX improvement)
+	GtkGesture *gesture = gtk_gesture_click_new ();
+	gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), GDK_BUTTON_PRIMARY);
+	g_signal_connect (gesture, "pressed", G_CALLBACK (on_download_view_clicked), traveler->download.view);
+	gtk_widget_add_controller (GTK_WIDGET (traveler->download.view), GTK_EVENT_CONTROLLER (gesture));
 
 	path = gtk_tree_path_new_first ();
 	gtk_tree_view_set_cursor (traveler->state.view, path, NULL, FALSE);
@@ -261,6 +269,13 @@ gint  ugtk_traveler_move_selected_up (UgtkTraveler* traveler)
 	GList*    link;
 	int       counts = 0;
 
+	// Automatically switch to manual sort if needed
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
+
 	list = ugtk_traveler_get_selected (traveler);
 	list = g_list_reverse (list);
 	for (top = NULL, link = list;  link;  link = link->next) {
@@ -312,6 +327,13 @@ gint  ugtk_traveler_move_selected_down (UgtkTraveler* traveler)
 	GList*    link;
 	int       counts = 0;
 
+	// Automatically switch to manual sort if needed
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
+
 	list = ugtk_traveler_get_selected (traveler);
 	for (bottom = NULL, link = list;  link;  link = link->next) {
 		node = link->data;
@@ -362,6 +384,13 @@ gint  ugtk_traveler_move_selected_top (UgtkTraveler* traveler)
 	GList*    link;
 	int       counts = 0;
 
+	// Automatically switch to manual sort if needed
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
+
 	list = ugtk_traveler_get_selected (traveler);
 	list = g_list_reverse (list);
 	node = list->data;
@@ -410,6 +439,13 @@ gint  ugtk_traveler_move_selected_bottom (UgtkTraveler* traveler)
 	GList*    list;
 	GList*    link;
 	int       counts = 0;
+
+	// Automatically switch to manual sort if needed
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
 
 	list = ugtk_traveler_get_selected (traveler);
 	node = list->data;
@@ -620,6 +656,27 @@ static void on_download_row_deleted (GtkTreeModel* model, GtkTreePath* p, UgtkTr
 	traveler->download.cursor.node = iter.user_data;
 	traveler->download.cursor.pos  = gtk_tree_path_get_indices (path)[0];
 	gtk_tree_path_free (path);
+}
+
+static void on_download_view_clicked (GtkGestureClick* gesture, int n_press, double x, double y, gpointer user_data)
+{
+	GtkTreeView *view = GTK_TREE_VIEW (user_data);
+	GtkTreeSelection *selection;
+	GtkTreePath *path = NULL;
+	int bx, by;
+
+	// Convert widget coordinates to bin window coordinates
+	gtk_tree_view_convert_widget_to_bin_window_coords (view, (int)x, (int)y, &bx, &by);
+
+	// Check if we clicked on a row
+	if (!gtk_tree_view_get_path_at_pos (view, bx, by, &path, NULL, NULL, NULL)) {
+		// No path means empty space -> unselect all
+		selection = gtk_tree_view_get_selection (view);
+		gtk_tree_selection_unselect_all (selection);
+	} else {
+		// Valid path, let default handler handle it (or just free path)
+		gtk_tree_path_free (path);
+	}
 }
 
 // ----------------------------------------------------------------------------

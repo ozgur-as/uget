@@ -62,7 +62,7 @@ struct UgtkSummary
 
 	struct
 	{
-		GtkMenu*    self;       // (GtkMenu) pop-up menu
+		GtkWidget*  self;       // (GtkPopover) pop-up menu
 		GtkWidget*  copy;       // GtkMenuItem
 		GtkWidget*  copy_all;   // GtkMenuItem
 	} menu;
@@ -77,7 +77,7 @@ struct UgtkSummary
 	} visible;
 };
 
-void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group);
+void  ugtk_summary_init (UgtkSummary* summary, gpointer accel_group);
 void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node);
 
 // call g_free() to free returned string.

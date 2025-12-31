@@ -61,7 +61,8 @@ void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup
 			UGTK_SEQ_TYPE_NUMBER, _("Num"));
 	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (range->type),
 			UGTK_SEQ_TYPE_CHARACTER, _("Char"));
-	gtk_box_pack_start (box, range->type, FALSE, FALSE, 2);
+	gtk_box_append (box, range->type);
+	// gtk_box_pack_start (box, range->type, FALSE, FALSE, 2);
 	g_signal_connect (range->type, "changed",
 			G_CALLBACK (on_type_changed), range);
 	g_signal_connect_swapped (range->type, "changed",
@@ -72,30 +73,34 @@ void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup
 				99999.0, 1.0, 5.0, 0.0);
 	range->spin_from = gtk_spin_button_new (adjustment, 1.0, 0);
 	gtk_size_group_add_widget (size_group, range->spin_from);
-	gtk_box_pack_start (box, range->spin_from, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_from);
+	// gtk_box_pack_start (box, range->spin_from, FALSE, FALSE, 2);
 	g_signal_connect_swapped (range->spin_from, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 	// Entry - From
 	range->entry_from = gtk_entry_new ();
-	gtk_entry_set_text (GTK_ENTRY (range->entry_from), "a");
+	gtk_editable_set_text (GTK_EDITABLE (range->entry_from), "a");
 	gtk_entry_set_max_length (GTK_ENTRY (range->entry_from), 1);
 //	gtk_entry_set_width_chars (GTK_ENTRY (range->entry_from), 2);
 	gtk_size_group_add_widget (size_group, range->entry_from);
-	gtk_box_pack_start (box, range->entry_from, FALSE, FALSE, 2);
+	gtk_box_append (box, range->entry_from);
+	// gtk_box_pack_start (box, range->entry_from, FALSE, FALSE, 2);
 	g_signal_connect_swapped (GTK_EDITABLE (range->entry_from), "changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// Label - To
 	range->label_to = gtk_label_new (_("To:"));
 //	range->label_to = gtk_label_new_with_mnemonic (_("To:"));
-	gtk_box_pack_start (box, range->label_to, FALSE, FALSE, 2);
+	gtk_box_append (box, range->label_to);
+	// gtk_box_pack_start (box, range->label_to, FALSE, FALSE, 2);
 //	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), range->spin_to);
 
 	// SpinButton - To
 	adjustment = (GtkAdjustment *) gtk_adjustment_new (10.0, 1.0,
 				99999.0, 1.0, 5.0, 0.0);
 	range->spin_to = gtk_spin_button_new (adjustment, 1.0, 0);
-	gtk_box_pack_start (box, range->spin_to, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_to);
+	// gtk_box_pack_start (box, range->spin_to, FALSE, FALSE, 2);
 	gtk_size_group_add_widget (size_group, range->spin_to);
 	g_signal_connect_swapped (range->spin_to, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
@@ -103,30 +108,34 @@ void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup
 	// label - digits
 	range->label_digits = gtk_label_new (_("digits:"));
 //	range->label_digits = gtk_label_new_with_mnemonic (_("digits:"));
-	gtk_box_pack_start (box, range->label_digits, FALSE, FALSE, 2);
+	gtk_box_append (box, range->label_digits);
+	// gtk_box_pack_start (box, range->label_digits, FALSE, FALSE, 2);
 //	gtk_label_set_mnemonic_widget (GTK_LABEL (range->label_digits), range->spin_digits);
 
 	// SpinButton - digits
 	adjustment = (GtkAdjustment *) gtk_adjustment_new (2.0, 1.0,
 			20.0, 1.0, 5.0, 0.0);
 	range->spin_digits = gtk_spin_button_new (adjustment, 1.0, 0);
-	gtk_box_pack_start (box, range->spin_digits, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_digits);
+	// gtk_box_pack_start (box, range->spin_digits, FALSE, FALSE, 2);
 	g_signal_connect_swapped (range->spin_digits, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// Entry - To
 	range->entry_to = gtk_entry_new ();
-	gtk_entry_set_text (GTK_ENTRY (range->entry_to), "z");
+	gtk_editable_set_text (GTK_EDITABLE (range->entry_to), "z");
 	gtk_entry_set_max_length (GTK_ENTRY (range->entry_to), 1);
 //	gtk_entry_set_width_chars (GTK_ENTRY (range->entry_to), 2);
 	gtk_size_group_add_widget (size_group, range->entry_to);
-	gtk_box_pack_start (box, range->entry_to, FALSE, FALSE, 2);
+	gtk_box_append (box, range->entry_to);
+	// gtk_box_pack_start (box, range->entry_to, FALSE, FALSE, 2);
 	g_signal_connect_swapped (GTK_EDITABLE (range->entry_to), "changed",
 			G_CALLBACK(ugtk_sequence_show_preview), seq);
 
 	// label - case-sensitive
 	range->label_case = gtk_label_new (_("case-sensitive"));
-	gtk_box_pack_start (box, range->label_case, FALSE, FALSE, 2);
+	gtk_box_append (box, range->label_case);
+	// gtk_box_pack_start (box, range->label_case, FALSE, FALSE, 2);
 
 //	gtk_widget_show_all (range->self);
 }
@@ -274,7 +283,7 @@ void  ugtk_sequence_init (UgtkSequence* seq)
 	gtk_grid_attach (grid, seq->preview.self, 0, 6, 2, 1);
 
 	ugtk_sequence_show_preview (seq);
-	gtk_widget_show_all (seq->self);
+	gtk_widget_show (seq->self);
 }
 
 void  ugtk_sequence_show_preview (UgtkSequence* seq)
@@ -289,7 +298,7 @@ void  ugtk_sequence_show_preview (UgtkSequence* seq)
 	ugtk_sequence_add_range (seq, &seq->range[1]);
 	ugtk_sequence_add_range (seq, &seq->range[2]);
 
-	string = gtk_entry_get_text (seq->entry);
+	string = gtk_editable_get_text (GTK_EDITABLE (seq->entry));
 	if (ug_uri_init (NULL, string) == 0) {
 		ugtk_sequence_preview_show (&seq->preview,
 				_("URI is not valid."));
@@ -334,7 +343,7 @@ int  ugtk_sequence_get_list (UgtkSequence* seq, UgList* result)
 {
 	const char*  string;
 
-	string = gtk_entry_get_text (seq->entry);
+	string = gtk_editable_get_text (GTK_EDITABLE (seq->entry));
 	return uget_sequence_get_list (&seq->sequence, string, result);
 }
 
@@ -355,8 +364,8 @@ static void ugtk_sequence_add_range (UgtkSequence* seq, UgtkSeqRange* range)
 		break;
 
 	case UGTK_SEQ_TYPE_CHARACTER:
-		first  = *gtk_entry_get_text (GTK_ENTRY (range->entry_from));
-		last   = *gtk_entry_get_text (GTK_ENTRY (range->entry_to));
+		first  = *gtk_editable_get_text (GTK_EDITABLE (range->entry_from));
+		last   = *gtk_editable_get_text (GTK_EDITABLE (range->entry_to));
 		digits = 0;
 		break;
 
@@ -403,13 +412,14 @@ static void ugtk_sequence_preview_init (struct UgtkSequencePreview* preview)
 	if (height < 140)
 		height = 140;
 
-	preview->self = gtk_scrolled_window_new (NULL, NULL);
+	preview->self = gtk_scrolled_window_new ();
 	gtk_widget_set_size_request (preview->self, 140, height);
 	scrolled = GTK_SCROLLED_WINDOW (preview->self);
-	gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scrolled,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled), GTK_WIDGET (preview->view));
+	gtk_scrolled_window_set_child (scrolled,
+			GTK_WIDGET (preview->view));
 }
 
 static void ugtk_sequence_preview_show (struct UgtkSequencePreview* preview, const gchar* message)

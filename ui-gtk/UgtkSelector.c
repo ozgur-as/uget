@@ -111,14 +111,18 @@ void  ugtk_selector_finalize (UgtkSelector* selector)
 	g_array_free (selector->pages, TRUE);
 
 	// UgtkSelectorFilter finalize
-	gtk_widget_destroy (GTK_WIDGET (selector->filter.dialog));
+	gtk_window_destroy (GTK_WINDOW (selector->filter.dialog));
+	// gtk_widget_destroy (GTK_WIDGET (selector->filter.dialog));
 }
 
 void  ugtk_selector_hide_href (UgtkSelector* selector)
 {
-	gtk_widget_hide ((GtkWidget*) selector->href_label);
-	gtk_widget_hide ((GtkWidget*) selector->href_entry);
-	gtk_widget_hide ((GtkWidget*) selector->href_separator);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_label, FALSE);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_entry, FALSE);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_separator, FALSE);
+	// gtk_widget_hide ((GtkWidget*) selector->href_label);
+	// gtk_widget_hide ((GtkWidget*) selector->href_entry);
+	// gtk_widget_hide ((GtkWidget*) selector->href_separator);
 }
 
 static GList*  ugtk_selector_get_marked (UgtkSelector* selector)
@@ -144,7 +148,7 @@ GList*  ugtk_selector_get_marked_uris (UgtkSelector* selector)
 	const gchar* base_href;
 
 	list = ugtk_selector_get_marked (selector);
-	base_href = gtk_entry_get_text (selector->href_entry);
+	base_href = gtk_editable_get_text (GTK_EDITABLE (selector->href_entry));
 	if (base_href[0] == 0)
 		base_href = NULL;
 	for (link = list;  link;  link = link->next) {
@@ -240,25 +244,30 @@ static GtkWidget*  ugtk_selector_filter_view_init (GtkTreeView* item_view)
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
 	// filter view and it's scrolled window
 	gtk_widget_set_size_request ((GtkWidget*) item_view, 120, 120);
-	widget = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
-			GTK_SHADOW_IN);
+	widget = gtk_scrolled_window_new ();
+	// gtk_scrolled_window_new (NULL, NULL);
+	// gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget), GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (item_view));
-	gtk_box_pack_start (vbox, widget, TRUE, TRUE, 2);
+	gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (widget), GTK_WIDGET (item_view));
+	// gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (item_view));
+	gtk_box_append (vbox, widget);
+	// gtk_box_pack_start (vbox, widget, TRUE, TRUE, 2);
 	// button
 	sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	// gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	widget = gtk_button_new_with_label (_("All"));
 	gtk_size_group_add_widget (sizegroup, widget);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
+	// gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (hbox, widget);
 	g_signal_connect (widget, "clicked",
 			G_CALLBACK (on_filter_button_all), item_view);
 	widget = gtk_button_new_with_label (_("None"));
 	gtk_size_group_add_widget (sizegroup, widget);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
+	// gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
+	gtk_box_append (hbox, widget);
 	g_signal_connect (widget, "clicked",
 			G_CALLBACK (on_filter_button_none), item_view);
 
@@ -276,41 +285,43 @@ static void ugtk_selector_filter_init (struct UgtkSelectorFilter* filter, UgtkSe
 	title  = g_strconcat (UGTK_APP_NAME " - ", _("Mark by filter"), NULL);
 	dialog = (GtkDialog*) gtk_dialog_new_with_buttons (title, selector->parent,
 			0,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
+			_("_Cancel"), GTK_RESPONSE_CANCEL,
+			_("_OK"),     GTK_RESPONSE_OK,
 			NULL);
 	g_free (title);
 	gtk_window_set_modal ((GtkWindow*) dialog, FALSE);
 //	gtk_window_set_resizable ((GtkWindow*) dialog, FALSE);
 	gtk_window_set_destroy_with_parent ((GtkWindow*) dialog, TRUE);
 	gtk_window_set_transient_for ((GtkWindow*) dialog, selector->parent);
-	gtk_window_resize ((GtkWindow*) dialog, 480, 330);
+	gtk_window_set_default_size ((GtkWindow*) dialog, 480, 330);
 	g_signal_connect (dialog, "response",
 			G_CALLBACK (on_filter_dialog_response), selector);
 	filter->dialog = dialog;
 
 	vbox = (GtkBox*) gtk_dialog_get_content_area (dialog);
-	gtk_box_pack_start (vbox,
-			gtk_label_new (_("Mark URLs by host AND filename extension.")),
-			FALSE, FALSE, 3);
-	gtk_box_pack_start (vbox,
-			gtk_label_new (_("This will reset all marks of URLs.")),
-			FALSE, FALSE, 3);
+	gtk_box_append (vbox,
+			gtk_label_new (_("Mark URLs by host AND filename extension.")));
+	// gtk_box_pack_start (vbox, ... FALSE, FALSE, 3);
+	gtk_box_append (vbox,
+			gtk_label_new (_("This will reset all marks of URLs.")));
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, TRUE, TRUE, 1);
+	// gtk_box_pack_start (vbox, (GtkWidget*) hbox, TRUE, TRUE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 
 	// filter view -----------------------
 	// left side
 	filter->host_view = ugtk_selector_view_new (_("Host"), TRUE);
 	widget = ugtk_selector_filter_view_init (filter->host_view);
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 2);
+	// gtk_box_pack_start (hbox, widget, TRUE, TRUE, 2);
+	gtk_box_append (hbox, widget);
 	// right side (filename extension)
 	filter->ext_view = ugtk_selector_view_new (_("File Ext."), TRUE);
 	widget = ugtk_selector_filter_view_init (filter->ext_view);
-	gtk_box_pack_start (hbox, widget, FALSE, TRUE, 2);
+	// gtk_box_pack_start (hbox, widget, FALSE, TRUE, 2);
+	gtk_box_append (hbox, widget);
 
-	gtk_widget_show_all (GTK_WIDGET (vbox));
+	gtk_widget_show (GTK_WIDGET (vbox));
 }
 
 static void ugtk_selector_filter_show (struct UgtkSelectorFilter* filter, UgtkSelectorPage* page)
@@ -329,9 +340,11 @@ static void ugtk_selector_filter_show (struct UgtkSelectorFilter* filter, UgtkSe
 		gtk_widget_set_sensitive ((GtkWidget*) parent, FALSE);
 	// create filter dialog
 	if (gtk_window_get_modal (parent))
-		gtk_dialog_run (filter->dialog);
+		gtk_widget_set_visible ((GtkWidget*) filter->dialog, TRUE);
+		// gtk_dialog_run (filter->dialog);
 	else
-		gtk_widget_show ((GtkWidget*) filter->dialog);
+		gtk_widget_set_visible ((GtkWidget*) filter->dialog, TRUE);
+		// gtk_widget_show ((GtkWidget*) filter->dialog);
 }
 
 //	signal handler ------------------------------
@@ -414,7 +427,7 @@ static void on_filter_dialog_response (GtkDialog* dialog, gint response_id, Ugtk
 	if (parent)
 		gtk_widget_set_sensitive ((GtkWidget*) parent, TRUE);
 	// hide filter dialog
-	gtk_widget_hide ((GtkWidget*) dialog);
+	gtk_widget_set_visible ((GtkWidget*) dialog, FALSE);
 	// count and notify
 	ugtk_selector_count_marked (selector);
 }
@@ -449,12 +462,14 @@ void  ugtk_selector_page_init (UgtkSelectorPage* page)
 	page->view  = ugtk_selector_view_new (_("URL"), FALSE);
 	gtk_tree_view_set_model (page->view, GTK_TREE_MODEL (page->store));
 	// scrolled
-	page->self = gtk_scrolled_window_new (NULL, NULL);
+	page->self = gtk_scrolled_window_new ();
+	//page->self = gtk_scrolled_window_new (NULL, NULL);
 	scrolled = GTK_SCROLLED_WINDOW (page->self);
-	gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
+	// gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scrolled,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled), GTK_WIDGET (page->view));
+	gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrolled), GTK_WIDGET (page->view));
+	// gtk_container_add (GTK_CONTAINER (scrolled), GTK_WIDGET (page->view));
 	gtk_widget_show (page->self);
 
 	// total marked count
@@ -777,34 +792,41 @@ static void ugtk_selector_init_ui (UgtkSelector* selector)
 	vbox = (GtkBox*) selector->self;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
+	// gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
 	string = g_strconcat (_("Base hypertext reference"), " <base href> :", NULL);
 	selector->href_label = gtk_label_new (string);
 	g_free (string);
-	gtk_box_pack_start (hbox, selector->href_label, FALSE, TRUE, 1);
+	// gtk_box_pack_start (hbox, selector->href_label, FALSE, TRUE, 1);
+	gtk_box_append (hbox, selector->href_label);
 
 	selector->href_entry = (GtkEntry*) gtk_entry_new ();
-	gtk_box_pack_start (vbox, (GtkWidget*) selector->href_entry, FALSE, FALSE, 1);
+	// gtk_box_pack_start (vbox, (GtkWidget*) selector->href_entry, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) selector->href_entry);
 	selector->href_separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
-	gtk_box_pack_start (vbox, selector->href_separator, FALSE, FALSE, 1);
+	// gtk_box_pack_start (vbox, selector->href_separator, FALSE, FALSE, 1);
+	gtk_box_append (vbox, selector->href_separator);
 
 	selector->notebook = (GtkNotebook*) gtk_notebook_new ();
-	gtk_box_pack_start (vbox, (GtkWidget*) selector->notebook, TRUE, TRUE, 1);
+	// gtk_box_pack_start (vbox, (GtkWidget*) selector->notebook, TRUE, TRUE, 1);
+	gtk_box_append (vbox, (GtkWidget*) selector->notebook);
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	// gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	// select all
 	widget = gtk_button_new_with_mnemonic (_("Mark _All"));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	// gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_all = widget;
 	// select none
 	widget = gtk_button_new_with_mnemonic (_("Mark _None"));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_none = widget;
 	// select by filter
 	widget = gtk_button_new_with_mnemonic (_("_Mark by filter..."));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_filter = widget;
 
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_widget_set_visible ((GtkWidget*) vbox, TRUE);
 }

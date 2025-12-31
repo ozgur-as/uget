@@ -43,7 +43,7 @@
 #include <glib/gi18n.h>
 
 static void ugtk_statusbar_init_ui (struct UgtkStatusbar* app_statusbar);
-static void ugtk_toolbar_init_ui   (struct UgtkToolbar* app_toolbar, GtkAccelGroup* accel_group);
+static void ugtk_toolbar_init_ui   (struct UgtkToolbar* ugt, gpointer accel_group);
 static void ugtk_window_init_ui    (struct UgtkWindow* window, UgtkApp* app);
 static void ugtk_app_init_size     (UgtkApp* app);
 #if defined _WIN32 || defined _WIN64
@@ -53,17 +53,19 @@ static void ugtk_app_init_ui_win32 (UgtkApp* app, int screen_width);
 void  ugtk_app_init_ui (UgtkApp* app)
 {
 	// Registers a new accelerator "Ctrl+N" with the global accelerator map.
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_NEW,      GDK_KEY_n,      GDK_CONTROL_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_LOAD,     GDK_KEY_o,      GDK_CONTROL_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_SAVE,     GDK_KEY_s,      GDK_CONTROL_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_SAVE_ALL, GDK_KEY_s,      GDK_CONTROL_MASK | GDK_SHIFT_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE,   GDK_KEY_Delete, 0);
-//	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE_F, GDK_KEY_Delete, GDK_SHIFT_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE_F, GDK_KEY_Delete, GDK_CONTROL_MASK);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_OPEN,     GDK_KEY_Return, 0);
-	gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_OPEN_F,   GDK_KEY_Return, GDK_SHIFT_MASK);
-	// accelerators
-	app->accel_group = gtk_accel_group_new ();
+	// Registers a new accelerator "Ctrl+N" with the global accelerator map.
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_NEW,      GDK_KEY_n,      GDK_CONTROL_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_LOAD,     GDK_KEY_o,      GDK_CONTROL_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_SAVE,     GDK_KEY_s,      GDK_CONTROL_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_SAVE_ALL, GDK_KEY_s,      GDK_CONTROL_MASK | GDK_SHIFT_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE,   GDK_KEY_Delete, 0);
+//	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE_F, GDK_KEY_Delete, GDK_SHIFT_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_DELETE_F, GDK_KEY_Delete, GDK_CONTROL_MASK);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_OPEN,     GDK_KEY_Return, 0);
+	// gtk_accel_map_add_entry (UGTK_APP_ACCEL_PATH_OPEN_F,   GDK_KEY_Return, GDK_SHIFT_MASK);
+	// NOTE: GtkAccelGroup is deprecated in GTK4. Keyboard shortcuts are not yet implemented.
+	// See UgtkMenubar-ui.c for details on GTK4 migration requirements (GtkShortcutController).
+	app->accel_group = NULL;
 	// tray icon
 	ugtk_tray_icon_init (&app->trayicon);
 	// Main Window and it's widgets
@@ -72,51 +74,28 @@ void  ugtk_app_init_ui (UgtkApp* app)
 	ugtk_summary_init (&app->summary, app->accel_group);
 	ugtk_traveler_init (&app->traveler, app);
 	ugtk_statusbar_init_ui (&app->statusbar);
-	ugtk_toolbar_init_ui (&app->toolbar, app->accel_group);
+	ugtk_toolbar_init_ui (&app->toolbar, NULL);
 	ugtk_window_init_ui (&app->window, app);
 	ugtk_app_init_size (app);
 }
 
 // set default size
+// set default size
 static void ugtk_app_init_size (UgtkApp* app)
 {
-	GdkScreen*  screen;
-	gint        width, height;
-	gint        paned_position;
-
-	screen = gdk_screen_get_default ();
-	if (screen) {
-		width  = gdk_screen_get_width (screen);
-		height = gdk_screen_get_height (screen);
-	}
-	else {
-		width  = 0;
-		height = 0;
-	}
+	gint        width = 1000;
+	gint        height = 700;
+	gint        paned_position = 200;
 
 	// decide window & traveler size
-	if (width <= 640) {
-		width = 620;
-		height = 430;
-		paned_position = 165;
-	}
-	if (width <= 800) {
-		width = width * 95 / 100;
-		height = height * 9 / 10;
-		paned_position = 180;
-	}
-	else if (width <= 1000) {
+	// Hardcoded defaults for GTK4 port
+	if (width <= 1000) {
 		width = width * 90 / 100;
 		height = height * 8 / 10;
 		paned_position = 200;
 	}
-	else {
-		width = width * 85 / 100;
-		height = height * 8 / 10;
-		paned_position = width * 22 / 100;
-	}
 
-	gtk_window_resize (app->window.self, width, height);
+	gtk_window_set_default_size ((GtkWindow*) app->window.self, width, height);
 	gtk_paned_set_position (app->window.hpaned, paned_position);
 
 #if defined _WIN32 || defined _WIN64
@@ -166,44 +145,53 @@ static void ugtk_window_init_ui (struct UgtkWindow* window, UgtkApp* app)
 	GtkBox*  lbox;    // left side vbox
 	GtkBox*  rbox;    // right side vbox
 
-	window->self = (GtkWindow*) gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	window->self = (GtkWindow*) gtk_window_new ();
 	gtk_window_set_title (window->self, UGTK_APP_NAME);
+	// Explicitly request no custom titlebar to encourage native decoration
+	gtk_window_set_titlebar (window->self, NULL);
 //	gtk_window_resize (window->self, 640, 480);
-	gtk_window_add_accel_group (window->self, app->accel_group);
+	// GTK4: GtkAccelGroup removed, shortcuts not yet implemented
 	gtk_window_set_default_icon_name (UGTK_APP_ICON_NAME);
 #if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
 	gtk_window_set_has_resize_grip (window->self, FALSE);
 #endif
 
 	// top container for Main Window
+	// top container for Main Window
 	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_container_add (GTK_CONTAINER (window->self), GTK_WIDGET (vbox));
+	gtk_window_set_child ((GtkWindow*) window->self, GTK_WIDGET (vbox));
 	// banner + menubar
-	gtk_box_pack_start (vbox, app->banner.self, FALSE, FALSE, 0);
-	gtk_box_pack_start (vbox, app->menubar.self, FALSE, FALSE, 0);
+	gtk_box_append (vbox, app->banner.self);
+	gtk_box_append (vbox, app->menubar.self);
 
 	// hpaned
 	window->hpaned = (GtkPaned*) gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
-	gtk_box_pack_start (vbox, GTK_WIDGET (window->hpaned), TRUE, TRUE, 0);
+	gtk_widget_set_hexpand (GTK_WIDGET (window->hpaned), TRUE);
+	gtk_widget_set_vexpand (GTK_WIDGET (window->hpaned), TRUE);
+	gtk_box_append (vbox, GTK_WIDGET (window->hpaned));
 	lbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
 	rbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_paned_pack1 (window->hpaned, GTK_WIDGET (lbox), FALSE, TRUE);
-	gtk_paned_pack2 (window->hpaned, GTK_WIDGET (rbox), TRUE, FALSE);
+	gtk_paned_set_start_child (window->hpaned, GTK_WIDGET (lbox));
+	gtk_paned_set_end_child (window->hpaned, GTK_WIDGET (rbox));
 
-	gtk_box_pack_start (lbox, gtk_label_new (_("Status")), FALSE, FALSE, 0);
-	gtk_box_pack_start (lbox, app->traveler.state.self, FALSE, FALSE, 0);
-	gtk_box_pack_start (lbox, gtk_label_new (_("Category")), FALSE, FALSE, 0);
-	gtk_box_pack_start (lbox, app->traveler.category.self, TRUE, TRUE, 0);
-	gtk_box_pack_start (rbox, app->toolbar.self, FALSE, FALSE, 0);
+	gtk_box_append (lbox, gtk_label_new (_("Status")));
+	gtk_box_append (lbox, app->traveler.state.self);
+	gtk_box_append (lbox, gtk_label_new (_("Category")));
+	gtk_widget_set_hexpand (app->traveler.category.self, TRUE);
+	gtk_widget_set_vexpand (app->traveler.category.self, TRUE);
+	gtk_box_append (lbox, app->traveler.category.self);
+	gtk_box_append (rbox, app->toolbar.self);
 
 	// vpaned
 	window->vpaned = (GtkPaned*) gtk_paned_new (GTK_ORIENTATION_VERTICAL);
-	gtk_box_pack_start (rbox, (GtkWidget*) window->vpaned, TRUE, TRUE, 0);
-	gtk_paned_pack1 (window->vpaned, app->traveler.download.self , TRUE, TRUE);
-	gtk_paned_pack2 (window->vpaned, app->summary.self, FALSE, TRUE);
+	gtk_widget_set_hexpand ((GtkWidget*) window->vpaned, TRUE);
+	gtk_widget_set_vexpand ((GtkWidget*) window->vpaned, TRUE);
+	gtk_box_append (rbox, (GtkWidget*) window->vpaned);
+	gtk_paned_set_start_child (window->vpaned, app->traveler.download.self);
+	gtk_paned_set_end_child (window->vpaned, app->summary.self);
 
-	gtk_box_pack_start (vbox, GTK_WIDGET (app->statusbar.self), FALSE, FALSE, 0);
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_box_append (vbox, GTK_WIDGET (app->statusbar.self));
+	gtk_widget_set_visible ((GtkWidget*) vbox, TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -233,206 +221,130 @@ static void ugtk_statusbar_init_ui (struct UgtkStatusbar* sbar)
 	widget = gtk_label_new ("");
 	sbar->up_speed = (GtkLabel*) widget;
 	gtk_widget_set_size_request (widget, text_width, 0);
-	gtk_box_pack_end (hbox, widget, FALSE, TRUE, 2);
+	// gtk_box_pack_end (hbox, widget, FALSE, TRUE, 2);
 //	gtk_label_set_width_chars (sbar->down_speed, 15);
-	gtk_misc_set_alignment (GTK_MISC (widget), 0, 0.5);
-	gtk_box_pack_end (hbox, gtk_label_new ("\xE2\x86\x91"), FALSE, TRUE, 2);    // "↑"
+	// GTK4: Use gtk_label_set_xalign/yalign instead of deprecated gtk_misc_set_alignment
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);
+	// gtk_box_pack_end (hbox, gtk_label_new ("\xE2\x86\x91"), FALSE, TRUE, 2);    // "↑"
 
-	gtk_box_pack_end (hbox, gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, TRUE, 8);
+	// gtk_box_pack_end (hbox, gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, TRUE, 8);
 
 	// download speed label
 	widget = gtk_label_new ("");
 	sbar->down_speed = (GtkLabel*) widget;
 	gtk_widget_set_size_request (widget, text_width, 0);
-	gtk_box_pack_end (hbox, widget, FALSE, TRUE, 2);
+	// gtk_box_pack_end (hbox, widget, FALSE, TRUE, 2);
 //	gtk_label_set_width_chars (sbar->down_speed, 15);
-	gtk_misc_set_alignment (GTK_MISC (widget), 0, 0.5);
-	gtk_box_pack_end (hbox, gtk_label_new ("\xE2\x86\x93"), FALSE, TRUE, 2);    // "↓"
+	// GTK4: Use gtk_label_set_xalign/yalign instead of deprecated gtk_misc_set_alignment
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);
+	// gtk_box_pack_end (hbox, gtk_label_new ("\xE2\x86\x93"), FALSE, TRUE, 2);    // "↓"
 }
 
 // ----------------------------------------------------------------------------
 // UgtkToolbar
 //
-static void ugtk_toolbar_init_ui (struct UgtkToolbar* ugt, GtkAccelGroup* accel_group)
+static void ugtk_toolbar_init_ui (struct UgtkToolbar* ugt, gpointer accel_group)
 {
-	GtkToolbar*   toolbar;
-	GtkToolItem*  tool_item;
-	GtkWidget*    image;
-	GtkWidget*    menu;
-	GtkWidget*    menu_item;
+	// GtkToolbar*   toolbar;
+	// GtkToolItem*  tool_item;
+	// GtkWidget*    image;
+	// GtkWidget*    menu;
+	// GtkWidget*    menu_item;
 
 	// toolbar
-	ugt->toolbar = gtk_toolbar_new ();
-	toolbar = GTK_TOOLBAR (ugt->toolbar);
-	gtk_toolbar_set_style (toolbar, GTK_TOOLBAR_ICONS);
-	gtk_toolbar_set_icon_size (toolbar, GTK_ICON_SIZE_SMALL_TOOLBAR);
-	ugt->self = ugt->toolbar;
-	gtk_widget_show (ugt->self);
+	ugt->toolbar = (GtkWidget*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_add_css_class (ugt->toolbar, "toolbar");
+	ugt->self = (GtkWidget*) ugt->toolbar;
+	gtk_widget_set_visible (ugt->self, TRUE);
 
-	// New button --- start ---
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-new", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_menu_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_menu_tool_button_new_from_stock (GTK_STOCK_NEW);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Create new download"));
-	gtk_menu_tool_button_set_arrow_tooltip_text ((GtkMenuToolButton*)tool_item, "Create new item");
-	gtk_tool_item_set_homogeneous (tool_item, FALSE);
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->create = GTK_WIDGET (tool_item);
-	// menu for tool button (accelerators)
-	menu = gtk_menu_new ();
-	gtk_menu_set_accel_group ((GtkMenu*) menu, accel_group);
-	gtk_menu_tool_button_set_menu ((GtkMenuToolButton*)tool_item, menu);
-	// New Download (accelerators)
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New _Download..."));
-	gtk_menu_item_set_accel_path ((GtkMenuItem*) menu_item, UGTK_APP_ACCEL_PATH_NEW);
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-new", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_download = menu_item;
-	// New Category
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New _Category..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("gtk-dnd-multiple", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_DND_MULTIPLE, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_category = menu_item;
-	// New Clipboard batch
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Clipboard _batch..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("edit-paste", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_clipboard = menu_item;
-	gtk_widget_show_all (menu);
-	// New URL Sequence batch
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New _URL Sequence batch..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("view-sort-ascending", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_SORT_ASCENDING, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_sequence = menu_item;
-	gtk_widget_show_all (menu);
+	// New button (Menu Button)
+	ugt->create = gtk_menu_button_new ();
+    gtk_menu_button_set_icon_name (GTK_MENU_BUTTON (ugt->create), "document-new");
+	gtk_widget_set_tooltip_text (ugt->create, _("Create new download"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->create);
 
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
+    // Create Popover for "New" menu
+    GtkWidget *popover = gtk_popover_new ();
+    GtkWidget *menu_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_popover_set_child (GTK_POPOVER (popover), menu_box);
+    gtk_menu_button_set_popover (GTK_MENU_BUTTON (ugt->create), popover);
 
-	// New Torrent
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Torrent..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_torrent = menu_item;
-	gtk_widget_show_all (menu);
-	// New Metalink
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Metalink..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	ugt->create_metalink = menu_item;
-	gtk_widget_show_all (menu);
-	// New button --- end ---
+	// Menu items (as flat buttons)
+	ugt->create_download = gtk_button_new_with_label (_("New Download"));
+    gtk_widget_add_css_class (ugt->create_download, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_download);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-save", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_SAVE);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Save all settings"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->save = GTK_WIDGET (tool_item);
+	ugt->create_category = gtk_button_new_with_label (_("New Category"));
+    gtk_widget_add_css_class (ugt->create_category, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_category);
 
-	tool_item = gtk_separator_tool_item_new ();
-	gtk_toolbar_insert (toolbar, tool_item, -1);
+	ugt->create_sequence = gtk_button_new_with_label (_("New Batch Sequence"));
+    gtk_widget_add_css_class (ugt->create_sequence, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_sequence);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("media-playback-start", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_PLAY);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Set selected download runnable"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->runnable = GTK_WIDGET (tool_item);
+	ugt->create_clipboard = gtk_button_new_with_label (_("New Batch Clipboard"));
+    gtk_widget_add_css_class (ugt->create_clipboard, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_clipboard);
+    
+    // Separator?
+    gtk_box_append (GTK_BOX (menu_box), gtk_separator_new (GTK_ORIENTATION_HORIZONTAL));
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("media-playback-pause", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_PAUSE);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Set selected download to pause"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->pause = GTK_WIDGET (tool_item);
+	ugt->create_torrent = gtk_button_new_with_label (_("New Torrent"));
+    gtk_widget_add_css_class (ugt->create_torrent, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_torrent);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-properties", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Set selected download properties"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->properties = GTK_WIDGET (tool_item);
+	ugt->create_metalink = gtk_button_new_with_label (_("New Metalink"));
+    gtk_widget_add_css_class (ugt->create_metalink, "flat");
+    gtk_box_append (GTK_BOX (menu_box), ugt->create_metalink);
 
-	tool_item = gtk_separator_tool_item_new ();
-	gtk_toolbar_insert (toolbar, tool_item, -1);
+	// Save
+	ugt->save = gtk_button_new_from_icon_name ("document-save");
+	gtk_widget_set_tooltip_text (ugt->save, _("Save all settings"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->save);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("go-up", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_GO_UP);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Move selected download up"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->move_up = GTK_WIDGET (tool_item);
+	// Separator
+	gtk_box_append (GTK_BOX (ugt->toolbar), gtk_separator_new (GTK_ORIENTATION_VERTICAL));
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("go-down", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_GO_DOWN);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Move selected download down"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->move_down = GTK_WIDGET (tool_item);
+	// Runnable (Start)
+	ugt->runnable = gtk_button_new_from_icon_name ("media-playback-start");
+	gtk_widget_set_tooltip_text (ugt->runnable, _("Start"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->runnable);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("go-top", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_GOTO_TOP);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Move selected download to top"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->move_top = GTK_WIDGET (tool_item);
+	// Pause
+	ugt->pause = gtk_button_new_from_icon_name ("media-playback-pause");
+	gtk_widget_set_tooltip_text (ugt->pause, _("Pause"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->pause);
 
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("go-bottom", GTK_ICON_SIZE_SMALL_TOOLBAR);
-	tool_item = (GtkToolItem*) gtk_tool_button_new (image, NULL);
-#else
-	tool_item = (GtkToolItem*) gtk_tool_button_new_from_stock (GTK_STOCK_GOTO_BOTTOM);
-#endif
-	gtk_tool_item_set_tooltip_text (tool_item, _("Move selected download to bottom"));
-	gtk_toolbar_insert (toolbar, tool_item, -1);
-	ugt->move_bottom = GTK_WIDGET (tool_item);
+	// Properties
+	ugt->properties = gtk_button_new_from_icon_name ("document-properties");
+	gtk_widget_set_tooltip_text (ugt->properties, _("Properties"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->properties);
 
-	gtk_widget_show_all ((GtkWidget*) toolbar);
+	// Separator
+	gtk_box_append (GTK_BOX (ugt->toolbar), gtk_separator_new (GTK_ORIENTATION_VERTICAL));
+
+	// Move Up
+	ugt->move_up = gtk_button_new_from_icon_name ("go-up");
+	gtk_widget_set_tooltip_text (ugt->move_up, _("Move Up"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->move_up);
+
+	// Move Down
+	ugt->move_down = gtk_button_new_from_icon_name ("go-down");
+	gtk_widget_set_tooltip_text (ugt->move_down, _("Move Down"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->move_down);
+
+	// Move Top
+	ugt->move_top = gtk_button_new_from_icon_name ("go-top");
+	gtk_widget_set_tooltip_text (ugt->move_top, _("Move Top"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->move_top);
+
+	// Move Bottom
+	ugt->move_bottom = gtk_button_new_from_icon_name ("go-bottom");
+	gtk_widget_set_tooltip_text (ugt->move_bottom, _("Move Bottom"));
+	gtk_box_append (GTK_BOX (ugt->toolbar), ugt->move_bottom);
 }
+
+
 
