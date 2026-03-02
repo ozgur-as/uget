@@ -158,9 +158,23 @@ subdir('uget')
 subdir('ui-gtk')
 subdir('tests')
 
-# Install pixmaps
+# Translations (Unix only — Windows uses embedded resources)
+if host_system != 'windows'
+  subdir('po')
+endif
+
+# Install data files
+install_data('uget-gtk.desktop',
+  install_dir: get_option('datadir') / 'applications'
+)
 install_data('pixmaps/logo.png',
   install_dir: get_option('datadir') / 'pixmaps' / 'uget'
+)
+install_data('sounds/notification.wav',
+  install_dir: get_option('datadir') / 'sounds' / 'uget'
+)
+install_subdir('pixmaps/icons/hicolor',
+  install_dir: get_option('datadir') / 'icons'
 )
 
 # ============================================================================
