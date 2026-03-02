@@ -225,10 +225,10 @@ gchar*  ugtk_summary_get_text_all (UgtkSummary* summary)
 
 static void ugtk_summary_clear (UgtkSummary* summary)
 {
-	GtkWidget* child;
+	GtkListBoxRow* row;
 
-	while ((child = gtk_widget_get_first_child (GTK_WIDGET (summary->list_box))))
-		gtk_list_box_remove (summary->list_box, child);
+	while ((row = gtk_list_box_get_row_at_index (summary->list_box, 0)) != NULL)
+		gtk_list_box_remove (summary->list_box, GTK_WIDGET (row));
 }
 
 static void ugtk_summary_add_row (UgtkSummary* summary,
