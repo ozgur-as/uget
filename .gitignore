@@ -1,0 +1,68 @@
+# Meson build directories
+build/
+builddir/
+_build/
+
+# Compiled objects and libraries
+*.o
+*.lo
+*.a
+*.so
+*.so.*
+*.la
+*.dll
+*.dylib
+*.exe
+
+# Generated config
+config.h
+
+# Debian packages
+*.deb
+
+# AI agent files
+AGENTS.md
+plan.md
+
+# Editor files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+*.kate-swp
+.kateproject
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tags
+TAGS
+tags
+GTAGS
+GRTAGS
+GPATH
+
+# Autotools leftovers (in case of old build artifacts)
+autom4te.cache/
+aclocal.m4
+config.guess
+config.sub
+config.log
+config.status
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+stamp-h1
+Makefile
+Makefile.in
+.deps/
+.libs/
+
+# Core dumps
+core
+core.*

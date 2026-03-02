@@ -295,18 +295,11 @@ void ugtk_menubar_init_ui (UgtkMenubar* menubar, void* accel_group)
     // --- Help Menu ---
     // =========================================================================
     submenu = g_menu_new ();
-    g_menu_append (submenu, _("Get Help Online"), "win.help-online");
     g_menu_append (submenu, _("Documentation"), "win.help-documentation");
-    g_menu_append (submenu, _("Support Forum"), "win.help-support-forum");
-    
+    g_menu_append (submenu, _("Report an Issue"), "win.help-report-bug");
+    g_menu_append (submenu, _("Check for Updates"), "win.help-check-updates");
+
     section = g_menu_new ();
-    g_menu_append (section, _("Submit Feedback"), "win.help-feedback");
-    g_menu_append (section, _("Report a Bug"), "win.help-report-bug");
-    g_menu_append_section (submenu, NULL, G_MENU_MODEL (section));
-    g_object_unref (section);
-    
-    section = g_menu_new ();
-    g_menu_append (section, _("Check for Updates"), "win.help-check-updates");
     g_menu_append (section, _("About"), "win.help-about");
     g_menu_append_section (submenu, NULL, G_MENU_MODEL (section));
     g_object_unref (section);
@@ -598,28 +591,16 @@ static void open_url_in_browser (const char* url) {
 #endif
 }
 
-static void on_action_help_online (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://ugetdm.com/help/");
-}
-
 static void on_action_help_documentation (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://ugetdm.com/documentation/");
-}
-
-static void on_action_help_support_forum (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://sourceforge.net/p/urlget/discussion/");
-}
-
-static void on_action_help_feedback (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://ugetdm.com/feedback/");
+    open_url_in_browser ("https://github.com/ozgur-as/uget/wiki");
 }
 
 static void on_action_help_report_bug (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://github.com/ugetdm/uget/issues");
+    open_url_in_browser ("https://github.com/ozgur-as/uget/issues");
 }
 
 static void on_action_help_check_updates (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://ugetdm.com/downloads/");
+    open_url_in_browser ("https://github.com/ozgur-as/uget/releases");
 }
 
 static void on_action_help_about (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -672,7 +653,7 @@ static void on_action_completion_remember (GSimpleAction *action, GVariant *para
 }
 
 static void on_action_completion_help (GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    open_url_in_browser ("https://ugetdm.com/help/completion/");
+    open_url_in_browser ("https://github.com/ozgur-as/uget/wiki");
 }
 
 // Category move actions
@@ -913,10 +894,7 @@ void ugtk_menubar_register_actions (UgtkApp *app)
         { "download-properties", on_action_download_properties, NULL, NULL, NULL, {0} },
 
         // Help menu
-        { "help-online", on_action_help_online, NULL, NULL, NULL, {0} },
         { "help-documentation", on_action_help_documentation, NULL, NULL, NULL, {0} },
-        { "help-support-forum", on_action_help_support_forum, NULL, NULL, NULL, {0} },
-        { "help-feedback", on_action_help_feedback, NULL, NULL, NULL, {0} },
         { "help-report-bug", on_action_help_report_bug, NULL, NULL, NULL, {0} },
         { "help-check-updates", on_action_help_check_updates, NULL, NULL, NULL, {0} },
         { "help-about", on_action_help_about, NULL, NULL, NULL, {0} },

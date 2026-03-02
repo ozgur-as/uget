@@ -70,8 +70,6 @@ void  ugtk_banner_init (UgtkBanner* banner);
 
 void  ugtk_banner_show (UgtkBanner* banner, const char* title, const char* url);
 int   ugtk_banner_show_rss (UgtkBanner* banner, UgetRss* urss);
-void  ugtk_banner_show_donation (UgtkBanner* banner);
-void  ugtk_banner_show_survey (UgtkBanner* banner);
 
 #ifdef __cplusplus
 }

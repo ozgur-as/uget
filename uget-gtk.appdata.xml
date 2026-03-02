@@ -2,59 +2,57 @@
 <component type="desktop-application">
   <id>com.ugetdm.uGet</id>
   <metadata_license>CC0</metadata_license>
-  <project_license>LGPL-2.0</project_license>
+  <project_license>LGPL-2.1-or-later</project_license>
   <name>uGet</name>
   <summary>Download manager</summary>
   <description>
-    <p>uGet is a lightweight yet powerful Open Source download manager.</p>
+    <p>uGet is a lightweight yet powerful open source download manager.</p>
     <p>Some highlights of uGet:</p>
     <ul>
       <li>Multi-connection downloads</li>
-      <li>Browser integration</li>
-      <li>Download YouTube videos</li>
-      <li>Clipboard monitor</li>
       <li>Batch downloads</li>
-      <li>Downloads queue</li>
-      <li>Advanced download categories</li>
-      <li>Translated into multiple languages</li>
-      <li>Pause/resume downloads</li>
+      <li>Downloads queue with categories</li>
+      <li>Pause and resume downloads</li>
       <li>Scheduler</li>
-      <li>After completion actions</li>
-      <li>Multiple mirrors/sources</li>
-      <li>Multiple protocols</li>
-      <li>Command-line / terminal</li>
-      <li>Quiet mode</li>
+      <li>aria2 integration for BitTorrent and metalink</li>
+      <li>Multiple protocols (HTTP, HTTPS, FTP, SFTP)</li>
+      <li>System tray integration</li>
+      <li>Translated into 36 languages</li>
       <li>Keyboard shortcuts</li>
       <li>Download history</li>
+      <li>After completion actions</li>
       <li>FTP login and anonymous FTP</li>
       <li>Folder auto-creation</li>
     </ul>
   </description>
-  <developer_name>uGet Team</developer_name>
-  <url type="bugtracker">https://sourceforge.net/p/urlget/bugs</url>
-  <url type="donation">https://ugetdm.com/donate</url>
-  <url type="faq">https://ugetdm.com/qa/faq</url>
-  <url type="help">https://ugetdm.com/help</url>
-  <url type="homepage">https://ugetdm.com</url>
-  <url type="translate">https://ugetdm.com/translations</url>
-  <url type="vcs-browser">https://sourceforge.net/p/urlget/uget2/</url>
+  <developer_name>Ozgur As</developer_name>
+  <url type="bugtracker">https://github.com/ozgur-as/uget/issues</url>
+  <url type="homepage">https://github.com/ozgur-as/uget</url>
+  <url type="vcs-browser">https://github.com/ozgur-as/uget</url>
   <kudos>
     <kudo>ModernToolkit</kudo>
     <kudo>HiDpiIcon</kudo>
     <kudo>HighContrast</kudo>
   </kudos>
-  <screenshots>
-    <screenshot type="default">
-      <caption>Main window</caption>
-      <image>https://ugetdm.com/wp-content/uploads/2018/01/2015-uget-ubuntu-1504.png</image>
-    </screenshot>
-  </screenshots>
   <provides>
     <binary>uget-gtk</binary>
   </provides>
-  <launchable type="desktop-id">com.ugetdm.uGet.desktop</launchable>
+  <launchable type="desktop-id">uget-gtk.desktop</launchable>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.3.0" date="2026-03-02">
+      <description>
+        <ul>
+          <li>Migrated entire UI from GTK3 to GTK4</li>
+          <li>Migrated build system from Autotools to Meson</li>
+          <li>Full Wayland support</li>
+          <li>System tray via StatusNotifierItem (no GTK3 dependency)</li>
+          <li>Modern OpenSSL and libcurl APIs</li>
+          <li>Added install targets and i18n locale compilation</li>
+          <li>Fixed all compiler and runtime warnings</li>
+        </ul>
+      </description>
+    </release>
     <release version="2.2.3" date="2020-01-01">
       <description>
         <ul>
@@ -62,7 +60,6 @@
         </ul>
       </description>
     </release>
-  
     <release version="2.2.2" date="2019-05-20">
       <description>
         <ul>
@@ -72,15 +69,12 @@
         </ul>
       </description>
     </release>
-
     <release version="2.2.1" date="2018-03-08">
       <description>
         <ul>
           <li>Reduce memory usage.</li>
-          <li>Mega plug-in: Completed size should not be '-1' if file size > 2G on a 32-bit system.</li>
           <li>Adjust speed limit independently without enabling global speed limit.</li>
           <li>Fix: Can't get 1080p video from YouTube.</li>
-          <li>Update translation files.</li>
         </ul>
       </description>
     </release>
@@ -89,8 +83,7 @@
         <ul>
           <li>Mega plug-in: create new plug-in for MEGA site.</li>
           <li>All plug-in: avoid crash if plug-in failed to start.</li>
-          <li>Fix: some category/status doesn't refresh it's download list.</li>
-          <li>Update translation files.</li>
+          <li>Fix: some category/status doesn't refresh its download list.</li>
         </ul>
       </description>
     </release>

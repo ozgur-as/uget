@@ -64,7 +64,7 @@ void ugtk_banner_init (struct UgtkBanner* banner)
 	// close button
 	gtk_box_prepend (GTK_BOX (banner->self), create_x_button (banner));
 
-	banner->show_builtin = 2;
+	banner->show_builtin = 0;
 	banner->rss.self = NULL;
 	banner->rss.feed = NULL;
 	banner->rss.item = NULL;
@@ -109,45 +109,6 @@ void  ugtk_banner_show (UgtkBanner* banner, const char* title, const char* url)
 	gtk_widget_set_visible(banner->self, TRUE);
 }
 
-void  ugtk_banner_show_donation (UgtkBanner* banner)
-{
-	GtkTextIter iter;
-
-	gtk_text_buffer_set_text(banner->buffer, "", 0);
-	gtk_text_buffer_get_iter_at_offset (banner->buffer, &iter, 0);
-	gtk_text_buffer_insert (banner->buffer, &iter, "  ", 2);
-	gtk_text_buffer_insert (banner->buffer, &iter, _("Attention uGetters:"), -1);
-	gtk_text_buffer_insert (banner->buffer, &iter, " ", 1);
-	gtk_text_buffer_insert (banner->buffer, &iter,
-			_("we are running a Donation Drive "
-			  "for uGet's Future Development, please click "), -1);
-	gtk_text_buffer_insert_with_tags (banner->buffer, &iter,
-			_("HERE"), -1, banner->tag_link, NULL);
-
-	g_free (banner->link);
-	banner->link = g_strdup ("http://ugetdm.com/donate");
-	gtk_widget_set_visible(banner->self, TRUE);
-}
-
-void  ugtk_banner_show_survey (UgtkBanner* banner)
-{
-	GtkTextIter iter;
-
-	gtk_text_buffer_set_text(banner->buffer, "", 0);
-	gtk_text_buffer_get_iter_at_offset (banner->buffer, &iter, 0);
-	gtk_text_buffer_insert (banner->buffer, &iter, "  ", 2);
-	gtk_text_buffer_insert (banner->buffer, &iter, _("Attention uGetters:"), -1);
-	gtk_text_buffer_insert (banner->buffer, &iter, " ", 1);
-	gtk_text_buffer_insert (banner->buffer, &iter,
-			_("please fill out this quick User Survey for uGet."), -1);
-	gtk_text_buffer_insert (banner->buffer, &iter, " - ", 3);
-	gtk_text_buffer_insert_with_tags (banner->buffer, &iter,
-			_("click here to take survey"), -1, banner->tag_link, NULL);
-
-	g_free (banner->link);
-	banner->link = g_strdup ("http://ugetdm.com/survey");
-	gtk_widget_set_visible(banner->self, TRUE);
-}
 
 // ----------------------------------------------------------------------------
 // static functions
@@ -162,16 +123,6 @@ on_x_button_clicked (GtkButton* button, UgtkBanner* banner)
 		return;
 	}
 
-	if (banner->show_builtin > 0) {
-		banner->show_builtin--;
-		if (banner->show_builtin == 1)
-			ugtk_banner_show_donation (banner);
-		else {
-			ugtk_banner_show_survey (banner);
-			banner->show_builtin = 0;
-		}
-		return;
-	}
 
 	gtk_widget_set_visible (banner->self, FALSE);
 }

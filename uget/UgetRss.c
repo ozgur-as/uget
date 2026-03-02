@@ -42,11 +42,14 @@
 #include <UgetRss.h>
 #include <curl/curl.h>
 
-#define UGET_RSS_URL_STABLE     "http://feeds.feedburner.com/uget/stable?format=xml"
-#define UGET_RSS_URL_DEVELMENT  "http://feeds.feedburner.com/uget/development?format=xml"
-#define UGET_RSS_URL_NEWS       "http://feeds.feedburner.com/uget/news?format=xml"
-#define UGET_RSS_URL_TUTORIALS  "http://feeds.feedburner.com/uget/tutorials?format=xml"
-#define UGET_RSS_URL_ALL        "http://feeds.feedburner.com/uget/all?format=xml"
+// Built-in RSS feed URLs removed (old FeedBurner URLs are dead).
+// The RSS system is preserved for future use — register feeds via
+// uget_rss_add() with custom URLs.
+#define UGET_RSS_URL_STABLE     ""
+#define UGET_RSS_URL_DEVELMENT  ""
+#define UGET_RSS_URL_NEWS       ""
+#define UGET_RSS_URL_TUTORIALS  ""
+#define UGET_RSS_URL_ALL        ""
 
 // ----------------------------------------------------------------------------
 // link

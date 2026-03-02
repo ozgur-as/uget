@@ -90,11 +90,7 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 
 	app->recent.category_index = 0;
 	app->recent.info = ug_info_new(8, 0);
-	// RSS
-	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_STABLE);
-	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_NEWS);
-	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_TUTORIALS);
-	uget_rss_update (app->rss_builtin, FALSE);
+	// RSS - no built-in feeds registered (old FeedBurner URLs are dead)
 	gtk_widget_set_visible(app->banner.self, FALSE);
 
 	uget_app_use_uri_hash ((UgetApp*) app);
