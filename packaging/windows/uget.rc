@@ -10,12 +10,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "uget.ugetdm.com"
       VALUE "FileDescription", "uGet download manager"
-      VALUE "FileVersion", "2.3.0"
+      VALUE "FileVersion", "2.3.0-rc1"
       VALUE "InternalName", "uGet"
       VALUE "LegalCopyright", "Copyright (C) 2005-2020 by C.H. Huang"
       VALUE "OriginalFilename", "uget.exe"
       VALUE "ProductName", "uGet"
-      VALUE "ProductVersion", "2.3.0"
+      VALUE "ProductVersion", "2.3.0-rc1"
     END
   END
 

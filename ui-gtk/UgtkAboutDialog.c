@@ -1,5 +1,8 @@
 static const char	uget_license[] =
 {
+" Copyright (C) 2025-2026 Ozgur As"                                     "\n"
+" https://github.com/ozgur-as/uget"                                    "\n"
+                                                                        "\n"
 " Copyright (C) 2005-2020 by C.H. Huang"                                "\n"
 " plushuang.tw@gmail.com"                                               "\n"
                                                                         "\n"
@@ -38,13 +41,14 @@ static const char	uget_license[] =
 
 #include <glib/gi18n.h>
 
-#define	UGET_URL_WEBSITE    "http://ugetdm.com/"
+#define	UGET_URL_WEBSITE    "https://github.com/ozgur-as/uget"
 
 // static data
-static const gchar*  uget_authors[] = { "C.H. Huang  (\xE9\xBB\x83\xE6\xAD\xA3\xE9\x9B\x84)", NULL };
-static const gchar*  uget_artists[] = { "Michael Tunnell (visuex.com)", NULL};
+static const gchar*  uget_authors[] = { "Ozgur As (maintainer)", "C.H. Huang (original author)", NULL };
+static const gchar*  uget_artists[] = { "Michael Tunnell (visuex.com)", NULL };
 static const gchar*  uget_comments  = N_("Download Manager");
-static const gchar*  uget_copyright = "Copyright (C) 2005-2020 C.H. Huang";
+static const gchar*  uget_copyright = "Copyright (C) 2025-2026 Ozgur As\n"
+                                       "Copyright (C) 2005-2020 C.H. Huang";
 static const gchar*  translator_credits = N_("translator-credits");
 
 static gboolean on_close_request (GtkWindow* window, UgtkAboutDialog* adialog)
@@ -74,11 +78,7 @@ UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent)
 	}
 	g_free (path);
 
-	comments = g_strconcat (
-			gettext (uget_comments),     "\n",
-			_("uGet Founder: "),         uget_authors[0], "\n",
-			_("uGet Project Manager: "), uget_artists[0], "\n",
-			NULL);
+	comments = g_strdup (gettext (uget_comments));
 
 	g_object_set (adialog->self,
 			"logo", adialog->texture,
