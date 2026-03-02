@@ -800,8 +800,11 @@ void  ugtk_app_create_category (UgtkApp* app)
 	ugtk_download_form_set_folders (&ndialog->download, &app->setting);
 
 	// category list
-	cnode_src = app->traveler.category.cursor.node->base;
-	if (cnode_src->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode_src = app->traveler.category.cursor.node->base;
+	else
+		cnode_src = NULL;
+	if (cnode_src == NULL || cnode_src->parent != &app->real)
 		cnode_src = app->real.children;
 	common_src = ug_info_get(cnode_src->info, UgetCommonInfo);
 	cnode = uget_node_new (NULL);
@@ -870,8 +873,11 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 	ugtk_download_form_set_folders (&ndialog->download, &app->setting);
 
 	// category list
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode = app->traveler.category.cursor.node->base;
+	else
+		cnode = NULL;
+	if (cnode == NULL || cnode->parent != &app->real)
 		cnode = app->real.children;
 
 	if (uri != NULL) {
@@ -922,6 +928,8 @@ void  ugtk_app_delete_category (UgtkApp* app)
 	UgetNode*    cnode;
 	int          pos;
 
+	if (app->traveler.category.cursor.node == NULL)
+		return;
 	cnode = app->traveler.category.cursor.node->base;
 	pos   = app->traveler.category.cursor.pos;
 	// move cursor
@@ -1026,12 +1034,15 @@ void  ugtk_app_edit_download (UgtkApp* app)
 	UgetNode*       node;
 	gchar*          title;
 
+	node = app->traveler.download.cursor.node;
+	if (node == NULL)
+		return;
+
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Download Properties"), NULL);
 	ndialog = ugtk_node_dialog_new (title, app, FALSE);
 	g_free (title);
 	ugtk_download_form_set_folders (&ndialog->download, &app->setting);
 
-	node = app->traveler.download.cursor.node;
 	ugtk_node_dialog_set (ndialog, node->base->info);
 	ugtk_node_dialog_run (ndialog, UGTK_NODE_DIALOG_EDIT_DOWNLOAD, node->base);
 }
@@ -1195,7 +1206,8 @@ void  ugtk_app_move_download_to (UgtkApp* app, UgetNode* cnode)
 	GList*    link;
 	GList*    list = NULL;
 
-	if (cnode == app->traveler.category.cursor.node->base)
+	if (app->traveler.category.cursor.node &&
+	    cnode == app->traveler.category.cursor.node->base)
 		return;
 
 	list = ugtk_traveler_get_selected (&app->traveler);
@@ -1434,8 +1446,11 @@ static void  on_import_html_file_done (GObject* source, GAsyncResult* result, gp
 	ugtk_download_form_set_folders (&bdialog->download, &app->setting);
 	ugtk_batch_dialog_use_selector (bdialog);
 	// category
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode = app->traveler.category.cursor.node->base;
+	else
+		cnode = NULL;
+	if (cnode == NULL || cnode->parent != &app->real)
 		cnode = app->real.children;
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 	// set <base href>
@@ -1491,8 +1506,11 @@ static void  on_import_text_file_done (GObject* source, GAsyncResult* result, gp
 	ugtk_batch_dialog_use_selector (bdialog);
 	ugtk_download_form_set_folders (&bdialog->download, &app->setting);
 	// category
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode = app->traveler.category.cursor.node->base;
+	else
+		cnode = NULL;
+	if (cnode == NULL || cnode->parent != &app->real)
 		cnode = app->real.children;
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 
@@ -1525,6 +1543,8 @@ static void  on_export_text_file_done (GObject* source, GAsyncResult* result, gp
 	if (channel == NULL)
 		return;
 
+	if (app->traveler.category.cursor.node == NULL)
+		return;
 	node = app->traveler.category.cursor.node->base;
 	for (node = node->children;  node;  node = node->next) {
 		common = ug_info_get (node->info, UgetCommonInfo);
@@ -1625,8 +1645,11 @@ void  ugtk_app_sequence_batch (UgtkApp* app)
 	ugtk_download_form_set_folders (&bdialog->download, &app->setting);
 
 	// category list
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode = app->traveler.category.cursor.node->base;
+	else
+		cnode = NULL;
+	if (cnode == NULL || cnode->parent != &app->real)
 		cnode = app->real.children;
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 
@@ -1670,8 +1693,11 @@ void  ugtk_app_clipboard_batch (UgtkApp* app)
 	g_list_free (list);
 
 	// category list
-	cnode = app->traveler.category.cursor.node->base;
-	if (cnode->parent != &app->real)
+	if (app->traveler.category.cursor.node)
+		cnode = app->traveler.category.cursor.node->base;
+	else
+		cnode = NULL;
+	if (cnode == NULL || cnode->parent != &app->real)
 		cnode = app->real.children;
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 
