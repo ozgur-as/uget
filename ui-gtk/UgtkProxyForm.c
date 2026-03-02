@@ -97,7 +97,7 @@ void  ugtk_proxy_form_init (UgtkProxyForm* pform)
 	widget = gtk_frame_new (NULL);
 	gtk_frame_set_label_widget (GTK_FRAME (widget), hbox);
 	pform->self = widget;
-	gtk_box_append (GTK_BOX (widget), (GtkWidget*) vbox);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) vbox);
 	g_object_set (vbox, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
 
 	gtk_widget_set_visible(pform->self, TRUE);

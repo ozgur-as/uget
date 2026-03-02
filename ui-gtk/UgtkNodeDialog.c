@@ -227,13 +227,13 @@ gboolean  ugtk_node_dialog_confirm_existing (UgtkNodeDialog* ndialog, const char
 
 void  ugtk_node_dialog_store_recent (UgtkNodeDialog* ndialog, UgtkApp* app)
 {
-	GtkColumnView* cv;
+	GtkListView* lv;
 	GtkSelectionModel* sel;
 	GtkBitset* bitset;
 
 	app->recent.saved = TRUE;
-	cv = GTK_COLUMN_VIEW (ndialog->node_view);
-	sel = gtk_column_view_get_model (cv);
+	lv = GTK_LIST_VIEW (ndialog->node_view);
+	sel = gtk_list_view_get_model (lv);
 	if (sel) {
 		bitset = gtk_selection_model_get_selection (sel);
 		if (gtk_bitset_get_size (bitset) > 0)
@@ -245,12 +245,12 @@ void  ugtk_node_dialog_store_recent (UgtkNodeDialog* ndialog, UgtkApp* app)
 
 void  ugtk_node_dialog_apply_recent (UgtkNodeDialog* ndialog, UgtkApp* app)
 {
-	GtkColumnView* cv;
+	GtkListView* lv;
 	GtkSelectionModel* sel;
 
 	if (app->recent.saved && app->setting.ui.apply_recent) {
-		cv = GTK_COLUMN_VIEW (ndialog->node_view);
-		sel = gtk_column_view_get_model (cv);
+		lv = GTK_LIST_VIEW (ndialog->node_view);
+		sel = gtk_list_view_get_model (lv);
 		if (sel)
 			gtk_single_selection_set_selected (GTK_SINGLE_SELECTION (sel),
 					app->recent.category_index);
@@ -277,8 +277,8 @@ void  ugtk_node_dialog_set_category (UgtkNodeDialog* ndialog, UgetNode* cnode)
 	ugtk_node_dialog_init_list_ui (ndialog, cnode->parent);
 
 	// Set selection
-	GtkColumnView* cv = GTK_COLUMN_VIEW (ndialog->node_view);
-	GtkSelectionModel* sel = gtk_column_view_get_model (cv);
+	GtkListView* lv = GTK_LIST_VIEW (ndialog->node_view);
+	GtkSelectionModel* sel = gtk_list_view_get_model (lv);
 	if (sel) {
 		gtk_single_selection_set_selected (GTK_SINGLE_SELECTION (sel), nth);
 		g_signal_connect (sel, "notify::selected",
@@ -293,7 +293,7 @@ void  ugtk_node_dialog_set_category (UgtkNodeDialog* ndialog, UgetNode* cnode)
 
 int  ugtk_node_dialog_get_category (UgtkNodeDialog* ndialog, UgetNode** cnode)
 {
-	GtkColumnView* cv;
+	GtkListView* lv;
 	GtkSelectionModel* sel;
 	guint nth;
 
@@ -301,8 +301,8 @@ int  ugtk_node_dialog_get_category (UgtkNodeDialog* ndialog, UgetNode** cnode)
 		*cnode = NULL;
 		return -1;
 	}
-	cv = GTK_COLUMN_VIEW (ndialog->node_view);
-	sel = gtk_column_view_get_model (cv);
+	lv = GTK_LIST_VIEW (ndialog->node_view);
+	sel = gtk_list_view_get_model (lv);
 	nth = gtk_single_selection_get_selected (GTK_SINGLE_SELECTION (sel));
 
 	*cnode = uget_node_nth_child (ndialog->node_tree->root, nth);
@@ -409,7 +409,7 @@ static void ugtk_node_dialog_init_list_ui (UgtkNodeDialog* ndialog,
 	ndialog->node_view = ugtk_node_view_new_for_category ();
 
 	sel = gtk_single_selection_new (G_LIST_MODEL (ndialog->node_tree));
-	gtk_column_view_set_model (GTK_COLUMN_VIEW (ndialog->node_view),
+	gtk_list_view_set_model (GTK_LIST_VIEW (ndialog->node_view),
 			GTK_SELECTION_MODEL (sel));
 
 	scrolled = gtk_scrolled_window_new ();

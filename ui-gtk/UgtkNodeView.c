@@ -578,6 +578,11 @@ static void bind_state_row (GtkSignalListItemFactory* factory, GtkListItem* item
 // ------------------------------------
 // Factory helper: create a factory with setup/bind callbacks
 
+static void teardown_item (GtkSignalListItemFactory* factory, GtkListItem* item, gpointer data)
+{
+	gtk_list_item_set_child (item, NULL);
+}
+
 static GtkListItemFactory* make_factory (GCallback setup_fn, GCallback bind_fn)
 {
 	GtkListItemFactory* factory;
@@ -585,6 +590,7 @@ static GtkListItemFactory* make_factory (GCallback setup_fn, GCallback bind_fn)
 	factory = gtk_signal_list_item_factory_new ();
 	g_signal_connect (factory, "setup", setup_fn, NULL);
 	g_signal_connect (factory, "bind",  bind_fn,  NULL);
+	g_signal_connect (factory, "teardown", G_CALLBACK (teardown_item), NULL);
 	return factory;
 }
 

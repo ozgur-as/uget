@@ -250,8 +250,6 @@ static void  on_category_cursor_changed (GtkSelectionModel* model, guint pos, gu
 			sensitive = FALSE;
 		else
 			sensitive = TRUE;
-		gtk_widget_set_sensitive (app->menubar.view.columns.complete, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.percent, sensitive);
 		column = g_list_model_get_item (columns, UGTK_NODE_COLUMN_COMPLETE);
 		gtk_column_view_column_set_visible (column, sensitive && setting->complete);
 		g_object_unref (column);
@@ -263,7 +261,6 @@ static void  on_category_cursor_changed (GtkSelectionModel* model, guint pos, gu
 			sensitive = FALSE;
 		else
 			sensitive = TRUE;
-		gtk_widget_set_sensitive (app->menubar.view.columns.elapsed, sensitive);
 		column = g_list_model_get_item (columns, UGTK_NODE_COLUMN_ELAPSED);
 		gtk_column_view_column_set_visible (column, sensitive && setting->elapsed);
 		g_object_unref (column);
@@ -272,11 +269,6 @@ static void  on_category_cursor_changed (GtkSelectionModel* model, guint pos, gu
 			sensitive = FALSE;
 		else
 			sensitive = TRUE;
-		gtk_widget_set_sensitive (app->menubar.view.columns.left, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.speed, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.upload_speed, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.uploaded, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.ratio, sensitive);
 		column = g_list_model_get_item (columns, UGTK_NODE_COLUMN_LEFT);
 		gtk_column_view_column_set_visible (column, sensitive && setting->left);
 		g_object_unref (column);

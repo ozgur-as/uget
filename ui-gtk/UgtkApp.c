@@ -679,28 +679,15 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 		gtk_widget_set_sensitive (app->toolbar.runnable, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.pause, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
-		// App menubar widgets (if used)
-		gtk_widget_set_sensitive (app->menubar.download.open, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.open_folder, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.delete, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.delete_file, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.force_start, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.runnable, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.pause, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.move_to.item, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.prioriy.item, sensitive);
 	}
-	// properties
+	// properties — disable when multiple selected
 	if (n_selected > 1) {
 		gtk_widget_set_sensitive (app->toolbar.properties, FALSE);
-		gtk_widget_set_sensitive (app->menubar.download.properties, FALSE);
 		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "download-properties");
 		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), FALSE);
 	}
 	else {
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
-		gtk_widget_set_sensitive (app->menubar.download.properties, sensitive);
-		// properties enabledstate handled by loop above for sensistive=TRUE, but if sensitive=TRUE and n>1 must disable
 	}
 
 	// Move Up/Down/Top/Bottom functions need reset sensitive when selection changed.
@@ -711,15 +698,11 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	} else {
 		sensitive = FALSE;
 	}
-	// move up/down/top/bottom
+	// move up/down/top/bottom (toolbar widgets)
 	gtk_widget_set_sensitive (app->toolbar.move_up, sensitive);
 	gtk_widget_set_sensitive (app->toolbar.move_down, sensitive);
 	gtk_widget_set_sensitive (app->toolbar.move_top, sensitive);
 	gtk_widget_set_sensitive (app->toolbar.move_bottom, sensitive);
-	gtk_widget_set_sensitive (app->menubar.download.move_up, sensitive);
-	gtk_widget_set_sensitive (app->menubar.download.move_down, sensitive);
-	gtk_widget_set_sensitive (app->menubar.download.move_top, sensitive);
-	gtk_widget_set_sensitive (app->menubar.download.move_bottom, sensitive);
 	
 	// Update action state for move commands too
 	const char *move_actions[] = { "download-move-up", "download-move-down", "download-move-top", "download-move-bottom", NULL };
@@ -742,31 +725,28 @@ void  ugtk_app_decide_category_sensitive (UgtkApp* app)
 
 	if (sensitive_last != sensitive) {
 		sensitive_last  = sensitive;
-		gtk_widget_set_sensitive (app->menubar.category.properties, sensitive);
-		gtk_widget_set_sensitive (app->menubar.view.columns.self, sensitive);
+		GAction* action;
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "category-properties");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
 	}
 	// cursor at "All Category"
-	if (app->traveler.category.cursor.pos == 0) {
-		gtk_widget_set_sensitive (app->menubar.file.save_category, FALSE);
-		gtk_widget_set_sensitive (app->menubar.category.delete, FALSE);
-	}
-	else {
-		gtk_widget_set_sensitive (app->menubar.file.save_category, sensitive);
-		gtk_widget_set_sensitive (app->menubar.category.delete, sensitive);
-	}
-	// Move Up
-	if (app->traveler.category.cursor.pos <= 1)
-		gtk_widget_set_sensitive (app->menubar.category.move_up, FALSE);
-	else
-		gtk_widget_set_sensitive (app->menubar.category.move_up, TRUE);
-	// Move Down
-	if (app->traveler.category.cursor.pos == 0 ||
-	    app->traveler.category.cursor.node->next == NULL)
 	{
-		gtk_widget_set_sensitive (app->menubar.category.move_down, FALSE);
+		GAction* action;
+		gboolean is_all = (app->traveler.category.cursor.pos == 0);
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "save-category");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), !is_all && sensitive);
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "category-delete");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), !is_all && sensitive);
+		// Move Up
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "category-move-up");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action),
+				app->traveler.category.cursor.pos > 1);
+		// Move Down
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "category-move-down");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action),
+				!is_all && app->traveler.category.cursor.node &&
+				app->traveler.category.cursor.node->next != NULL);
 	}
-	else
-		gtk_widget_set_sensitive (app->menubar.category.move_down, TRUE);
 
 	ugtk_app_decide_download_sensitive (app);
 }
@@ -1170,14 +1150,10 @@ void  ugtk_app_move_download_up (UgtkApp* app)
 	if (ugtk_traveler_move_selected_up (&app->traveler) > 0) {
 		gtk_widget_set_sensitive (app->toolbar.move_down, TRUE);
 		gtk_widget_set_sensitive (app->toolbar.move_bottom, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_down, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_bottom, TRUE);
 	}
 	else {
 		gtk_widget_set_sensitive (app->toolbar.move_up, FALSE);
 		gtk_widget_set_sensitive (app->toolbar.move_top, FALSE);
-		gtk_widget_set_sensitive (app->menubar.download.move_up, FALSE);
-		gtk_widget_set_sensitive (app->menubar.download.move_top, FALSE);
 	}
 }
 
@@ -1186,14 +1162,10 @@ void  ugtk_app_move_download_down (UgtkApp* app)
 	if (ugtk_traveler_move_selected_down (&app->traveler) > 0) {
 		gtk_widget_set_sensitive (app->toolbar.move_up, TRUE);
 		gtk_widget_set_sensitive (app->toolbar.move_top, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_up, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_top, TRUE);
 	}
 	else {
 		gtk_widget_set_sensitive (app->toolbar.move_down, FALSE);
 		gtk_widget_set_sensitive (app->toolbar.move_bottom, FALSE);
-		gtk_widget_set_sensitive (app->menubar.download.move_down, FALSE);
-		gtk_widget_set_sensitive (app->menubar.download.move_bottom, FALSE);
 	}
 }
 
@@ -1202,13 +1174,9 @@ void  ugtk_app_move_download_top (UgtkApp* app)
 	if (ugtk_traveler_move_selected_top (&app->traveler) > 0) {
 		gtk_widget_set_sensitive (app->toolbar.move_down, TRUE);
 		gtk_widget_set_sensitive (app->toolbar.move_bottom, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_down, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_bottom, TRUE);
 	}
 	gtk_widget_set_sensitive (app->toolbar.move_up, FALSE);
 	gtk_widget_set_sensitive (app->toolbar.move_top, FALSE);
-	gtk_widget_set_sensitive (app->menubar.download.move_up, FALSE);
-	gtk_widget_set_sensitive (app->menubar.download.move_top, FALSE);
 }
 
 void  ugtk_app_move_download_bottom (UgtkApp* app)
@@ -1216,13 +1184,9 @@ void  ugtk_app_move_download_bottom (UgtkApp* app)
 	if (ugtk_traveler_move_selected_bottom (&app->traveler) > 0) {
 		gtk_widget_set_sensitive (app->toolbar.move_up, TRUE);
 		gtk_widget_set_sensitive (app->toolbar.move_top, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_up, TRUE);
-		gtk_widget_set_sensitive (app->menubar.download.move_top, TRUE);
 	}
 	gtk_widget_set_sensitive (app->toolbar.move_down, FALSE);
 	gtk_widget_set_sensitive (app->toolbar.move_bottom, FALSE);
-	gtk_widget_set_sensitive (app->menubar.download.move_down, FALSE);
-	gtk_widget_set_sensitive (app->menubar.download.move_bottom, FALSE);
 }
 
 void  ugtk_app_move_download_to (UgtkApp* app, UgetNode* cnode)
