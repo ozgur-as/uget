@@ -53,7 +53,7 @@ typedef	void  (*UgtkSelectorNotify) (gpointer user_data, gboolean completed);
 //
 struct UgtkSelector
 {
-	GtkWidget*    self;     // GtkVBox
+	GtkWidget*    self;     // GtkBox (vertical)
 	GtkWindow*    parent;   // parent window of UgtkSelector.self
 
 	GtkNotebook*  notebook;
@@ -72,9 +72,9 @@ struct UgtkSelector
 	// UgtkSelectorFilter use UgtkSelectorFilterData in UgtkSelectorPage
 	struct UgtkSelectorFilter
 	{
-		GtkDialog*    dialog;
-		GtkTreeView*  host_view;
-		GtkTreeView*  ext_view;
+		GtkWindow*    dialog;
+		GtkListBox*   host_list;
+		GtkListBox*   ext_list;
 	} filter;
 
 	// callback
@@ -109,8 +109,8 @@ struct UgtkSelectorPage
 {
 	GtkWidget*     self;    // GtkScrolledWindow
 
-	GtkTreeView*   view;
-	GtkListStore*  store;
+	GtkListBox*    list_box;
+	GPtrArray*     items;     // UgtkSelectorItem*
 
 	// total marked count
 	gint    n_marked;
@@ -119,8 +119,8 @@ struct UgtkSelectorPage
 	struct UgtkSelectorFilterData
 	{
 		GHashTable*    hash;
-		GtkListStore*  host;
-		GtkListStore*  ext;
+		GPtrArray*     host;    // UgtkSelectorItem*
+		GPtrArray*     ext;     // UgtkSelectorItem*
 	} filter;
 };
 
@@ -138,4 +138,3 @@ void  ugtk_selector_page_mark_by_filter_all (UgtkSelectorPage* page);
 #endif
 
 #endif  // End of UGTK_SELECTOR_H
-

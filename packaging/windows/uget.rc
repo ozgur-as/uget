@@ -1,8 +1,8 @@
 MAINICON ICON DISCARDABLE "uget-icon.ico"
 
 1 VERSIONINFO
-FILEVERSION     2,2,1,0
-PRODUCTVERSION  2,2,1,0
+FILEVERSION     2,3,0,0
+PRODUCTVERSION  2,3,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -10,12 +10,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "uget.ugetdm.com"
       VALUE "FileDescription", "uGet download manager"
-      VALUE "FileVersion", "2.2.1"
+      VALUE "FileVersion", "2.3.0"
       VALUE "InternalName", "uGet"
       VALUE "LegalCopyright", "Copyright (C) 2005-2020 by C.H. Huang"
       VALUE "OriginalFilename", "uget.exe"
       VALUE "ProductName", "uGet"
-      VALUE "ProductVersion", "2.2.1"
+      VALUE "ProductVersion", "2.3.0"
     END
   END
 

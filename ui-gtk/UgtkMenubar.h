@@ -205,8 +205,10 @@ struct UgtkMenubar
 	} help;
 };
 
-void  ugtk_menubar_init_ui (UgtkMenubar* menubar, GtkAccelGroup* accel_group);
+void  ugtk_menubar_init_ui (UgtkMenubar* menubar, gpointer accel_group);
 void  ugtk_menubar_init_callback (UgtkMenubar* menubar, UgtkApp* app);
+void  ugtk_menubar_register_actions (UgtkApp *app);
+void  ugtk_context_menus_init (UgtkApp *app);
 
 void  ugtk_menubar_sync_category (UgtkMenubar* menubar, UgtkApp* app, gboolean reset);
 

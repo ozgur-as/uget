@@ -62,7 +62,7 @@ struct UgtkSeqRange
 {
 	GtkWidget*  self;
 
-	GtkWidget*  type;    // GtkComboBox - None, Number, and Character
+	GtkWidget*  type;    // GtkDropDown - None, Number, and Character
 	GtkWidget*  label_to;
 
 	// digit mode
@@ -94,16 +94,15 @@ struct UgtkSequence
 	// preview
 	struct UgtkSequencePreview
 	{
-		GtkWidget*      self;    // GtkScrolledWindow
-		GtkTreeView*    view;
-		GtkListStore*   store;
-		guint           status;
+		GtkWidget*        self;    // GtkScrolledWindow
+		GtkListView*      view;
+		GtkStringList*    store;
+		guint             status;
 	} preview;
 
 	// callback
 	struct
 	{
-//		UgtkNotify  func1;
 		UgtkSequenceNotify  func;
 		gpointer            data;
 	} notify;
@@ -118,4 +117,3 @@ int    ugtk_sequence_get_list (UgtkSequence* seq, UgList* result);
 #endif
 
 #endif  // End of UGTK_SEQUENCE_H
-

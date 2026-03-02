@@ -43,9 +43,7 @@
 extern "C" {
 #endif
 
-// GtkTreeViewColumn* column;
-// column = gtk_tree_view_get_column (tree_view, UGTK_NODE_COLUMN_NAME);
-// gtk_tree_view_column_set_visible (column, TRUE);
+// Column indices for the download GtkColumnView
 typedef enum
 {
 	UGTK_NODE_COLUMN_STATE    = 0,
@@ -73,12 +71,10 @@ typedef enum
 	UGTK_NODE_N_COLUMNS,
 } UgtkNodeColumn;
 
-// return GtkTreeView
+// return GtkColumnView (download) or GtkListView (category/state)
 GtkWidget*  ugtk_node_view_new_for_download (void);
 GtkWidget*  ugtk_node_view_new_for_category (void);
 GtkWidget*  ugtk_node_view_new_for_state (void);
-
-void  ugtk_node_view_use_large_icon (GtkTreeView* view, gboolean is_large, int fixed_width);
 
 #ifdef __cplusplus
 }

@@ -34,6 +34,7 @@
  *
  */
 
+#include <strings.h>
 #include <UgUtil.h>
 #include <UgStdio.h>
 #include <UgString.h>
@@ -48,6 +49,7 @@
 #include <UgtkNodeDialog.h>
 #include <UgtkBatchDialog.h>
 #include <UgtkConfirmDialog.h>
+#include <UgtkSettingDialog.h>
 
 #include <glib/gi18n.h>
 
@@ -93,7 +95,7 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_NEWS);
 	uget_rss_add_builtin (app->rss_builtin, UGET_RSS_TUTORIALS);
 	uget_rss_update (app->rss_builtin, FALSE);
-	gtk_widget_hide (app->banner.self);
+	gtk_widget_set_visible(app->banner.self, FALSE);
 
 	uget_app_use_uri_hash ((UgetApp*) app);
 	ugtk_app_init_timeout (app);
@@ -101,7 +103,7 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 	if (app->setting.ui.start_in_tray)
 		ugtk_tray_icon_set_visible (&app->trayicon, TRUE);
 	else
-		gtk_widget_show ((GtkWidget*) app->window.self);
+		gtk_widget_set_visible((GtkWidget*) app->window.self, TRUE);
 	// offline
 	if (app->setting.ui.start_in_offline_mode)
 		g_signal_emit_by_name (app->menubar.file.offline_mode, "activate");
@@ -190,37 +192,41 @@ void  ugtk_app_quit (UgtkApp* app)
 	// hide icon in system tray before quit
 	ugtk_tray_icon_set_visible (&app->trayicon, FALSE);
 	// hide window
-	gtk_widget_hide (GTK_WIDGET (app->window.self));
+	gtk_widget_set_visible(GTK_WIDGET (app->window.self), FALSE);
 
-	gtk_main_quit ();
+	// gtk_main_quit ();
+	exit(0);
 }
 
 void  ugtk_app_get_window_setting (UgtkApp* app, UgtkSetting* setting)
 {
-	GdkWindowState  gdk_wstate;
-	GdkWindow*      gdk_window;
-	gint            x, y;
+	// GdkWindowState  gdk_wstate;
+	// GdkWindow*      gdk_window;
+	// gint            x, y;
 
 	// get window position, size, and maximized state
 	if (gtk_widget_get_visible (GTK_WIDGET (app->window.self)) == TRUE) {
-		gdk_window = gtk_widget_get_window (GTK_WIDGET (app->window.self));
-		gdk_wstate = gdk_window_get_state (gdk_window);
+		// gdk_window = gtk_widget_get_window (GTK_WIDGET (app->window.self));
+		// gdk_wstate = gdk_window_get_state (gdk_window);
 
-		if (gdk_wstate & GDK_WINDOW_STATE_MAXIMIZED)
+		if (gtk_window_is_maximized ((GtkWindow*) app->window.self))
 			setting->window.maximized = TRUE;
 		else
 			setting->window.maximized = FALSE;
 		// get geometry
-		if (setting->window.maximized == FALSE) {
-			gtk_window_get_position (app->window.self, &x, &y);
-			gtk_window_get_size (app->window.self,
-					&setting->window.width, &setting->window.height);
-			// gtk_window_get_position() may return: x == -32000, y == -32000
-			if (x + app->setting.window.width > 0)
-				setting->window.x = x;
-			if (y + app->setting.window.height > 0)
-				setting->window.y = y;
-		}
+		// GTK4: Getting window position is not recommended/supported consistently across backends
+		// if (setting->window.maximized == FALSE) {
+		// 	gtk_window_get_position (app->window.self, &x, &y);
+		// 	gtk_window_get_size (app->window.self,
+		// 			&setting->window.width, &setting->window.height);
+		// 	// gtk_window_get_position() may return: x == -32000, y == -32000
+		// 	if (x + app->setting.window.width > 0)
+		// 		setting->window.x = x;
+		// 	if (y + app->setting.window.height > 0)
+		// 		setting->window.y = y;
+		// }
+		gtk_window_get_default_size ((GtkWindow*) app->window.self,
+				&setting->window.width, &setting->window.height);
 	}
 	// GtkPaned position
 	if (app->setting.window.category)
@@ -238,16 +244,21 @@ void  ugtk_app_get_window_setting (UgtkApp* app, UgtkSetting* setting)
 void  ugtk_app_set_window_setting (UgtkApp* app, UgtkSetting* setting)
 {
 	// set window position, size, and maximized state
-	if (setting->window.width  > 0 &&
-	    setting->window.height > 0 &&
-	    setting->window.x < gdk_screen_width ()  &&
-	    setting->window.y < gdk_screen_height () &&
-	    setting->window.x + setting->window.width > 0  &&
-	    setting->window.y + setting->window.height > 0)
-	{
-		gtk_window_move (app->window.self,
-				setting->window.x, setting->window.y);
-		gtk_window_resize (app->window.self,
+	// GTK4: Window position setting is deprecated/removed
+	// if (setting->window.width  > 0 &&
+	//     setting->window.height > 0 &&
+	//     setting->window.x < gdk_screen_width ()  &&
+	//     setting->window.y < gdk_screen_height () &&
+	//     setting->window.x + setting->window.width > 0  &&
+	//     setting->window.y + setting->window.height > 0)
+	// {
+	// 	gtk_window_move (app->window.self,
+	// 			setting->window.x, setting->window.y);
+	// 	gtk_window_resize (app->window.self,
+	// 			setting->window.width, setting->window.height);
+	// }
+	if (setting->window.width  > 0 && setting->window.height > 0) {
+		gtk_window_set_default_size ((GtkWindow*) app->window.self,
 				setting->window.width, setting->window.height);
 	}
 	if (setting->window.maximized)
@@ -267,7 +278,7 @@ void  ugtk_app_set_window_setting (UgtkApp* app, UgtkSetting* setting)
 			setting->window.toolbar);
 	gtk_widget_set_visible ((GtkWidget*) app->statusbar.self,
 			setting->window.statusbar);
-	gtk_widget_set_visible (gtk_paned_get_child1 (app->window.hpaned),
+	gtk_widget_set_visible (gtk_paned_get_start_child (app->window.hpaned),
 			setting->window.category);
 	gtk_widget_set_visible (app->summary.self,
 			setting->window.summary);
@@ -292,194 +303,101 @@ void  ugtk_app_set_window_setting (UgtkApp* app, UgtkSetting* setting)
 	ugtk_app_set_menu_setting (app, setting);
 }
 
+// helper: get GtkColumnViewColumn by index
+static GtkColumnViewColumn* get_cv_column (GtkColumnView* view, int nth)
+{
+	GListModel* columns = gtk_column_view_get_columns (view);
+	GtkColumnViewColumn* col = g_list_model_get_item (columns, nth);
+	// caller must g_object_unref
+	return col;
+}
+
 void  ugtk_app_get_column_setting (UgtkApp* app, UgtkSetting* setting)
 {
-	GtkTreeViewColumn* column;
-	int                width;
+	GtkColumnViewColumn* column;
 
-	// state
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_STATE);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.state = width;
-	// name
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_NAME);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.name = width;
-	// complete
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_COMPLETE);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.complete = width;
-	// total
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_TOTAL);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.total = width;
-	// percent
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_PERCENT);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.percent = width;
-	// elapsed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_ELAPSED);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.elapsed = width;
-	// left
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_LEFT);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.left = width;
-	// speed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_SPEED);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.speed = width;
-	// upload_speed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_UPLOAD_SPEED);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.upload_speed = width;
-	// uploaded
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_UPLOADED);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.uploaded = width;
-	// ratio
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_RATIO);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.ratio = width;
-	// retry
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_RETRY);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.retry = width;
-	// category
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_CATEGORY);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.category = width;
-	// uri
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_URI);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.uri = width;
-	// added_on
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_ADDED_ON);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.added_on = width;
-	// completed_on
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_COMPLETED_ON);
-	width = gtk_tree_view_column_get_width (column);
-	setting->download_column.width.completed_on = width;
+	// For GtkColumnView, we use fixed_width since there's no dynamic "get_width"
+	// that returns the actual rendered width. We just read back what we set.
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_STATE);
+	setting->download_column.width.state = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_NAME);
+	setting->download_column.width.name = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_COMPLETE);
+	setting->download_column.width.complete = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_TOTAL);
+	setting->download_column.width.total = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_PERCENT);
+	setting->download_column.width.percent = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_ELAPSED);
+	setting->download_column.width.elapsed = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_LEFT);
+	setting->download_column.width.left = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_SPEED);
+	setting->download_column.width.speed = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_UPLOAD_SPEED);
+	setting->download_column.width.upload_speed = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_UPLOADED);
+	setting->download_column.width.uploaded = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_RATIO);
+	setting->download_column.width.ratio = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_RETRY);
+	setting->download_column.width.retry = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_CATEGORY);
+	setting->download_column.width.category = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_URI);
+	setting->download_column.width.uri = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_ADDED_ON);
+	setting->download_column.width.added_on = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+	column = get_cv_column (app->traveler.download.view, UGTK_NODE_COLUMN_COMPLETED_ON);
+	setting->download_column.width.completed_on = gtk_column_view_column_get_fixed_width (column);
+	g_object_unref (column);
+}
+
+static void set_cv_column_width (GtkColumnView* view, int nth, int width)
+{
+	GtkColumnViewColumn* column;
+	if (width <= 0)
+		return;
+	column = get_cv_column (view, nth);
+	gtk_column_view_column_set_fixed_width (column, width);
+	g_object_unref (column);
 }
 
 void  ugtk_app_set_column_setting (UgtkApp* app, UgtkSetting* setting)
 {
-	GtkTreeViewColumn* column;
-	int                width;
+	GtkColumnView* view = app->traveler.download.view;
 
-	// state
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_STATE);
-	width = setting->download_column.width.state;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// name
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_NAME);
-	width = setting->download_column.width.name;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// complete
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_COMPLETE);
-	width = setting->download_column.width.complete;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// total
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_TOTAL);
-	width = setting->download_column.width.total;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// percent
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_PERCENT);
-	width = setting->download_column.width.percent;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// elapsed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_ELAPSED);
-	width = setting->download_column.width.elapsed;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// left
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_LEFT);
-	width = setting->download_column.width.left;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// speed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_SPEED);
-	width = setting->download_column.width.speed;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// upload_speed
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_UPLOAD_SPEED);
-	width = setting->download_column.width.upload_speed;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// uploaded
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_UPLOADED);
-	width = setting->download_column.width.uploaded;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// ratio
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_RATIO);
-	width = setting->download_column.width.ratio;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// retry
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_RETRY);
-	width = setting->download_column.width.retry;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// category
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_CATEGORY);
-	width = setting->download_column.width.category;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// uri
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_URI);
-	width = setting->download_column.width.uri;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// added_on
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_ADDED_ON);
-	width = setting->download_column.width.added_on;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
-	// completed_on
-	column = gtk_tree_view_get_column (app->traveler.download.view,
-			UGTK_NODE_COLUMN_COMPLETED_ON);
-	width = setting->download_column.width.completed_on;
-	if (width > 0)
-		gtk_tree_view_column_set_fixed_width (column, width);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_STATE, setting->download_column.width.state);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_NAME, setting->download_column.width.name);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_COMPLETE, setting->download_column.width.complete);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_TOTAL, setting->download_column.width.total);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_PERCENT, setting->download_column.width.percent);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_ELAPSED, setting->download_column.width.elapsed);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_LEFT, setting->download_column.width.left);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_SPEED, setting->download_column.width.speed);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_UPLOAD_SPEED, setting->download_column.width.upload_speed);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_UPLOADED, setting->download_column.width.uploaded);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_RATIO, setting->download_column.width.ratio);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_RETRY, setting->download_column.width.retry);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_CATEGORY, setting->download_column.width.category);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_URI, setting->download_column.width.uri);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_ADDED_ON, setting->download_column.width.added_on);
+	set_cv_column_width (view, UGTK_NODE_COLUMN_COMPLETED_ON, setting->download_column.width.completed_on);
 }
 
 void  ugtk_app_set_plugin_setting (UgtkApp* app, UgtkSetting* setting)
@@ -550,12 +468,15 @@ void  ugtk_app_set_plugin_setting (UgtkApp* app, UgtkSetting* setting)
 	}
 
 //	app->aria2.remote_updated = FALSE;
-	gtk_widget_set_sensitive ((GtkWidget*) app->trayicon.menu.create_torrent, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) app->trayicon.menu.create_metalink, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) app->menubar.file.create_torrent, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) app->menubar.file.create_metalink, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) app->toolbar.create_torrent, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) app->toolbar.create_metalink, sensitive);
+	ugtk_tray_icon_set_plugin_sensitive (&app->trayicon, sensitive);
+	if (app->menubar.file.create_torrent)
+		gtk_widget_set_sensitive ((GtkWidget*) app->menubar.file.create_torrent, sensitive);
+	if (app->menubar.file.create_metalink)
+		gtk_widget_set_sensitive ((GtkWidget*) app->menubar.file.create_metalink, sensitive);
+	if (app->toolbar.create_torrent)
+		gtk_widget_set_sensitive ((GtkWidget*) app->toolbar.create_torrent, sensitive);
+	if (app->toolbar.create_metalink)
+		gtk_widget_set_sensitive ((GtkWidget*) app->toolbar.create_metalink, sensitive);
 }
 
 void  ugtk_app_set_other_setting (UgtkApp* app, UgtkSetting* setting)
@@ -571,6 +492,7 @@ void  ugtk_app_set_other_setting (UgtkApp* app, UgtkSetting* setting)
 
 void  ugtk_app_set_menu_setting (UgtkApp* app, UgtkSetting* setting)
 {
+#if 0
 	// ----------------------------------------------------
 	// UgtkEditMenu
 	gtk_check_menu_item_set_active (
@@ -697,66 +619,71 @@ void  ugtk_app_set_menu_setting (UgtkApp* app, UgtkSetting* setting)
 	gtk_check_menu_item_set_active (
 			(GtkCheckMenuItem*) app->menubar.view.columns.completed_on,
 			setting->download_column.completed_on);
+#endif
 }
 
 void  ugtk_app_set_ui_setting (UgtkApp* app, UgtkSetting* setting)
 {
-	GtkIconSize   icon_size;
+	ugtk_app_decide_trayicon_visible (app);
+	ugtk_tray_icon_sync_menu (&app->trayicon, app);
 
-#ifdef HAVE_APP_INDICATOR
-	// AppIndicator
-	ugtk_tray_icon_use_indicator (&app->trayicon, setting->ui.app_indicator);
-#endif
-
-	ugtk_tray_icon_set_visible (&app->trayicon, setting->ui.show_trayicon);
-
-	// ----------------------------------------------------
-	// large icon
-	if (setting->ui.large_icon)
-		icon_size = GTK_ICON_SIZE_LARGE_TOOLBAR;
-	else
-		icon_size = GTK_ICON_SIZE_SMALL_TOOLBAR;
-	// toolbar
-	gtk_toolbar_set_icon_size ((GtkToolbar*) app->toolbar.self, icon_size);
-	// state list
-	ugtk_node_view_use_large_icon (app->traveler.state.view,
-	                               setting->ui.large_icon,
-	                               setting->download_column.width.state);
-	// category list
-	ugtk_node_view_use_large_icon (app->traveler.category.view,
-	                               setting->ui.large_icon,
-	                               setting->download_column.width.state);
-	// download list
-	ugtk_node_view_use_large_icon (app->traveler.download.view,
-	                               setting->ui.large_icon,
-	                               setting->download_column.width.state);
-	// summary
-	ugtk_node_view_use_large_icon (app->summary.view,
-	                               setting->ui.large_icon,
-	                               setting->download_column.width.state);
 }
 
 // decide sensitive for menu, toolbar
 void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 {
-	GtkTreeSelection*  selection;
 	gboolean           sensitive;
 	static gboolean    sensitive_last = TRUE;
 	gint               n_selected;
+	GAction*           action;
+	GtkBitset*         bitset;
 
-	selection = gtk_tree_view_get_selection (app->traveler.download.view);
-	n_selected = gtk_tree_selection_count_selected_rows (selection);
+	bitset = gtk_selection_model_get_selection (GTK_SELECTION_MODEL (app->traveler.download.selection));
+	n_selected = gtk_bitset_get_size (bitset);
+	gtk_bitset_unref (bitset);
 	if (n_selected > 0)
 		sensitive = TRUE;
 	else
 		sensitive = FALSE;
 
-	// change sensitive after select/unselect
+	// Update GAction states (GTK4)
+	const char *actions[] = {
+		"download-open",
+		"download-open-folder",
+		"download-delete",
+		"download-delete-file",
+		"download-force-start",
+		"download-runnable",	// "download-start" mapped to runnable in menu? need verification, likely "download-start"
+		"download-start",
+		"download-pause",
+		"download-move-up",
+		"download-move-down",
+		"download-move-top",
+		"download-move-bottom",
+		"download-properties",
+		// "priority", // submenu actions handled via GAction? Usually "priority" is the group or state.
+		NULL
+	};
+
+	// "runnable" action name check: in menu it was "win.download-start", but callback is on_action_download_start?
+	// let's try both common names just in case, or stick to what we saw in UgtkMenubar-ui.c ("win.download-start")
+	// The action name in group likely doesn't have "win.". "download-start" is safe.
+
+	for (const char **act = actions; *act; act++) {
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), *act);
+		if (action) {
+			g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+		}
+	}
+	// "download-runnable" might be the name used in some contexts, but if not found it just skips.
+
+	// change sensitive after select/unselect (Toolbar widgets)
 	if (sensitive_last != sensitive) {
 		sensitive_last  = sensitive;
 		gtk_widget_set_sensitive (app->toolbar.runnable, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.pause, sensitive);
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
+		// App menubar widgets (if used)
 		gtk_widget_set_sensitive (app->menubar.download.open, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.open_folder, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.delete, sensitive);
@@ -771,20 +698,22 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	if (n_selected > 1) {
 		gtk_widget_set_sensitive (app->toolbar.properties, FALSE);
 		gtk_widget_set_sensitive (app->menubar.download.properties, FALSE);
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "download-properties");
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), FALSE);
 	}
 	else {
 		gtk_widget_set_sensitive (app->toolbar.properties, sensitive);
 		gtk_widget_set_sensitive (app->menubar.download.properties, sensitive);
+		// properties enabledstate handled by loop above for sensistive=TRUE, but if sensitive=TRUE and n>1 must disable
 	}
 
 	// Move Up/Down/Top/Bottom functions need reset sensitive when selection changed.
 	// These need by  on_move_download_xxx()  series.
 	if (n_selected > 0) {
-		// Any Category/Status can't move download position if they were sorted.
-		if (app->setting.download_column.sort.nth == UGTK_NODE_COLUMN_STATE)
-			sensitive = TRUE;
-		else
-			sensitive = FALSE;
+		// Enabled even if sorted - move action will implicitly switch to manual sort
+		sensitive = TRUE;
+	} else {
+		sensitive = FALSE;
 	}
 	// move up/down/top/bottom
 	gtk_widget_set_sensitive (app->toolbar.move_up, sensitive);
@@ -795,6 +724,13 @@ void  ugtk_app_decide_download_sensitive (UgtkApp* app)
 	gtk_widget_set_sensitive (app->menubar.download.move_down, sensitive);
 	gtk_widget_set_sensitive (app->menubar.download.move_top, sensitive);
 	gtk_widget_set_sensitive (app->menubar.download.move_bottom, sensitive);
+	
+	// Update action state for move commands too
+	const char *move_actions[] = { "download-move-up", "download-move-down", "download-move-top", "download-move-bottom", NULL };
+	for (const char **act = move_actions; *act; act++) {
+		action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), *act);
+		if (action) g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
+	}
 }
 
 // decide sensitive for menu, toolbar
@@ -845,6 +781,8 @@ void  ugtk_app_decide_trayicon_visible (UgtkApp* app)
 
 	if (app->setting.ui.show_trayicon)
 		visible = TRUE;
+	else if (app->setting.ui.close_to_tray || app->setting.ui.start_in_tray)
+		visible = TRUE;
 	else {
 		if (gtk_widget_get_visible ((GtkWidget*) app->window.self))
 			visible = FALSE;
@@ -861,7 +799,7 @@ void  ugtk_app_decide_to_quit (UgtkApp* app)
 	if (app->setting.ui.exit_confirmation == FALSE)
 		ugtk_app_quit (app);
 	else if (app->dialogs.exit_confirmation)
-		gtk_widget_show (app->dialogs.exit_confirmation);
+		gtk_window_present ((GtkWindow*) app->dialogs.exit_confirmation);
 	else {
 		cdialog = ugtk_confirm_dialog_new (UGTK_CONFIRM_DIALOG_EXIT, app);
 		ugtk_confirm_dialog_run (cdialog);
@@ -901,12 +839,47 @@ void  ugtk_app_create_category (UgtkApp* app)
 	ugtk_node_dialog_run (ndialog, UGTK_NODE_DIALOG_NEW_CATEGORY, cnode);
 }
 
+// Async callback for clipboard text
+static void on_paste_url_received (GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+    GdkClipboard *clipboard = GDK_CLIPBOARD (source_object);
+    UgtkNodeDialog *ndialog = (UgtkNodeDialog *) user_data;
+    char *text;
+    GError *error = NULL;
+
+    text = gdk_clipboard_read_text_finish (clipboard, res, &error);
+    if (text) {
+        GList *list;
+        // reuse parsing logic
+        list = ugtk_text_get_uris (text);
+        list = ugtk_uri_list_remove_scheme (list, "file");
+        if (list) {
+            // use first URI
+            gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), (const char*)list->data);
+            ndialog->download.changed.uri = TRUE;
+            
+            // match category by URI
+            UgUri uuri;
+            UgetNode *temp_cnode;
+            ug_uri_init (&uuri, (const char*)list->data);
+            temp_cnode = uget_app_match_category ((UgetApp*) ndialog->app, &uuri, NULL);
+            if (temp_cnode) {
+                 ugtk_node_dialog_set_category (ndialog, temp_cnode->base);
+            }
+            g_list_free_full (list, g_free);
+            ugtk_download_form_complete_entry (&ndialog->download);
+        }
+        g_free (text);
+    } else {
+        if (error) g_error_free (error);
+    }
+}
+
 void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char* uri)
 {
 	UgtkNodeDialog*  ndialog;
 	UgUri      uuri;
 	UgetNode*  cnode;
-	GList*     list;
 	union {
 		gchar*     title;
 		UgetNode*  cnode;
@@ -927,7 +900,7 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 
 	if (uri != NULL) {
 		// set URI entry
-		gtk_entry_set_text ((GtkEntry*) ndialog->download.uri_entry, uri);
+		gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), uri);
 		ndialog->download.changed.uri = TRUE;
 		// match category by URI
 		ug_uri_init (&uuri, uri);
@@ -935,9 +908,18 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 		if (temp.cnode)
 			cnode = temp.cnode;
 	}
+	else {
+        // GTK4 Async Clipboard Read
+        GdkClipboard *clipboard = gdk_display_get_clipboard (gdk_display_get_default ());
+        if (clipboard) {
+            gdk_clipboard_read_text_async (clipboard, NULL, on_paste_url_received, ndialog);
+        }
+    }
+    
+#if 0
 	else if ( (list = ugtk_clipboard_get_uris (&app->clipboard)) != NULL ) {
 		// use first URI from clipboard to set URI entry
-		gtk_entry_set_text ((GtkEntry*) ndialog->download.uri_entry, list->data);
+		gtk_editable_set_text (GTK_EDITABLE (ndialog->download.uri_entry), list->data);
 		ndialog->download.changed.uri = TRUE;
 		// match category by URI from clipboard
 		ug_uri_init (&uuri, list->data);
@@ -948,6 +930,7 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 		g_list_free_full (list, g_free);
 		ugtk_download_form_complete_entry (&ndialog->download);
 	}
+#endif
 
 	if (cnode)
 		cnode = cnode->base;
@@ -993,15 +976,18 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 	GList*    link;
 	GList*    list = NULL;
 	// check shift key status
+#if 0
 	GdkWindow*       gdk_win;
+	GdkDeviceManager* device_manager;
 	GdkDevice*       dev_pointer;
 	GdkModifierType  mask;
+	gint             x, y;
 
-	// check shift key status
 	gdk_win = gtk_widget_get_parent_window ((GtkWidget*) app->traveler.download.view);
 	dev_pointer = gdk_device_manager_get_client_pointer (
 			gdk_display_get_device_manager (gdk_window_get_display (gdk_win)));
 	gdk_window_get_device_position (gdk_win, dev_pointer, NULL, NULL, &mask);
+#endif
 
 	cursor = app->traveler.download.cursor.node;
 	if (cursor)
@@ -1011,7 +997,7 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 		node = link->data;
 		node = node->base;
 		link->data = node;
-		if (delete_files || mask & GDK_SHIFT_MASK)
+		if (delete_files /* || mask & GDK_SHIFT_MASK */)
 			uget_app_delete_download ((UgetApp*) app, node, delete_files);
 		else {
 			if (uget_app_recycle_download ((UgetApp*) app, node))
@@ -1022,7 +1008,7 @@ void  ugtk_app_delete_download (UgtkApp* app, gboolean delete_files)
 			cursor = NULL;
 		link->data = NULL;
 	}
-	if (delete_files == FALSE && (mask & GDK_SHIFT_MASK) == 0) {
+	if (delete_files == FALSE /* && (mask & GDK_SHIFT_MASK) == 0 */) {
 		ugtk_traveler_set_cursor (&app->traveler, cursor);
 		ugtk_traveler_set_selected (&app->traveler, list);
 	}
@@ -1271,220 +1257,220 @@ void  ugtk_app_move_download_to (UgtkApp* app, UgetNode* cnode)
 // ------------------------------------
 // torrent & metalink
 
-static GtkWidget*  create_file_chooser (GtkWindow* parent,
-                                        GtkFileChooserAction action,
-                                        const gchar* title,
-                                        const gchar* filter_name,
-                                        const gchar* mine_type)
+static void  on_create_torrent_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	GtkWidget*      dialog;
-	GtkFileFilter*  filter;
+	UgtkApp* app = (UgtkApp*) user_data;
+	GFile* gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
+	gchar* file = NULL;
 
-	dialog = gtk_file_chooser_dialog_new (title,
-			parent,
-			action,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
-			NULL);
-	gtk_window_set_destroy_with_parent ((GtkWindow*) dialog, TRUE);
-
-	if (filter_name) {
-		filter = gtk_file_filter_new ();
-		gtk_file_filter_set_name (filter, filter_name);
-		gtk_file_filter_add_mime_type (filter, mine_type);
-		gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
+	if (gfile) {
+		file = g_file_get_path (gfile);
+		g_object_unref (gfile);
 	}
-	return dialog;
+	if (file) {
+		ugtk_app_create_download (app, _("New Torrent"), file);
+		g_free (file);
+	}
 }
 
-static void  on_create_torrent_response (GtkWidget* dialog, gint response, UgtkApp* app)
+static void  on_create_metalink_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	gchar*  file;
+	UgtkApp* app = (UgtkApp*) user_data;
+	GFile* gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
+	gchar* file = NULL;
 
-	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
-		return;
+	if (gfile) {
+		file = g_file_get_path (gfile);
+		g_object_unref (gfile);
 	}
-	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-//	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
-	ugtk_app_create_download (app, _("New Torrent"), file);
-	g_free (file);
-}
-
-static void  on_create_metalink_response (GtkWidget* dialog, gint response, UgtkApp* app)
-{
-	gchar*  file;
-
-	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
-		return;
+	if (file) {
+		ugtk_app_create_download (app, _("New Metalink"), file);
+		g_free (file);
 	}
-	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-//	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
-	ugtk_app_create_download (app, _("New Metalink"), file);
-	g_free (file);
 }
 
 void  ugtk_app_create_torrent (UgtkApp* app)
 {
-	GtkWidget*  dialog;
-	gchar*      title;
+	GtkFileDialog*  dialog;
+	GtkFileFilter*  filter;
+	GListStore*     filters;
+	gchar*          title;
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Open Torrent file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			title, _("Torrent file (*.torrent)"), "application/x-bittorrent");
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_create_torrent_response), app);
-	gtk_widget_show (dialog);
+
+	filter = gtk_file_filter_new ();
+	gtk_file_filter_set_name (filter, _("Torrent file (*.torrent)"));
+	gtk_file_filter_add_mime_type (filter, "application/x-bittorrent");
+	filters = g_list_store_new (GTK_TYPE_FILE_FILTER);
+	g_list_store_append (filters, filter);
+	g_object_unref (filter);
+	gtk_file_dialog_set_filters (dialog, G_LIST_MODEL (filters));
+	g_object_unref (filters);
+
+	gtk_file_dialog_open (dialog, app->window.self, NULL,
+			on_create_torrent_done, app);
+	g_object_unref (dialog);
 }
 
 void  ugtk_app_create_metalink (UgtkApp* app)
 {
+	GtkFileDialog*  dialog;
 	GtkFileFilter*  filter;
-	GtkWidget*      dialog;
+	GListStore*     filters;
 	gchar*          title;
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Open Metalink file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			title, NULL, NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
 
 	filter = gtk_file_filter_new ();
 	gtk_file_filter_set_name (filter, "Metalink file (*.metalink, *.meta4)");
 	gtk_file_filter_add_pattern (filter, "*.metalink");
 	gtk_file_filter_add_pattern (filter, "*.meta4");
-//	gtk_file_filter_add_mime_type (filter, "application/metalink+xml");
-//	gtk_file_filter_add_mime_type (filter, "application/metalink4+xml");
-	gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_create_metalink_response), app);
-	gtk_widget_show (dialog);
+	filters = g_list_store_new (GTK_TYPE_FILE_FILTER);
+	g_list_store_append (filters, filter);
+	g_object_unref (filter);
+	gtk_file_dialog_set_filters (dialog, G_LIST_MODEL (filters));
+	g_object_unref (filters);
+
+	gtk_file_dialog_open (dialog, app->window.self, NULL,
+			on_create_metalink_done, app);
+	g_object_unref (dialog);
 }
 
 // ------------------------------------
 // import/export
 
-static void  on_save_category_response (GtkWidget* dialog, gint response, UgtkApp* app)
+static void  on_save_category_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
+	UgtkApp* app = (UgtkApp*) user_data;
 	UgetNode* cnode;
-	gchar*    file;
-
-	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
-	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
-		return;
-	}
-	if (app->traveler.category.cursor.pos == 0)
-		return;
-
-	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-//	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
-	cnode = app->traveler.category.cursor.node;
-	if (uget_app_save_category ((UgetApp*) app, cnode->base, file, NULL) == FALSE)
-		ugtk_app_show_message (app, GTK_MESSAGE_ERROR, _("Failed to save category file."));
-	g_free (file);
-}
-
-static void  on_load_category_response (GtkWidget* dialog, gint response, UgtkApp* app)
-{
+	GFile*  gfile;
 	gchar*  file;
 
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
-	if (response != GTK_RESPONSE_OK) {
-		gtk_widget_destroy (dialog);
+	gfile = gtk_file_dialog_save_finish (GTK_FILE_DIALOG (source), result, NULL);
+	if (gfile == NULL)
+		return;
+	if (app->traveler.category.cursor.pos == 0) {
+		g_object_unref (gfile);
 		return;
 	}
-	// get filename
-	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-//	file = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+
+	file = g_file_get_path (gfile);
+	g_object_unref (gfile);
+	cnode = app->traveler.category.cursor.node;
+	if (uget_app_save_category ((UgetApp*) app, cnode->base, file, NULL) == FALSE)
+		ugtk_app_show_message (app, TRUE, _("Failed to save category file."));
+	g_free (file);
+}
+
+static void  on_load_category_done (GObject* source, GAsyncResult* result, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	GFile*  gfile;
+	gchar*  file;
+
+	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
+	gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
+	if (gfile == NULL)
+		return;
+
+	file = g_file_get_path (gfile);
+	g_object_unref (gfile);
 	if (uget_app_load_category ((UgetApp*) app, file, NULL))
 		ugtk_menubar_sync_category (&app->menubar, app, TRUE);
 	else
-		ugtk_app_show_message (app, GTK_MESSAGE_ERROR, _("Failed to load category file."));
+		ugtk_app_show_message (app, TRUE, _("Failed to load category file."));
 	g_free (file);
 }
 
 void  ugtk_app_save_category (UgtkApp* app)
 {
-	GtkWidget*      dialog;
+	GtkFileDialog*  dialog;
 	gchar*          title;
 
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, FALSE);
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Save Category file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			title, NULL, NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
 
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_save_category_response), app);
-	gtk_widget_show (dialog);
+	gtk_file_dialog_save (dialog, app->window.self, NULL,
+			on_save_category_done, app);
+	g_object_unref (dialog);
 }
 
 void  ugtk_app_load_category (UgtkApp* app)
 {
-	GtkWidget*      dialog;
+	GtkFileDialog*  dialog;
+	GtkFileFilter*  filter;
+	GListStore*     filters;
 	gchar*          title;
 
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, FALSE);
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Open Category file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			title, _("JSON file (*.json)"), "application/json");
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
 
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_load_category_response), app);
-	gtk_widget_show (dialog);
+	filter = gtk_file_filter_new ();
+	gtk_file_filter_set_name (filter, _("JSON file (*.json)"));
+	gtk_file_filter_add_mime_type (filter, "application/json");
+	filters = g_list_store_new (GTK_TYPE_FILE_FILTER);
+	g_list_store_append (filters, filter);
+	g_object_unref (filter);
+	gtk_file_dialog_set_filters (dialog, G_LIST_MODEL (filters));
+	g_object_unref (filters);
+
+	gtk_file_dialog_open (dialog, app->window.self, NULL,
+			on_load_category_done, app);
+	g_object_unref (dialog);
 }
 
-static void  on_import_html_file_response (GtkWidget* dialog, gint response, UgtkApp* app)
+static void  on_import_html_file_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	UgHtmlFilter*     filter;
+	UgtkApp* app = (UgtkApp*) user_data;
+	UgHtmlFilter*     html_filter;
 	UgHtmlFilterTag*  tag_a;
 	UgHtmlFilterTag*  tag_img;
 	UgtkBatchDialog*  bdialog;
 	UgtkSelectorPage* page;
 	UgetNode*  cnode;
-	gchar*  string;
+	gchar*  string = NULL;
 	gchar*  file;
+	GFile*  gfile;
 
-	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+	gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
+	if (gfile == NULL)
 		return;
-	}
+
 	// read URLs from html file
-	string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	string = g_file_get_path (gfile);
+	g_object_unref (gfile);
 	file = g_filename_to_utf8 (string, -1, NULL, NULL, NULL);
 	g_free (string);
 	string = NULL;
 	// parse html
-	filter = ug_html_filter_new ();
+	html_filter = ug_html_filter_new ();
 	tag_a = ug_html_filter_tag_new ("A", "HREF");		// <A HREF="Link">
-	ug_html_filter_add_tag (filter, tag_a);
+	ug_html_filter_add_tag (html_filter, tag_a);
 	tag_img = ug_html_filter_tag_new ("IMG", "SRC");		// <IMG SRC="Link">
-	ug_html_filter_add_tag (filter, tag_img);
-	ug_html_filter_parse_file (filter, file);
+	ug_html_filter_add_tag (html_filter, tag_img);
+	ug_html_filter_parse_file (html_filter, file);
 	g_free (file);
-	if (filter->base_href)
-		string = g_strdup (filter->base_href);
-	ug_html_filter_free (filter);
+	if (html_filter->base_href)
+		string = g_strdup (html_filter->base_href);
+	ug_html_filter_free (html_filter);
 	// UgtkBatchDialog
 	bdialog = ugtk_batch_dialog_new (
-			gtk_window_get_title ((GtkWindow*) dialog), app);
+			UGTK_APP_NAME " - " "Import URLs from HTML file", app);
 	ugtk_download_form_set_folders (&bdialog->download, &app->setting);
 	ugtk_batch_dialog_use_selector (bdialog);
 	// category
@@ -1494,7 +1480,7 @@ static void  on_import_html_file_response (GtkWidget* dialog, gint response, Ugt
 	ugtk_batch_dialog_set_category (bdialog, cnode);
 	// set <base href>
 	if (string) {
-		gtk_entry_set_text (bdialog->selector.href_entry, string);
+		gtk_editable_set_text (GTK_EDITABLE (bdialog->selector.href_entry), string);
 		g_free (string);
 	}
 	// add link
@@ -1511,8 +1497,9 @@ static void  on_import_html_file_response (GtkWidget* dialog, gint response, Ugt
 	ugtk_batch_dialog_run (bdialog);
 }
 
-static void  on_import_text_file_response (GtkWidget* dialog, gint response, UgtkApp* app)
+static void  on_import_text_file_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
+	UgtkApp* app = (UgtkApp*) user_data;
 	UgtkBatchDialog*   bdialog;
 	UgtkSelectorPage*  page;
 	UgetNode* cnode;
@@ -1520,26 +1507,27 @@ static void  on_import_text_file_response (GtkWidget* dialog, gint response, Ugt
 	gchar*    file;
 	GList*    list;
 	GError*   error = NULL;
+	GFile*    gfile;
 
-	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+	gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
+	if (gfile == NULL)
 		return;
-	}
+
 	// read URLs from text file
-	string = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+	string = g_file_get_path (gfile);
+	g_object_unref (gfile);
 	file = g_filename_to_utf8 (string, -1, NULL, NULL, NULL);
 	g_free (string);
 	list = ugtk_text_file_get_uris (file, &error);
 	g_free (file);
 	if (error) {
-		ugtk_app_show_message (app, GTK_MESSAGE_ERROR, error->message);
+		ugtk_app_show_message (app, TRUE, error->message);
 		g_error_free (error);
 		return;
 	}
 	// UgtkBatchDialog
 	bdialog = ugtk_batch_dialog_new (
-			gtk_window_get_title ((GtkWindow*) dialog), app);
+			UGTK_APP_NAME " - " "Import URLs from text file", app);
 	ugtk_batch_dialog_use_selector (bdialog);
 	ugtk_download_form_set_folders (&bdialog->download, &app->setting);
 	// category
@@ -1556,22 +1544,26 @@ static void  on_import_text_file_response (GtkWidget* dialog, gint response, Ugt
 	ugtk_batch_dialog_run (bdialog);
 }
 
-static void  on_export_text_file_response (GtkWidget* dialog, gint response, UgtkApp* app)
+static void  on_export_text_file_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
+	UgtkApp* app = (UgtkApp*) user_data;
 	GIOChannel*  channel;
 	UgetCommon*  common;
 	UgetNode*    node;
+	GFile*       gfile;
 	gchar*       fname;
 
-	if (response != GTK_RESPONSE_OK ) {
-		gtk_widget_destroy (dialog);
+	gfile = gtk_file_dialog_save_finish (GTK_FILE_DIALOG (source), result, NULL);
+	if (gfile == NULL)
 		return;
-	}
-	// write all URLs to text file
-	fname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	gtk_widget_destroy (dialog);
+
+	fname = g_file_get_path (gfile);
+	g_object_unref (gfile);
 	channel = g_io_channel_new_file (fname, "w", NULL);
 	g_free (fname);
+
+	if (channel == NULL)
+		return;
 
 	node = app->traveler.category.cursor.node->base;
 	for (node = node->children;  node;  node = node->next) {
@@ -1592,47 +1584,69 @@ static void  on_export_text_file_response (GtkWidget* dialog, gint response, Ugt
 
 void  ugtk_app_import_html_file (UgtkApp* app)
 {
-	GtkWidget*  dialog;
-	gchar*      title;
+	GtkFileDialog*  dialog;
+	GtkFileFilter*  filter;
+	GListStore*     filters;
+	gchar*          title;
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Import URLs from HTML file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			title, _("HTML file (*.htm, *.html)"), "text/html");
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_import_html_file_response), app);
-	gtk_widget_show (dialog);
+
+	filter = gtk_file_filter_new ();
+	gtk_file_filter_set_name (filter, _("HTML file (*.htm, *.html)"));
+	gtk_file_filter_add_mime_type (filter, "text/html");
+	filters = g_list_store_new (GTK_TYPE_FILE_FILTER);
+	g_list_store_append (filters, filter);
+	g_object_unref (filter);
+	gtk_file_dialog_set_filters (dialog, G_LIST_MODEL (filters));
+	g_object_unref (filters);
+
+	gtk_file_dialog_open (dialog, app->window.self, NULL,
+			on_import_html_file_done, app);
+	g_object_unref (dialog);
 }
 
 void  ugtk_app_import_text_file (UgtkApp* app)
 {
-	GtkWidget*  dialog;
-	gchar*      title;
+	GtkFileDialog*  dialog;
+	GtkFileFilter*  filter;
+	GListStore*     filters;
+	gchar*          title;
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Import URLs from text file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			title, _("Plain text file"), "text/plain");
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_import_text_file_response), app);
-	gtk_widget_show (dialog);
+
+	filter = gtk_file_filter_new ();
+	gtk_file_filter_set_name (filter, _("Plain text file"));
+	gtk_file_filter_add_mime_type (filter, "text/plain");
+	filters = g_list_store_new (GTK_TYPE_FILE_FILTER);
+	g_list_store_append (filters, filter);
+	g_object_unref (filter);
+	gtk_file_dialog_set_filters (dialog, G_LIST_MODEL (filters));
+	g_object_unref (filters);
+
+	gtk_file_dialog_open (dialog, app->window.self, NULL,
+			on_import_text_file_done, app);
+	g_object_unref (dialog);
 }
 
 void  ugtk_app_export_text_file (UgtkApp* app)
 {
-	GtkWidget*  dialog;
-	gchar*      title;
+	GtkFileDialog*  dialog;
+	gchar*          title;
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Export URLs to text file"), NULL);
-	dialog = create_file_chooser (app->window.self,
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			title, NULL, NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_export_text_file_response), app);
-	gtk_widget_show (dialog);
+
+	gtk_file_dialog_save (dialog, app->window.self, NULL,
+			on_export_text_file_done, app);
+	g_object_unref (dialog);
 }
 
 // ------------------------------------
@@ -1669,7 +1683,7 @@ void  ugtk_app_clipboard_batch (UgtkApp* app)
 
 	list = ugtk_clipboard_get_uris (&app->clipboard);
 	if (list == NULL) {
-		ugtk_app_show_message (app, GTK_MESSAGE_ERROR,
+		ugtk_app_show_message (app, TRUE,
 				_("No URLs found in clipboard."));
 		return;
 	}
@@ -1678,7 +1692,7 @@ void  ugtk_app_clipboard_batch (UgtkApp* app)
 		if (ugtk_app_filter_existing (app, list) == 0) {
 //			g_list_foreach (list, (GFunc) g_free, NULL);
 			g_list_free (list);
-			ugtk_app_show_message (app, GTK_MESSAGE_INFO,
+			ugtk_app_show_message (app, FALSE,
 					_("All URLs had existed."));
 			return;
 		}
@@ -1722,47 +1736,18 @@ int   ugtk_app_filter_existing (UgtkApp* app, GList* uris)
 }
 
 // ------------------------------------
-// emit signal "row-changed" for UgtkNodeTree and UgtkNodeList
+// Refresh GListModel for UgtkNodeTree and UgtkNodeList
 
 void  ugtk_app_download_changed (UgtkApp* app, UgetNode* dnode)
 {
-	GtkTreeModel* model;
-	GtkTreePath*  path;
-	GtkTreeIter   iter;
-
-	if (ugtk_traveler_get_iter (&app->traveler, &iter, dnode)) {
-		model = GTK_TREE_MODEL (app->traveler.download.model);
-		path = gtk_tree_model_get_path (model, &iter);
-		if (path) {
-			gtk_tree_model_row_changed (model, path, &iter);
-			gtk_tree_path_free (path);
-		}
-	}
+	ugtk_node_tree_refresh (app->traveler.download.model);
 }
 
 void  ugtk_app_category_changed (UgtkApp* app, UgetNode* cnode)
 {
-	GtkTreeIter   iter;
-	GtkTreePath*  path;
-	GtkTreeModel* model;
-
-	model = GTK_TREE_MODEL (app->traveler.category.model);
-	if (app->traveler.category.cursor.pos > 0) {
-		iter.stamp = app->traveler.category.model->stamp;
-		iter.user_data = cnode;
-		// update category
-		path = gtk_tree_model_get_path (model, &iter);
-		gtk_tree_model_row_changed (model, path, &iter);
-		gtk_tree_path_free (path);
-	}
-	// update "All Category"
-	path = gtk_tree_path_new_first ();
-	gtk_tree_model_get_iter_first (model, &iter);
-	gtk_tree_model_row_changed (model, path, &iter);
-	gtk_tree_path_free (path);
-
+	ugtk_node_tree_refresh (app->traveler.category.model);
 	// refresh status list
-	gtk_widget_queue_draw ((GtkWidget*) app->traveler.state.view);
+	ugtk_node_list_refresh (app->traveler.state.model);
 }
 
 void  ugtk_app_add_default_category (UgtkApp* app)
@@ -1790,47 +1775,31 @@ void  ugtk_app_add_default_category (UgtkApp* app)
 // ------------------------------------
 // others
 
-static void  on_message_response (GtkWidget* dialog, gint response, GtkWidget** value)
-{
-	gtk_widget_destroy (dialog);
-	*value = NULL;
-}
-
-void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
+void  ugtk_app_show_message (UgtkApp* app, gboolean is_error,
                              const gchar* message)
 {
-	GtkWidget*		dialog;
-	GtkWidget**		value;
-	gchar*			title;
+	GtkAlertDialog* alert;
+	gchar*          title;
 
-	dialog = gtk_message_dialog_new (app->window.self,
-			GTK_DIALOG_DESTROY_WITH_PARENT,
-			type, GTK_BUTTONS_OK,
-			"%s", message);
-	// set title
-	switch (type) {
-	case GTK_MESSAGE_ERROR:
-		if (app->dialogs.error)
-			gtk_widget_destroy (app->dialogs.error);
-		app->dialogs.error = dialog;
-		value = &app->dialogs.error;
+	if (is_error)
 		title = g_strconcat (UGTK_APP_NAME " - ", _("Error"), NULL);
-		break;
-
-	default:
-		if (app->dialogs.message)
-			gtk_widget_destroy (app->dialogs.message);
-		app->dialogs.message = dialog;
-		value = &app->dialogs.message;
+	else
 		title = g_strconcat (UGTK_APP_NAME " - ", _("Message"), NULL);
-		break;
-	}
-	gtk_window_set_title ((GtkWindow*) dialog, title);
+
+	alert = gtk_alert_dialog_new ("%s", title);
+	gtk_alert_dialog_set_detail (alert, message);
+	gtk_alert_dialog_set_buttons (alert, (const char*[]){ _("_OK"), NULL });
+	gtk_alert_dialog_show (alert, app->window.self);
+	g_object_unref (alert);
 	g_free (title);
-	// signal handler
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_message_response), value);
-	gtk_widget_show (dialog);
+}
+
+void ugtk_app_open_settings(UgtkApp *app) {
+    if (app->dialogs.setting == NULL) {
+        app->dialogs.setting = (GtkWidget*) ugtk_setting_dialog_new(_("Settings"), (GtkWindow*)app->window.self);
+    }
+    ugtk_setting_dialog_set((UgtkSettingDialog*)app->dialogs.setting, &app->setting);
+    ugtk_setting_dialog_run((UgtkSettingDialog*)app->dialogs.setting, app);
 }
 
 // -------------------------------------------------------
@@ -1838,7 +1807,7 @@ void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
 
 void  ugtk_clipboard_init (struct UgtkClipboard* clipboard, const gchar* pattern)
 {
-	clipboard->self  = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
+	clipboard->self  = gdk_display_get_clipboard (gdk_display_get_default ());
 	clipboard->text  = NULL;
 	clipboard->regex = g_regex_new (pattern, G_REGEX_CASELESS, 0, NULL);
 	clipboard->website = TRUE;
@@ -1859,11 +1828,15 @@ void  ugtk_clipboard_set_text (struct UgtkClipboard* clipboard, gchar* text)
 {
 	g_free (clipboard->text);
 	clipboard->text = text;
-	gtk_clipboard_set_text (clipboard->self, text, -1);
+	if (clipboard->self)
+		gdk_clipboard_set_text (clipboard->self, text);
 }
 
 GList* ugtk_clipboard_get_uris (struct UgtkClipboard* clipboard)
 {
+#if 0
+	// GTK4: gtk_clipboard_wait_is_text_available and gtk_clipboard_wait_for_text removed
+	// Needs rewrite using GdkClipboard async API: gdk_clipboard_read_text_async
 	GList*		list;
 	gchar*		text;
 
@@ -1876,8 +1849,12 @@ GList* ugtk_clipboard_get_uris (struct UgtkClipboard* clipboard)
 	list = ugtk_text_get_uris (text);
 	list = ugtk_uri_list_remove_scheme (list, "file");
 	g_free (text);
-
 	return list;
+#else
+	// Temporary stub: clipboard monitoring disabled
+	(void)clipboard;
+	return NULL;
+#endif
 }
 
 GList* ugtk_clipboard_get_matched (struct UgtkClipboard* clipboard, const gchar* text)
@@ -1930,17 +1907,13 @@ GList* ugtk_clipboard_get_matched (struct UgtkClipboard* clipboard, const gchar*
 
 void  ugtk_statusbar_set_info (struct UgtkStatusbar* statusbar, gint n_selected)
 {
-	static guint	context_id = 0;
-	gchar*			string;
-
-	if (context_id == 0)
-		context_id = gtk_statusbar_get_context_id (statusbar->self, "selected");
-	gtk_statusbar_pop  (statusbar->self, context_id);
-
 	if (n_selected > 0) {
-		string = g_strdup_printf (_("Selected %d items"), n_selected);
-		gtk_statusbar_push (statusbar->self, context_id, string);
+		gchar* string = g_strdup_printf (_("Selected %d items"), n_selected);
+		gtk_label_set_text (statusbar->info, string);
 		g_free (string);
+	}
+	else {
+		gtk_label_set_text (statusbar->info, "");
 	}
 }
 

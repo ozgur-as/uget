@@ -252,7 +252,10 @@ int   ug_ftruncate (FILE* file, int64_t size);
 #endif
 
 #define ug_fclose                   fclose
-#define ug_fread(file,data,len)     fread  (data, 1, len, file)
+static inline size_t ug_fread(FILE* file, void* data, size_t len)
+{
+	return fread(data, 1, len, file);
+}
 #define ug_fwrite(file,data,len)    fwrite (data, 1, len, file)
 #define ug_fprintf                  fprintf
 #define ug_fputs(file,string)       fputs (string, file)

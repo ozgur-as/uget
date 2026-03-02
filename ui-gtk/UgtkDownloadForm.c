@@ -42,6 +42,12 @@
 
 #include <glib/gi18n.h>
 
+static inline void set_margin_all(GtkWidget* w, int m) {
+	gtk_widget_set_margin_start(w, m);
+	gtk_widget_set_margin_end(w, m);
+	gtk_widget_set_margin_top(w, m);
+	gtk_widget_set_margin_bottom(w, m);
+}
 
 static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyForm* proxy);
 static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform);
@@ -53,7 +59,6 @@ static void on_http_entry_changed (GtkEditable *editable, UgtkDownloadForm* dfor
 static void on_select_folder (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
 static void on_select_cookie (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
 static void on_select_post   (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
-
 
 void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, GtkWindow* parent)
 {
@@ -74,9 +79,6 @@ void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, Gt
 
 	ugtk_download_form_init_page1 (dform, proxy);
 	ugtk_download_form_init_page2 (dform);
-
-	gtk_widget_show_all (dform->page1);
-	gtk_widget_show_all (dform->page2);
 }
 
 static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyForm* proxy)
@@ -91,16 +93,16 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 
 	dform->page1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	top_vbox = (GtkBox*) dform->page1;
-	gtk_container_set_border_width (GTK_CONTAINER (top_vbox), 2);
+	top_vbox = (GtkBox*) dform->page1;
+	g_object_set (top_vbox, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
 
 	top_grid = (GtkGrid*) gtk_grid_new ();
-	gtk_box_pack_start (top_vbox, (GtkWidget*) top_grid, FALSE, FALSE, 0);
+	gtk_box_append (top_vbox, (GtkWidget*) top_grid);
 
 	// URL - entry
 	widget = gtk_entry_new ();
-//	gtk_entry_set_width_chars (GTK_ENTRY (widget), 20); // remove for GTK+ 3.12
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin-left", 1, "margin-right", 1, NULL);
+	g_object_set (widget, "margin-start", 1, "margin-end", 1, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (top_grid, widget, 1, 0, 2, 1);
@@ -110,16 +112,15 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// URL - label
 	widget = gtk_label_new_with_mnemonic (_("_URI:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL(widget), dform->uri_entry);
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (top_grid, widget, 0, 0, 1, 1);
 	dform->uri_label = widget;
 
 	// Mirrors - entry
 	widget = gtk_entry_new ();
-//	gtk_entry_set_width_chars (GTK_ENTRY (widget), 20); // remove for GTK+ 3.12
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin-left", 1, "margin-right", 1, NULL);
+	g_object_set (widget, "margin-start", 1, "margin-end", 1, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (top_grid, widget, 1, 1, 2, 1);
@@ -129,7 +130,7 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// Mirrors - label
 	widget = gtk_label_new_with_mnemonic (_("Mirrors:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL(widget), dform->mirrors_entry);
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (top_grid, widget, 0, 1, 1, 1);
 	dform->mirrors_label = widget;
@@ -139,7 +140,8 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
 	gtk_entry_set_placeholder_text (GTK_ENTRY (widget),
 			_("Leave blank to use default filename ..."));
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (top_grid, widget,  1, 2, 2, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_entry_changed), dform);
@@ -147,27 +149,23 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// File - label
 	widget = gtk_label_new_with_mnemonic (_("File:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), dform->file_entry);
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (top_grid, widget,  0, 2, 1, 1);
 	dform->file_label = widget;
 
-	// Folder - combo entry + icon
-	dform->folder_combo = gtk_combo_box_text_new_with_entry ();
-	dform->folder_entry = gtk_bin_get_child (GTK_BIN (dform->folder_combo));
-	widget = dform->folder_entry;
+	// Folder - entry + icon
+	widget = gtk_entry_new ();
+	dform->folder_combo = widget;
+	dform->folder_entry = widget;
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
 	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, "folder");
-#else
-	gtk_entry_set_icon_from_stock (GTK_ENTRY (widget),
-			GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_DIRECTORY);
-#endif
 	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, _("Select Folder"));
-	g_object_set (dform->folder_combo, "margin", 1, "hexpand", TRUE, NULL);
-	gtk_grid_attach (top_grid, dform->folder_combo,  1, 3, 1, 1);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
+	gtk_grid_attach (top_grid, widget,  1, 3, 1, 1);
 	g_signal_connect (widget, "icon-release",
 			G_CALLBACK (on_select_folder), dform);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
@@ -175,14 +173,15 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// Folder - label
 	widget = gtk_label_new_with_mnemonic (_("_Folder:"));
 	gtk_label_set_mnemonic_widget(GTK_LABEL (widget), dform->folder_combo);
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (top_grid, widget,  0, 3, 1, 1);
 
 	// Referrer - entry
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (top_grid, widget, 1, 4, 2, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_http_entry_changed), dform);
@@ -190,7 +189,7 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// Referrer - label
 	widget = gtk_label_new_with_mnemonic (_("Referrer:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), dform->referrer_entry);
-	g_object_set (widget, "margin-left", 3, "margin-right", 3, NULL);
+	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (top_grid, widget, 0, 4, 1, 1);
 //	dform->referrer_label = widget;
@@ -199,60 +198,58 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	// Connections
 	// HBox for Connections
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (top_vbox, hbox, FALSE, FALSE, 2);
-	// connections - label
-//	widget = gtk_label_new (_("connections"));
-//	gtk_box_pack_end (GTK_BOX (hbox), widget, FALSE, FALSE, 2);
-//	dform->label_connections = widget;
+	gtk_box_append (top_vbox, hbox);
 	// connections - spin button
 	widget = gtk_spin_button_new_with_range (1.0, 16.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY (widget), 3); // remove for GTK+ 3.12
-	gtk_box_pack_end (GTK_BOX (hbox), widget, FALSE, FALSE, 2);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (widget), TRUE);
+	gtk_box_append (GTK_BOX (hbox), widget);
 	dform->spin_connections = widget;
 	// "Max Connections:" - title label
 	widget = gtk_label_new_with_mnemonic (_("_Max Connections:"));
 	gtk_label_set_mnemonic_widget ((GtkLabel*)widget, dform->spin_connections);
-	gtk_box_pack_end (GTK_BOX (hbox), widget, FALSE, FALSE, 2);
+	gtk_box_append (GTK_BOX (hbox), widget);
 	dform->title_connections = widget;
 
 	// ----------------------------------------------------
 	// HBox for "Status" and "Login"
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (top_vbox, hbox, FALSE, FALSE, 2);
+	gtk_box_append (top_vbox, hbox);
 
 	// ----------------------------------------------------
 	// frame for Status (start mode)
 	frame = gtk_frame_new (_("Status"));
-	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
-	gtk_container_add (GTK_CONTAINER (frame), vbox);
-	gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
-	dform->radio_runnable = gtk_radio_button_new_with_mnemonic (NULL,
-				_("_Runnable"));
-	dform->radio_pause = gtk_radio_button_new_with_mnemonic_from_widget (
-				(GtkRadioButton*)dform->radio_runnable, _("P_ause"));
-	gtk_box_pack_start (GTK_BOX (vbox), dform->radio_runnable, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (vbox), dform->radio_pause, FALSE, FALSE, 0);
+	vbox = (GtkWidget*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+	g_object_set (vbox, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
+	gtk_frame_set_child (GTK_FRAME (frame), vbox);
+	gtk_box_append (GTK_BOX (hbox), frame);
+	dform->radio_runnable = (GtkWidget*) gtk_check_button_new_with_mnemonic (_("_Runnable"));
+	dform->radio_pause = (GtkWidget*) gtk_check_button_new_with_mnemonic (_("P_ause"));
+	gtk_check_button_set_group (GTK_CHECK_BUTTON (dform->radio_pause), GTK_CHECK_BUTTON (dform->radio_runnable));
+
+	gtk_box_append (GTK_BOX (vbox), dform->radio_runnable);
+	gtk_box_append (GTK_BOX (vbox), dform->radio_pause);
 
 	// ----------------------------------------------------
 	// frame for login
 	frame = gtk_frame_new (_("Login"));
 	grid  = (GtkGrid*) gtk_grid_new ();
-	gtk_container_set_border_width (GTK_CONTAINER (grid), 2);
-	gtk_container_add (GTK_CONTAINER (frame), (GtkWidget*) grid);
-	gtk_box_pack_start (GTK_BOX (hbox), frame, TRUE, TRUE, 2);
+	g_object_set (grid, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
+	gtk_frame_set_child (GTK_FRAME (frame), (GtkWidget*) grid);
+	gtk_widget_set_hexpand (frame, TRUE);
+	gtk_widget_set_vexpand (frame, TRUE);
+	gtk_box_append (GTK_BOX (hbox), frame);
 	// User - entry
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 1, 0, 1, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_entry_changed), dform);
 	dform->username_entry = widget;
 	// User - label
 	widget = gtk_label_new (_("User:"));
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 0, 1, 1);
 //	dform->username_label = widget;
@@ -261,14 +258,15 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	widget = gtk_entry_new ();
 	gtk_entry_set_visibility (GTK_ENTRY (widget), FALSE);
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 1, 1, 1, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_entry_changed), dform);
 	dform->password_entry = widget;
 	// Password - label
 	widget = gtk_label_new (_("Password:"));
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 1, 1, 1);
 //	dform->password_label = widget;
@@ -278,7 +276,7 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 //	ug_proxy_widget_init (&dform->proxy_dform);
 	if (proxy) {
 		widget = proxy->self;
-		gtk_box_pack_start (top_vbox, widget, FALSE, FALSE, 2);
+		gtk_box_append (top_vbox, widget);
 	}
 }
 
@@ -289,28 +287,25 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 
 	dform->page2 = gtk_grid_new ();
 	grid = (GtkGrid*) dform->page2;
-	gtk_container_set_border_width (GTK_CONTAINER (grid), 2);
+	g_object_set (grid, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
 
 	// label - cookie file
 	widget = gtk_label_new (_("Cookie file:"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);	// left, center
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);	// left, center
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 0, 1, 1);
 	dform->cookie_label = widget;
 	// entry - cookie file
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
 	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, "text-x-generic");
-#else
-	gtk_entry_set_icon_from_stock (GTK_ENTRY (widget),
-			GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_FILE);
-#endif
 	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, _("Select Cookie File"));
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 1, 0, 3, 1);
 	g_signal_connect (widget, "icon-release",
 			G_CALLBACK (on_select_cookie), dform);
@@ -319,24 +314,21 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 	dform->cookie_entry = widget;
 	// label - post file
 	widget = gtk_label_new (_("Post file:"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);	// left, center
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);	// left, center
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 1, 1, 1);
 	dform->post_label = widget;
 	// entry - post file
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
 	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, "text-x-generic");
-#else
-	gtk_entry_set_icon_from_stock (GTK_ENTRY (widget),
-			GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_FILE);
-#endif
 	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (widget),
 			GTK_ENTRY_ICON_SECONDARY, _("Select Post File"));
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 1, 1, 3, 1);
 	g_signal_connect (widget, "icon-release",
 			G_CALLBACK (on_select_post), dform);
@@ -346,15 +338,17 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 
 	// label - user agent
 	widget = gtk_label_new (_("User Agent:"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);	// left, center
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);	// left, center
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 2, 1, 1);
 	dform->agent_label = widget;
 	// entry - user agent
 	widget = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin", 1, "hexpand", TRUE, NULL);
+	set_margin_all (widget, 1);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 1, 2, 3, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_http_entry_changed), dform);
@@ -363,13 +357,13 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 	// Retry limit - label
 	widget = gtk_label_new_with_mnemonic (_("Retry _limit:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), dform->spin_retry);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 3, 2, 1);
 	// Retry limit - spin button
 	widget = gtk_spin_button_new_with_range (0.0, 99.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (widget), TRUE);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 2, 3, 1, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
@@ -377,21 +371,22 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 	dform->spin_retry = widget;
 	// counts - label
 	widget = gtk_label_new (_("counts"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 3, 3, 1, 1);
 
 	// Retry delay - label
 	widget = gtk_label_new_with_mnemonic (_("Retry _delay:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), dform->spin_delay);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 4, 2, 1);
 	// Retry delay - spin button
 	widget = gtk_spin_button_new_with_range (0.0, 600.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (widget), TRUE);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 2, 4, 1, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
@@ -399,52 +394,55 @@ static void ugtk_download_form_init_page2 (UgtkDownloadForm* dform)
 	dform->spin_delay = widget;
 	// seconds - label
 	widget = gtk_label_new (_("seconds"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 3, 4, 1, 1);
 
 	// label - Max upload speed
 	widget = gtk_label_new (_("Max upload speed:"));
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 5, 2, 1);
 	// spin - Max upload speed
 	widget = gtk_spin_button_new_with_range (0, 99999999, 1);
-	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY (widget), 8);
-	g_object_set (widget, "margin", 1, NULL);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (widget), TRUE);
+	set_margin_all (widget, 1);
 	gtk_grid_attach (grid, widget, 2, 5, 1, 1);
 	dform->spin_upload_speed = (GtkSpinButton*) widget;
 	// label - "KiB/s"
 	widget = gtk_label_new (_("KiB/s"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);	// left, center
-	g_object_set (widget, "margin", 2, "hexpand", TRUE, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);	// left, center
+	set_margin_all (widget, 2);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 3, 5, 1, 1);
 
 	// label - Max download speed
 	widget = gtk_label_new (_("Max download speed:"));
-	g_object_set (widget, "margin-left", 2, "margin-right", 2, NULL);
+	g_object_set (widget, "margin-start", 2, "margin-end", 2, NULL);
 	g_object_set (widget, "margin-top", 1, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 6, 2, 1);
 	// spin - Max download speed
 	widget = gtk_spin_button_new_with_range (0, 99999999, 1);
-	gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY (widget), 8);
-	g_object_set (widget, "margin", 1, NULL);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (widget), TRUE);
+	set_margin_all (widget, 1);
 	gtk_grid_attach (grid, widget, 2, 6, 1, 1);
 	dform->spin_download_speed = (GtkSpinButton*) widget;
 	// label - "KiB/s"
 	widget = gtk_label_new (_("KiB/s"));
-	gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);	// left, center
-	g_object_set (widget, "margin", 2, "hexpand", TRUE, NULL);
+	gtk_label_set_xalign ((GtkLabel*)widget, 0.0);
+	gtk_label_set_yalign ((GtkLabel*)widget, 0.5);	// left, center
+	set_margin_all (widget, 2);
+	g_object_set (widget, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, widget, 3, 6, 1, 1);
 
 	// Retrieve timestamp
 	widget = gtk_check_button_new_with_label (_("Retrieve timestamp"));
 	g_object_set (widget, "margin-top", 3, "margin-bottom", 1, NULL);
 	gtk_grid_attach (grid, widget, 0, 7, 3, 1);
-	dform->timestamp = (GtkToggleButton*) widget;
+	dform->timestamp = (GtkCheckButton*) widget;
 }
 
 void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
@@ -462,17 +460,17 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	// UgetCommon
 	temp.common = ug_info_realloc(node_info, UgetCommonInfo);
 	// folder
-	text = gtk_entry_get_text ((GtkEntry*)dform->folder_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->folder_entry));
 	ug_free (temp.common->folder);
 	temp.common->folder = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.common->folder, temp.common->folder);
 	// user
-	text = gtk_entry_get_text ((GtkEntry*)dform->username_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->username_entry));
 	ug_free (temp.common->user);
 	temp.common->user = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.common->user, temp.common->user);
 	// password
-	text = gtk_entry_get_text ((GtkEntry*)dform->password_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->password_entry));
 	ug_free (temp.common->password);
 	temp.common->password = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.common->password, temp.common->password);
@@ -494,11 +492,11 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	number = gtk_spin_button_get_value_as_int ((GtkSpinButton*) dform->spin_connections);
 	temp.common->max_connections = number;
 	// timestamp
-	temp.common->timestamp = gtk_toggle_button_get_active (dform->timestamp);
+	temp.common->timestamp = gtk_check_button_get_active (GTK_CHECK_BUTTON (dform->timestamp));
 
 	// URI
 	if (gtk_widget_is_sensitive (dform->uri_entry) == TRUE) {
-		text = gtk_entry_get_text ((GtkEntry*)dform->uri_entry);
+		text = gtk_editable_get_text (GTK_EDITABLE (dform->uri_entry));
 		ug_free (temp.common->uri);
 		temp.common->uri = (*text) ? ug_strdup (text) : NULL;
 		ug_str_remove_crlf (temp.common->uri, temp.common->uri);
@@ -525,14 +523,14 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	}
 	// mirrors
 	if (gtk_widget_is_sensitive (dform->mirrors_entry) == TRUE) {
-		text = gtk_entry_get_text ((GtkEntry*)dform->mirrors_entry);
+		text = gtk_editable_get_text (GTK_EDITABLE (dform->mirrors_entry));
 		ug_free (temp.common->mirrors);
 		temp.common->mirrors = (*text) ? ug_strdup (text) : NULL;
 		ug_str_remove_crlf (temp.common->mirrors, temp.common->mirrors);
 	}
 	// file
 	if (gtk_widget_is_sensitive (dform->file_entry) == TRUE) {
-		text = gtk_entry_get_text ((GtkEntry*)dform->file_entry);
+		text = gtk_editable_get_text (GTK_EDITABLE (dform->file_entry));
 		ug_free (temp.common->file);
 		temp.common->file = (*text) ? ug_strdup (text) : NULL;
 		ug_str_remove_crlf (temp.common->file, temp.common->file);
@@ -542,22 +540,22 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	// UgetHttp
 	temp.http = ug_info_realloc(node_info, UgetHttpInfo);
 	// referrer
-	text = gtk_entry_get_text ((GtkEntry*) dform->referrer_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->referrer_entry));
 	ug_free (temp.http->referrer);
 	temp.http->referrer = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.http->referrer, temp.http->referrer);
 	// cookie_file
-	text = gtk_entry_get_text ((GtkEntry*) dform->cookie_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->cookie_entry));
 	ug_free (temp.http->cookie_file);
 	temp.http->cookie_file = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.http->cookie_file, temp.http->cookie_file);
 	// post_file
-	text = gtk_entry_get_text ((GtkEntry*) dform->post_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->post_entry));
 	ug_free (temp.http->post_file);
 	temp.http->post_file = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.http->post_file, temp.http->post_file);
 	// user_agent
-	text = gtk_entry_get_text ((GtkEntry*) dform->agent_entry);
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->agent_entry));
 	ug_free (temp.http->user_agent);
 	temp.http->user_agent = (*text) ? ug_strdup (text) : NULL;
 	ug_str_remove_crlf (temp.http->user_agent, temp.http->user_agent);
@@ -566,7 +564,7 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	// UgetRelation
 	if (gtk_widget_get_sensitive (dform->radio_pause)) {
 		temp.relation = ug_info_realloc(node_info, UgetRelationInfo);
-		if (gtk_toggle_button_get_active ((GtkToggleButton*) dform->radio_pause))
+		if (gtk_check_button_get_active (GTK_CHECK_BUTTON (dform->radio_pause)))
 			temp.relation->group |= UGET_GROUP_PAUSED;
 		else
 			temp.relation->group &= ~UGET_GROUP_PAUSED;
@@ -603,19 +601,19 @@ void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* node_info, gboole
 	// set data
 	if (keep_changed==FALSE || dform->changed.uri==FALSE) {
 		if (gtk_widget_is_sensitive (dform->uri_entry)) {
-			gtk_entry_set_text ((GtkEntry*) dform->uri_entry,
+			gtk_editable_set_text (GTK_EDITABLE (dform->uri_entry),
 					(common && common->uri)  ? common->uri : "");
 		}
 	}
 	if (keep_changed==FALSE || dform->changed.mirrors==FALSE) {
 		if (gtk_widget_is_sensitive (dform->mirrors_entry)) {
-			gtk_entry_set_text ((GtkEntry*) dform->mirrors_entry,
+			gtk_editable_set_text (GTK_EDITABLE (dform->mirrors_entry),
 					(common && common->mirrors)  ? common->mirrors : "");
 		}
 	}
 	if (keep_changed==FALSE || dform->changed.file==FALSE) {
 		if (gtk_widget_is_sensitive (dform->file_entry)) {
-			gtk_entry_set_text ((GtkEntry*) dform->file_entry,
+			gtk_editable_set_text (GTK_EDITABLE (dform->file_entry),
 					(common && common->file) ? common->file : "");
 			// set changed flags
 			if (common && common->file)
@@ -625,17 +623,17 @@ void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* node_info, gboole
 	if (keep_changed==FALSE || dform->changed.folder==FALSE) {
 		g_signal_handlers_block_by_func (GTK_EDITABLE (dform->folder_entry),
 				on_entry_changed, dform);
-		gtk_entry_set_text ((GtkEntry*) dform->folder_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->folder_entry),
 				(common && common->folder) ? common->folder : "");
 		g_signal_handlers_unblock_by_func (GTK_EDITABLE (dform->folder_entry),
 				on_entry_changed, dform);
 	}
 	if (keep_changed==FALSE || dform->changed.user==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->username_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->username_entry),
 				(common && common->user) ? common->user : "");
 	}
 	if (keep_changed==FALSE || dform->changed.password==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->password_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->password_entry),
 				(common && common->password) ? common->password : "");
 	}
 	if (keep_changed==FALSE || dform->changed.retry==FALSE) {
@@ -661,25 +659,25 @@ void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* node_info, gboole
 			common->max_connections);
 	}
 	if (keep_changed==FALSE || dform->changed.timestamp==FALSE)
-		gtk_toggle_button_set_active (dform->timestamp, common->timestamp);
+		gtk_check_button_set_active (GTK_CHECK_BUTTON (dform->timestamp), common->timestamp);
 
 	// ------------------------------------------
 	// UgetHttp
 	// set data
 	if (keep_changed==FALSE || dform->changed.referrer==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->referrer_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->referrer_entry),
 				(http && http->referrer) ? http->referrer : "");
 	}
 	if (keep_changed==FALSE || dform->changed.cookie==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->cookie_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->cookie_entry),
 				(http && http->cookie_file) ? http->cookie_file : "");
 	}
 	if (keep_changed==FALSE || dform->changed.post==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->post_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->post_entry),
 				(http && http->post_file) ? http->post_file : "");
 	}
 	if (keep_changed==FALSE || dform->changed.agent==FALSE) {
-		gtk_entry_set_text ((GtkEntry*) dform->agent_entry,
+		gtk_editable_set_text (GTK_EDITABLE (dform->agent_entry),
 				(http && http->user_agent) ? http->user_agent : "");
 	}
 	// set changed flags
@@ -695,9 +693,9 @@ void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* node_info, gboole
 	if (gtk_widget_get_sensitive (dform->radio_pause)) {
 		relation = ug_info_realloc(node_info, UgetRelationInfo);
 		if (relation->group & UGET_GROUP_PAUSED)
-			gtk_toggle_button_set_active ((GtkToggleButton*) dform->radio_pause, TRUE);
+			gtk_check_button_set_active (GTK_CHECK_BUTTON (dform->radio_pause), TRUE);
 		else
-			gtk_toggle_button_set_active ((GtkToggleButton*) dform->radio_runnable, TRUE);
+			gtk_check_button_set_active (GTK_CHECK_BUTTON (dform->radio_runnable), TRUE);
 	}
 
 	// enable changed flags
@@ -711,20 +709,20 @@ void  ugtk_download_form_set_multiple (UgtkDownloadForm* dform, gboolean multipl
 //	dform->multiple = multiple_mode;
 
 	if (multiple_mode) {
-		gtk_widget_hide (dform->uri_label);
-		gtk_widget_hide (dform->uri_entry);
-		gtk_widget_hide (dform->mirrors_label);
-		gtk_widget_hide (dform->mirrors_entry);
-		gtk_widget_hide (dform->file_label);
-		gtk_widget_hide (dform->file_entry);
+		gtk_widget_set_visible(dform->uri_label, FALSE);
+		gtk_widget_set_visible(dform->uri_entry, FALSE);
+		gtk_widget_set_visible(dform->mirrors_label, FALSE);
+		gtk_widget_set_visible(dform->mirrors_entry, FALSE);
+		gtk_widget_set_visible(dform->file_label, FALSE);
+		gtk_widget_set_visible(dform->file_entry, FALSE);
 	}
 	else {
-		gtk_widget_show (dform->uri_label);
-		gtk_widget_show (dform->uri_entry);
-		gtk_widget_show (dform->mirrors_label);
-		gtk_widget_show (dform->mirrors_entry);
-		gtk_widget_show (dform->file_label);
-		gtk_widget_show (dform->file_entry);
+		gtk_widget_set_visible(dform->uri_label, TRUE);
+		gtk_widget_set_visible(dform->uri_entry, TRUE);
+		gtk_widget_set_visible(dform->mirrors_label, TRUE);
+		gtk_widget_set_visible(dform->mirrors_entry, TRUE);
+		gtk_widget_set_visible(dform->file_label, TRUE);
+		gtk_widget_set_visible(dform->file_entry, TRUE);
 	}
 
 	multiple_mode = !multiple_mode;
@@ -738,17 +736,15 @@ void  ugtk_download_form_set_multiple (UgtkDownloadForm* dform, gboolean multipl
 
 void  ugtk_download_form_set_folders (UgtkDownloadForm* dform, UgtkSetting* setting)
 {
-	GtkComboBoxText* combo;
 	UgLink*  link;
 
 	dform->changed.enable = FALSE;
 	g_signal_handlers_block_by_func (GTK_EDITABLE (dform->folder_entry),
 			on_entry_changed, dform);
-	combo = GTK_COMBO_BOX_TEXT (dform->folder_combo);
-	for (link = setting->folder_history.head;  link;  link = link->next)
-		gtk_combo_box_text_append_text (combo, link->data);
-	// set default folder
-	gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
+	// set default folder (first entry in history)
+	link = setting->folder_history.head;
+	if (link)
+		gtk_editable_set_text (GTK_EDITABLE (dform->folder_entry), link->data);
 	g_signal_handlers_unblock_by_func (GTK_EDITABLE (dform->folder_entry),
 			on_entry_changed, dform);
 	dform->changed.enable = TRUE;
@@ -758,7 +754,7 @@ void  ugtk_download_form_get_folders (UgtkDownloadForm* dform, UgtkSetting* sett
 {
 	const gchar* current;
 
-	current = gtk_entry_get_text ((GtkEntry*) dform->folder_entry);
+	current = gtk_editable_get_text (GTK_EDITABLE (dform->folder_entry));
 	ugtk_setting_add_folder (setting, current);
 }
 
@@ -770,17 +766,18 @@ void  ugtk_download_form_complete_entry (UgtkDownloadForm* dform)
 	gboolean  completed = FALSE;
 
 	// URL
-	text = gtk_entry_get_text ((GtkEntry*) dform->uri_entry);
+	// URL
+	text = gtk_editable_get_text (GTK_EDITABLE (dform->uri_entry));
 	ug_uri_init (&upart, text);
 	if (upart.host != -1) {
 		// disable changed flags
 		dform->changed.enable = FALSE;
 #if 0
 		// complete file entry
-		text = gtk_entry_get_text ((GtkEntry*) dform->file_entry);
+		text = gtk_editable_get_text (GTK_EDITABLE (dform->file_entry));
 		if (text[0] == 0 || dform->changed.file == FALSE) {
 			temp = ug_uri_get_file (&upart);
-			gtk_entry_set_text ((GtkEntry*) dform->file_entry,
+			gtk_editable_set_text (GTK_EDITABLE (dform->file_entry),
 					(temp) ? temp : "index.htm");
 			g_free (temp);
 		}
@@ -873,171 +870,126 @@ static void on_http_entry_changed (GtkEditable* editable, UgtkDownloadForm* dfor
 	}
 }
 
-static void on_select_folder_response (GtkDialog* chooser, gint response, UgtkDownloadForm* dform)
+static void on_select_folder_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	gchar*	file;
-	gchar*	path;
+	UgtkDownloadForm* dform = (UgtkDownloadForm*) user_data;
+	GFile* gfile = gtk_file_dialog_select_folder_finish (GTK_FILE_DIALOG (source), result, NULL);
 
-	if (response == GTK_RESPONSE_OK ) {
-		file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-		path = g_filename_to_utf8 (file, -1, NULL, NULL, NULL);
-		gtk_entry_set_text (GTK_ENTRY (dform->folder_entry), path);
+	if (gfile) {
+		gchar* path = g_file_get_path (gfile);
+		gtk_editable_set_text (GTK_EDITABLE (dform->folder_entry), path);
 		g_free (path);
-		g_free (file);
+		g_object_unref (gfile);
 	}
-	gtk_widget_destroy (GTK_WIDGET (chooser));
-
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, TRUE);
 }
 
 static void on_select_folder (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform)
 {
-	GtkWidget*	chooser;
-	gchar*		path;
-	gchar*		title;
+	GtkFileDialog*  dialog;
+	const gchar*    path;
+	gchar*          title;
 
-	// disable sensitive of parent window
-	// enable sensitive in function on_file_chooser_response()
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, FALSE);
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Select Folder"), NULL);
-	chooser = gtk_file_chooser_dialog_new (title, dform->parent,
-			GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
-			NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	gtk_window_set_transient_for ((GtkWindow*) chooser, dform->parent);
-	gtk_window_set_destroy_with_parent ((GtkWindow*) chooser, TRUE);
 
-	path = (gchar*) gtk_entry_get_text ((GtkEntry*) dform->folder_entry);
-	if (*path) {
-		path = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-		gtk_file_chooser_select_filename (GTK_FILE_CHOOSER (chooser), path);
-		g_free (path);
+	path = gtk_editable_get_text (GTK_EDITABLE (dform->folder_entry));
+	if (path && *path) {
+		GFile *gfile = g_file_new_for_path (path);
+		gtk_file_dialog_set_initial_folder (dialog, gfile);
+		g_object_unref (gfile);
 	}
-	g_signal_connect (chooser, "response",
-			G_CALLBACK (on_select_folder_response), dform);
 
-	if (gtk_window_get_modal (dform->parent))
-		gtk_dialog_run ((GtkDialog*) chooser);
-	else {
-		gtk_window_set_modal ((GtkWindow*) chooser, FALSE);
-		gtk_widget_show (chooser);
-	}
+	gtk_file_dialog_select_folder (dialog, dform->parent, NULL,
+			on_select_folder_done, dform);
+	g_object_unref (dialog);
 }
 
-static void on_select_cookie_response (GtkDialog* chooser, gint response, UgtkDownloadForm* dform)
+static void on_select_cookie_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	gchar*	file;
-	gchar*	path;
+	UgtkDownloadForm* dform = (UgtkDownloadForm*) user_data;
+	GFile* gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
 
-	if (response == GTK_RESPONSE_OK ) {
-		file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-		path = g_filename_to_utf8 (file, -1, NULL, NULL, NULL);
-		gtk_entry_set_text (GTK_ENTRY (dform->cookie_entry), path);
+	if (gfile) {
+		gchar* path = g_file_get_path (gfile);
+		gtk_editable_set_text (GTK_EDITABLE (dform->cookie_entry), path);
 		g_free (path);
-		g_free (file);
+		g_object_unref (gfile);
 	}
-	gtk_widget_destroy (GTK_WIDGET (chooser));
-
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, TRUE);
 }
 
 static void on_select_cookie (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform)
 {
-	GtkWidget*	chooser;
-	gchar*		path;
-	gchar*		title;
+	GtkFileDialog*  dialog;
+	const gchar*    path;
+	gchar*          title;
 
-	// disable sensitive of parent window
-	// enable sensitive in function on_file_chooser_response()
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, FALSE);
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Select Cookie File"), NULL);
-	chooser = gtk_file_chooser_dialog_new (title, dform->parent,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
-			NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	gtk_window_set_transient_for ((GtkWindow*) chooser, dform->parent);
-	gtk_window_set_destroy_with_parent ((GtkWindow*) chooser, TRUE);
 
-	path = (gchar*) gtk_entry_get_text ((GtkEntry*) dform->cookie_entry);
-	if (*path) {
-		path = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-		gtk_file_chooser_select_filename (GTK_FILE_CHOOSER (chooser), path);
-		g_free (path);
+	path = gtk_editable_get_text (GTK_EDITABLE (dform->cookie_entry));
+	if (path && *path) {
+		GFile *gfile = g_file_new_for_path (path);
+		gtk_file_dialog_set_initial_file (dialog, gfile);
+		g_object_unref (gfile);
 	}
-	g_signal_connect (chooser, "response",
-			G_CALLBACK (on_select_cookie_response), dform);
 
-	if (gtk_window_get_modal (dform->parent))
-		gtk_dialog_run ((GtkDialog*) chooser);
-	else {
-		gtk_window_set_modal ((GtkWindow*) chooser, FALSE);
-		gtk_widget_show (chooser);
-	}
+	gtk_file_dialog_open (dialog, dform->parent, NULL,
+			on_select_cookie_done, dform);
+	g_object_unref (dialog);
 }
 
-static void on_select_post_response (GtkDialog* chooser, gint response, UgtkDownloadForm* dform)
+static void on_select_post_done (GObject* source, GAsyncResult* result, gpointer user_data)
 {
-	gchar*	file;
-	gchar*	path;
+	UgtkDownloadForm* dform = (UgtkDownloadForm*) user_data;
+	GFile* gfile = gtk_file_dialog_open_finish (GTK_FILE_DIALOG (source), result, NULL);
 
-	if (response == GTK_RESPONSE_OK ) {
-		file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
-		path = g_filename_to_utf8 (file, -1, NULL, NULL, NULL);
-		gtk_entry_set_text (GTK_ENTRY (dform->post_entry), path);
+	if (gfile) {
+		gchar* path = g_file_get_path (gfile);
+		gtk_editable_set_text (GTK_EDITABLE (dform->post_entry), path);
 		g_free (path);
-		g_free (file);
+		g_object_unref (gfile);
 	}
-	gtk_widget_destroy (GTK_WIDGET (chooser));
-
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, TRUE);
 }
 
 static void on_select_post (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform)
 {
-	GtkWidget*	chooser;
-	gchar*		path;
-	gchar*		title;
+	GtkFileDialog*  dialog;
+	const gchar*    path;
+	gchar*          title;
 
-	// disable sensitive of parent window
-	// enable sensitive in function on_file_chooser_response()
 	if (dform->parent)
 		gtk_widget_set_sensitive ((GtkWidget*) dform->parent, FALSE);
 
 	title = g_strconcat (UGTK_APP_NAME " - ", _("Select Post File"), NULL);
-	chooser = gtk_file_chooser_dialog_new (title, dform->parent,
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
-			NULL);
+	dialog = gtk_file_dialog_new ();
+	gtk_file_dialog_set_title (dialog, title);
 	g_free (title);
-	gtk_window_set_transient_for ((GtkWindow*) chooser, dform->parent);
-	gtk_window_set_destroy_with_parent ((GtkWindow*) chooser, TRUE);
 
-	path = (gchar*) gtk_entry_get_text ((GtkEntry*) dform->post_entry);
-	if (*path) {
-		path = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-		gtk_file_chooser_select_filename (GTK_FILE_CHOOSER (chooser), path);
-		g_free (path);
+	path = gtk_editable_get_text (GTK_EDITABLE (dform->post_entry));
+	if (path && *path) {
+		GFile *gfile = g_file_new_for_path (path);
+		gtk_file_dialog_set_initial_file (dialog, gfile);
+		g_object_unref (gfile);
 	}
-	g_signal_connect (chooser, "response",
-			G_CALLBACK (on_select_post_response), dform);
 
-	if (gtk_window_get_modal (dform->parent))
-		gtk_dialog_run ((GtkDialog*) chooser);
-	else {
-		gtk_window_set_modal ((GtkWindow*) chooser, FALSE);
-		gtk_widget_show (chooser);
-	}
+	gtk_file_dialog_open (dialog, dform->parent, NULL,
+			on_select_post_done, dform);
+	g_object_unref (dialog);
 }
 

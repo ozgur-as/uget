@@ -554,74 +554,79 @@ void  ug_hibernate (void)
 
 #else
 
+// Wrapper to suppress warn_unused_result for fire-and-forget commands
+static inline void run_cmd (const char* cmd)
+{
+	int ret = system (cmd);
+	(void) ret;
+}
+
 void  ug_reboot (void)
 {
-	system ("reboot");
-//	system ("shutdown -r now");
+	run_cmd ("reboot");
 
 	// old system
-	system ("dbus-send --system --print-reply "
-	        "--dest=\"org.freedesktop.ConsoleKit\" "
-	        "/org/freedesktop/ConsoleKit/Manager "
-	        "org.freedesktop.ConsoleKit.Manager.Restart");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=\"org.freedesktop.ConsoleKit\" "
+	               "/org/freedesktop/ConsoleKit/Manager "
+	               "org.freedesktop.ConsoleKit.Manager.Restart");
 
-	system ("dbus-send --system --print-reply "
-	        "--dest=org.freedesktop.login1 "
-	        "/org/freedesktop/login1 "
-	        "org.freedesktop.login1.Manager.Reboot "
-	        "boolean:true");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=org.freedesktop.login1 "
+	               "/org/freedesktop/login1 "
+	               "org.freedesktop.login1.Manager.Reboot "
+	               "boolean:true");
 }
 
 void  ug_shutdown (void)
 {
-	system ("poweroff");
-//	system ("shutdown -h -P now");
+	run_cmd ("poweroff");
 
 	// old system
-	system ("dbus-send --system --print-reply "
-	        "--dest=\"org.freedesktop.ConsoleKit\" "
-	        "/org/freedesktop/ConsoleKit/Manager "
-	        "org.freedesktop.ConsoleKit.Manager.Stop");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=\"org.freedesktop.ConsoleKit\" "
+	               "/org/freedesktop/ConsoleKit/Manager "
+	               "org.freedesktop.ConsoleKit.Manager.Stop");
 
-	system ("dbus-send --system --print-reply "
-	        "--dest=org.freedesktop.login1 "
-	        "/org/freedesktop/login1 "
-	        "org.freedesktop.login1.Manager.PowerOff "
-	        "boolean:true");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=org.freedesktop.login1 "
+	               "/org/freedesktop/login1 "
+	               "org.freedesktop.login1.Manager.PowerOff "
+	               "boolean:true");
 }
 
 void  ug_suspend (void)
 {
-	system ("pm-suspend");
+	run_cmd ("pm-suspend");
 
 	// old system
-	system ("dbus-send --system --print-reply "
-	        "--dest=\"org.freedesktop.UPower\" "
-	        "/org/freedesktop/UPower "
-	        "org.freedesktop.UPower.Suspend");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=\"org.freedesktop.UPower\" "
+	               "/org/freedesktop/UPower "
+	               "org.freedesktop.UPower.Suspend");
 
-	system ("dbus-send --system --print-reply "
-	        "--dest=org.freedesktop.login1 "
-	        "/org/freedesktop/login1 "
-	        "org.freedesktop.login1.Manager.Suspend "
-	        "boolean:true");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=org.freedesktop.login1 "
+	               "/org/freedesktop/login1 "
+	               "org.freedesktop.login1.Manager.Suspend "
+	               "boolean:true");
 }
 
 void  ug_hibernate (void)
 {
-	system ("pm-hibernate");
+	run_cmd ("pm-hibernate");
 
 	// old system
-	system ("dbus-send --system --print-reply "
-	        "--dest=\"org.freedesktop.UPower\" "
-	        "/org/freedesktop/UPower "
-	        "org.freedesktop.UPower.Hibernate");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=\"org.freedesktop.UPower\" "
+	               "/org/freedesktop/UPower "
+	               "org.freedesktop.UPower.Hibernate");
 
-	system ("dbus-send --system --print-reply "
-	        "--dest=org.freedesktop.login1 "
-	        "/org/freedesktop/login1 "
-	        "org.freedesktop.login1.Manager.Hibernate "
-	        "boolean:true");
+	run_cmd ("dbus-send --system --print-reply "
+	               "--dest=org.freedesktop.login1 "
+	               "/org/freedesktop/login1 "
+	               "org.freedesktop.login1.Manager.Hibernate "
+	               "boolean:true");
 
 	// if system can't hibernate, try to suspend
 	ug_suspend ();

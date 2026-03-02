@@ -55,13 +55,12 @@ struct UgtkTraveler
 	UgtkApp*  app;
 
 	struct {
-		GtkWidget*    self;
-		GtkTreeView*  view;
-		UgtkNodeList* model;
+		GtkWidget*          self;       // GtkListView
+		GtkListView*        view;
+		UgtkNodeList*       model;
+		GtkSingleSelection* selection;
 
 		struct {
-			// pos_last used by "cursor-changed" signal handler
-			// if selection changed by user, pos != pos_last.
 			int       pos;
 			int       pos_last;
 			UgetNode* node;
@@ -69,13 +68,12 @@ struct UgtkTraveler
 	} state;
 
 	struct {
-		GtkWidget*    self;
-		GtkTreeView*  view;
-		UgtkNodeTree* model;
+		GtkWidget*          self;       // GtkScrolledWindow
+		GtkListView*        view;
+		UgtkNodeTree*       model;
+		GtkSingleSelection* selection;
 
 		struct {
-			// pos_last used by "cursor-changed" signal handler
-			// if selection changed by user, pos != pos_last.
 			int       pos;
 			int       pos_last;
 			UgetNode* node;
@@ -83,13 +81,12 @@ struct UgtkTraveler
 	} category;
 
 	struct {
-		GtkWidget*    self;
-		GtkTreeView*  view;
-		UgtkNodeTree* model;
+		GtkWidget*          self;       // GtkScrolledWindow
+		GtkColumnView*      view;
+		UgtkNodeTree*       model;
+		GtkMultiSelection*  selection;
 
 		struct {
-			// pos_last used by "cursor-changed" signal handler
-			// if selection changed by user, pos != pos_last.
 			int       pos;
 			int       pos_last;
 			UgetNode* node;
@@ -110,13 +107,11 @@ void  ugtk_traveler_init (UgtkTraveler* traveler, UgtkApp* app);
 void  ugtk_traveler_select_category (UgtkTraveler* traveler,
                                      int nth_category, int nth_state);
 
-// get download iter
+// get download cursor
 void      ugtk_traveler_set_cursor (UgtkTraveler* traveler, UgetNode* dnode);
 UgetNode* ugtk_traveler_get_cursor (UgtkTraveler* traveler);
-gboolean  ugtk_traveler_get_iter (UgtkTraveler* traveler,
-                                  GtkTreeIter* iter, UgetNode* dnode);
 
-// return all selected download node (reverse order)
+// return all selected download nodes (reverse order)
 GList* ugtk_traveler_get_selected (UgtkTraveler* traveler);
 void   ugtk_traveler_set_selected (UgtkTraveler* traveler,
                                    GList*        nodes);

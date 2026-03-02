@@ -2,7 +2,7 @@
 # Migrated from Autotools (configure.ac)
 
 project('uget', 'c',
-  version: '2.2.3',
+  version: '2.3.0',
   license: 'LGPL-2.1-or-later',
   meson_version: '>= 1.1.0',
   default_options: [
@@ -19,9 +19,9 @@ host_system = host_machine.system()
 # Required Dependencies
 # ============================================================================
 
-glib_dep = dependency('glib-2.0', required: true)
-gtk_dep = dependency('gtk+-3.0', version: '>= 3.4', required: true)
-curl_dep = dependency('libcurl', version: '>= 7.19.1', required: true)
+glib_dep = dependency('glib-2.0', version: '>= 2.86.0', required: true)
+gtk_dep = dependency('gtk4', version: '>= 4.20.0', required: true)
+curl_dep = dependency('libcurl', version: '>= 8.11.0', required: true)
 threads_dep = dependency('threads', required: true)
 
 # ============================================================================
@@ -38,19 +38,14 @@ gstreamer_opt = get_option('gstreamer')
 gstreamer_dep = dependency('gstreamer-1.0', required: gstreamer_opt)
 have_gstreamer = gstreamer_dep.found()
 
-# AppIndicator - System tray (auto on Unix, disabled on Windows)
+# StatusNotifierItem tray icon via libdbusmenu-glib (auto on Unix, disabled on Windows)
+# Pure GLib, no GTK3 dependency - fully GTK4-compatible
 appindicator_opt = get_option('appindicator')
 if host_system == 'windows'
-  # Disabled on Windows by default
-  if appindicator_opt.enabled()
-    appindicator_dep = dependency('appindicator3-0.1', required: true)
-    have_appindicator = true
-  else
-    appindicator_dep = dependency('', required: false)
-    have_appindicator = false
-  endif
+  appindicator_dep = dependency('', required: false)
+  have_appindicator = false
 else
-  appindicator_dep = dependency('appindicator3-0.1', required: appindicator_opt)
+  appindicator_dep = dependency('dbusmenu-glib-0.4', required: appindicator_opt)
   have_appindicator = appindicator_dep.found()
 endif
 
@@ -132,6 +127,8 @@ conf_data.set10('HAVE_FTRUNCATE', have_ftruncate)
 
 # Data directory for resources
 conf_data.set_quoted('UG_DATADIR', get_option('prefix') / get_option('datadir'))
+# Source directory (fallback for uninstalled/dev builds)
+conf_data.set_quoted('UG_SOURCE_DIR', meson.project_source_root())
 
 # Locale directory
 conf_data.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
@@ -147,6 +144,11 @@ config_inc = include_directories('.')
 # Add HAVE_CONFIG_H so source files include config.h
 add_project_arguments('-DHAVE_CONFIG_H', language: 'c')
 
+# Enable POSIX extensions (usleep, strncasecmp, etc.) under strict C11
+if host_system != 'windows'
+  add_project_arguments('-D_DEFAULT_SOURCE', language: 'c')
+endif
+
 # ============================================================================
 # Subdirectories
 # ============================================================================
@@ -155,6 +157,11 @@ subdir('uglib')
 subdir('uget')
 subdir('ui-gtk')
 subdir('tests')
+
+# Install pixmaps
+install_data('pixmaps/logo.png',
+  install_dir: get_option('datadir') / 'pixmaps' / 'uget'
+)
 
 # ============================================================================
 # Summary

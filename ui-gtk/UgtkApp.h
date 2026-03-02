@@ -92,6 +92,7 @@ struct UgtkApp
  */
 
 	UgetRpc*          rpc;
+	GSimpleActionGroup*  action_group;  // Menu action group for GAction state updates
 	UgtkSetting       setting;
 	UgtkScheduleState schedule_state;
 
@@ -110,7 +111,7 @@ struct UgtkApp
 	// Clipboard
 	struct UgtkClipboard
 	{
-		GtkClipboard*  self;
+		GdkClipboard*  self;
 		gchar*         text;
 		GRegex*        regex;
 		gboolean       processing;
@@ -121,8 +122,6 @@ struct UgtkApp
 	// dialogs
 	struct UgtkDialogs
 	{
-		GtkWidget*     error;
-		GtkWidget*     message;
 		GtkWidget*     exit_confirmation;
 		GtkWidget*     delete_confirmation;
 		GtkWidget*     delete_category_confirmation;
@@ -131,12 +130,18 @@ struct UgtkApp
 
 	// -------------------------------------------------------
 	// GUI: Main Window and Tray Icon
-	GtkAccelGroup*   accel_group;
+	gpointer         accel_group;
 	UgtkTrayIcon     trayicon;
 	UgtkBanner       banner;
 	UgtkMenubar      menubar;
 	UgtkSummary      summary;
 	UgtkTraveler     traveler;   // (UgetNode) node traveler
+
+	// Context menus (GtkPopoverMenu for GTK4)
+	GtkWidget*       category_context_menu;
+	GtkWidget*       download_context_menu;
+	GtkWidget*       summary_context_menu;
+	GMenu*           menubar_move_to_menu;  // Move To submenu in menubar for dynamic population
 
 	// --------------------------------
 	// Main Window (initialize in UgtkApp-ui.c)
@@ -151,9 +156,10 @@ struct UgtkApp
 	// status bar (initialize in UgtkApp-ui.c)
 	struct UgtkStatusbar
 	{
-		GtkStatusbar*  self;
-		GtkLabel*      down_speed;
-		GtkLabel*      up_speed;
+		GtkBox*    self;
+		GtkLabel*  info;
+		GtkLabel*  down_speed;
+		GtkLabel*  up_speed;
 	} statusbar;
 
 	// --------------------------------
@@ -254,8 +260,10 @@ void  ugtk_app_category_changed  (UgtkApp* app, UgetNode* cnode);
 
 void  ugtk_app_add_default_category (UgtkApp* app);
 
-void  ugtk_app_show_message (UgtkApp* app, GtkMessageType type,
+void  ugtk_app_show_message (UgtkApp* app, gboolean is_error,
                              const gchar* message);
+
+void  ugtk_app_open_settings (UgtkApp* app);
 
 // --------------------------------------------------------
 // UgClipboard

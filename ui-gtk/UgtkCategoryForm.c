@@ -44,6 +44,13 @@
 
 #include <glib/gi18n.h>
 
+static inline void set_margin_all(GtkWidget* w, int m) {
+	gtk_widget_set_margin_start(w, m);
+	gtk_widget_set_margin_end(w, m);
+	gtk_widget_set_margin_top(w, m);
+	gtk_widget_set_margin_bottom(w, m);
+}
+
 static gchar* string_from_ug_array (UgArrayStr* uarray);
 static void   string_to_ug_array (const gchar* string, UgArrayStr* uarray);
 
@@ -57,14 +64,17 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 
 	cform->self = gtk_grid_new ();
 	top_grid  = (GtkGrid*) cform->self;
-	gtk_container_set_border_width (GTK_CONTAINER (top_grid), 2);
+	gtk_grid_set_row_spacing (top_grid, 2);
+	gtk_grid_set_column_spacing (top_grid, 2);
+	g_object_set (top_grid, "margin-start", 2, "margin-end", 2, "margin-top", 2, "margin-bottom", 2, NULL);
 
 	label = gtk_label_new_with_mnemonic (_("Category _name:"));
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
-	g_object_set (label, "margin", 2, NULL);
-	g_object_set (entry, "margin", 2, "hexpand", TRUE, NULL);
+	set_margin_all (label, 2);
+	set_margin_all (entry, 2);
+	g_object_set (entry, "hexpand", TRUE, NULL);
 	gtk_grid_attach (top_grid, label, 0, 0, 1, 1);
 	gtk_grid_attach (top_grid, entry, 1, 0, 1, 1);
 	cform->name_entry = entry;
@@ -77,31 +87,28 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	gtk_grid_attach (top_grid, GTK_WIDGET (grid), 0, 1, 2, 1);
 
 	cform->spin_active = gtk_spin_button_new_with_range (1.0, 20.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (cform->spin_active), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_active), 5);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (cform->spin_active), TRUE);
 	label = gtk_label_new_with_mnemonic (_("Active _downloads:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL(label), cform->spin_active);
-	g_object_set (label, "margin", 2, NULL);
+	set_margin_all (label, 2);
 	g_object_set (cform->spin_active, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, label, 0, 0, 1, 1);
 	gtk_grid_attach (grid, cform->spin_active, 1, 0, 1, 1);
 
 	cform->spin_finished = gtk_spin_button_new_with_range (0.0, 99999.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (cform->spin_finished), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_finished), 5);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (cform->spin_finished), TRUE);
 	label = gtk_label_new_with_mnemonic (_("Capacity of Finished:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL(label), cform->spin_finished);
-	g_object_set (label, "margin", 2, NULL);
+	set_margin_all (label, 2);
 	g_object_set (cform->spin_finished, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, label, 0, 1, 1, 1);
 	gtk_grid_attach (grid, cform->spin_finished, 1, 1, 1, 1);
 
 	cform->spin_recycled = gtk_spin_button_new_with_range (0.0, 99999.0, 1.0);
-	gtk_entry_set_activates_default (GTK_ENTRY (cform->spin_recycled), TRUE);
-//	gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_recycled), 5);
+	gtk_spin_button_set_activates_default (GTK_SPIN_BUTTON (cform->spin_recycled), TRUE);
 	label = gtk_label_new_with_mnemonic (_("Capacity of Recycled:"));
 	gtk_label_set_mnemonic_widget (GTK_LABEL(label), cform->spin_recycled);
-	g_object_set (label, "margin", 2, NULL);
+	set_margin_all (label, 2);
 	g_object_set (cform->spin_recycled, "margin-top", 2, "margin-bottom", 2, NULL);
 	gtk_grid_attach (grid, label, 0, 2, 1, 1);
 	gtk_grid_attach (grid, cform->spin_recycled, 1, 2, 1, 1);
@@ -113,14 +120,15 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	gtk_grid_attach (top_grid, widget, 0, 2, 2, 1);
 	grid = (GtkGrid*) gtk_grid_new ();
 	g_object_set (grid, "margin-top", 2, "margin-bottom", 2, NULL);
-	gtk_container_add (GTK_CONTAINER (widget), (GtkWidget*) grid);
+	gtk_frame_set_child (GTK_FRAME (widget), (GtkWidget*) grid);
 
 	label = gtk_label_new_with_mnemonic (_("Matched _Hosts:"));
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
-	g_object_set (label, "margin", 2, NULL);
-	g_object_set (entry, "margin", 2, "hexpand", TRUE, NULL);
+	set_margin_all (label, 2);
+	set_margin_all (entry, 2);
+	g_object_set (entry, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, label, 0, 0, 1, 1);
 	gtk_grid_attach (grid, entry, 1, 0, 1, 1);
 	cform->hosts_entry = entry;
@@ -130,8 +138,9 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
-	g_object_set (label, "margin", 2, NULL);
-	g_object_set (entry, "margin", 2, "hexpand", TRUE, NULL);
+	set_margin_all (label, 2);
+	set_margin_all (entry, 2);
+	g_object_set (entry, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, label, 0, 1, 1, 1);
 	gtk_grid_attach (grid, entry, 1, 1, 1, 1);
 	cform->schemes_entry = entry;
@@ -141,14 +150,15 @@ void  ugtk_category_form_init (UgtkCategoryForm* cform)
 	entry = gtk_entry_new ();
 	gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
-	g_object_set (label, "margin", 2, NULL);
-	g_object_set (entry, "margin", 2, "hexpand", TRUE, NULL);
+	set_margin_all (label, 2);
+	set_margin_all (entry, 2);
+	g_object_set (entry, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, label, 0, 2, 1, 1);
 	gtk_grid_attach (grid, entry, 1, 2, 1, 1);
 	cform->types_entry = entry;
 	cform->types_label = label;
 
-	gtk_widget_show_all (GTK_WIDGET (top_grid));
+	gtk_widget_set_visible(GTK_WIDGET (top_grid), TRUE);
 }
 
 void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
@@ -160,7 +170,7 @@ void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category = ug_info_realloc(cnode_info, UgetCategoryInfo);
 	common   = ug_info_realloc(cnode_info, UgetCommonInfo);
 	if (gtk_widget_is_sensitive (cform->name_entry) == TRUE) {
-		text = gtk_entry_get_text ((GtkEntry*) cform->name_entry);
+		text = gtk_editable_get_text ((GtkEditable*) cform->name_entry);
 		ug_free(common->name);
 		common->name = (*text) ? ug_strdup(text) : NULL;
 	}
@@ -181,11 +191,11 @@ void  ugtk_category_form_get (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category->schemes.length = 0;
 	category->file_exts.length = 0;
 	// matching - set
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->hosts_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->hosts_entry),
 			&category->hosts);
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->schemes_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->schemes_entry),
 			&category->schemes);
-	string_to_ug_array (gtk_entry_get_text ((GtkEntry*) cform->types_entry),
+	string_to_ug_array (gtk_editable_get_text ((GtkEditable*) cform->types_entry),
 			&category->file_exts);
 }
 
@@ -198,7 +208,7 @@ void  ugtk_category_form_set (UgtkCategoryForm* cform, UgInfo* cnode_info)
 	category = ug_info_realloc(cnode_info, UgetCategoryInfo);
 	common   = ug_info_get(cnode_info, UgetCommonInfo);
 	if (gtk_widget_is_sensitive (cform->name_entry) == TRUE) {
-		gtk_entry_set_text ((GtkEntry*) cform->name_entry,
+		gtk_editable_set_text ((GtkEditable*) cform->name_entry,
 				(common->name) ? common->name : "");
 	}
 	gtk_spin_button_set_value ((GtkSpinButton*) cform->spin_active,
@@ -212,27 +222,27 @@ void  ugtk_category_form_set (UgtkCategoryForm* cform, UgInfo* cnode_info)
 
 	// matching
 	str = string_from_ug_array (&category->hosts);
-	gtk_entry_set_text ((GtkEntry*) cform->hosts_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->hosts_entry, str);
 	g_free (str);
 	str = string_from_ug_array (&category->schemes);
-	gtk_entry_set_text ((GtkEntry*) cform->schemes_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->schemes_entry, str);
 	g_free (str);
 	str = string_from_ug_array (&category->file_exts);
-	gtk_entry_set_text ((GtkEntry*) cform->types_entry, str);
+	gtk_editable_set_text ((GtkEditable*) cform->types_entry, str);
 	g_free (str);
 }
 
 void  ugtk_category_form_set_multiple (UgtkCategoryForm*  cform, gboolean multiple_mode)
 {
 	if (multiple_mode) {
-		gtk_widget_hide (cform->name_entry);
-		gtk_widget_hide (cform->name_label);
+		gtk_widget_set_visible (cform->name_entry, FALSE);
+		gtk_widget_set_visible (cform->name_label, FALSE);
 		gtk_widget_set_sensitive (cform->name_entry, FALSE);
 		gtk_widget_set_sensitive (cform->name_label, FALSE);
 	}
 	else {
-		gtk_widget_show (cform->name_entry);
-		gtk_widget_show (cform->name_label);
+		gtk_widget_set_visible (cform->name_entry, TRUE);
+		gtk_widget_set_visible (cform->name_label, TRUE);
 		gtk_widget_set_sensitive (cform->name_entry, TRUE);
 		gtk_widget_set_sensitive (cform->name_label, TRUE);
 	}

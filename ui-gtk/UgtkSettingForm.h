@@ -54,14 +54,14 @@ struct UgtkClipboardForm
 
 	GtkWidget*          pattern;    // GtkTextView
 	GtkTextBuffer*      buffer;
-	GtkToggleButton*    monitor;
-	GtkToggleButton*    quiet;
+	GtkCheckButton*     monitor;
+	GtkCheckButton*     quiet;
 	// add download to Nth category
 	GtkWidget*			nth_label;
 	GtkSpinButton*		nth_spin;
 
 	// Monitor media website address
-	GtkToggleButton*    website;
+	GtkCheckButton*     website;
 };
 
 void  ugtk_clipboard_form_init (struct UgtkClipboardForm* cbform);
@@ -74,20 +74,17 @@ struct UgtkUserInterfaceForm
 {
 	GtkWidget*    self;
 
-	GtkToggleButton*    confirm_exit;
-	GtkToggleButton*    confirm_delete;
-	GtkToggleButton*    show_trayicon;
-	GtkToggleButton*    start_in_tray;
-	GtkToggleButton*    close_to_tray;
-	GtkToggleButton*    start_in_offline_mode;
-	GtkToggleButton*    start_notification;
-	GtkToggleButton*    sound_notification;
-	GtkToggleButton*    apply_recent;
-	GtkToggleButton*    skip_existing;
-	GtkToggleButton*    large_icon;
-#ifdef HAVE_APP_INDICATOR
-	GtkToggleButton*    app_indicator;
-#endif
+	GtkCheckButton*     confirm_exit;
+	GtkCheckButton*     confirm_delete;
+	GtkCheckButton*     show_trayicon;
+	GtkCheckButton*     start_in_tray;
+	GtkCheckButton*     close_to_tray;
+	GtkCheckButton*     start_in_offline_mode;
+	GtkCheckButton*     start_notification;
+	GtkCheckButton*     sound_notification;
+	GtkCheckButton*     apply_recent;
+	GtkCheckButton*     skip_existing;
+	GtkCheckButton*     large_icon;
 };
 
 void  ugtk_user_interface_form_init (struct UgtkUserInterfaceForm* uiform);
@@ -130,7 +127,7 @@ struct UgtkAutoSaveForm
 	GtkWidget*  self;
 
 	// auto save and interval
-	GtkToggleButton*  enable;
+	GtkCheckButton*   enable;
 	GtkWidget*        interval_label;
 	GtkSpinButton*    interval_spin;
 	GtkWidget*        minutes_label;  // minutes
@@ -147,7 +144,7 @@ struct UgtkCommandlineForm
 	GtkWidget*  self;
 
 	// --quiet
-	GtkToggleButton*    quiet;
+	GtkCheckButton*     quiet;
 	// --category-index
 	GtkWidget*          index_label;
 	GtkSpinButton*      index_spin;
@@ -163,12 +160,12 @@ struct UgtkPluginForm
 {
 	GtkWidget*  self;
 
-	GtkComboBoxText*    order;
+	GtkDropDown*        order;
 
 	// Aria2 options
 	GtkWidget*          aria2_opts;
-	GtkToggleButton*    launch;
-	GtkToggleButton*    shutdown;
+	GtkCheckButton*     launch;
+	GtkCheckButton*     shutdown;
 	GtkEntry*           uri;
 	GtkEntry*           token;
 	GtkWidget*          local;  // GtkFrame
@@ -190,9 +187,9 @@ struct UgtkMediaWebsiteForm
 {
 	GtkWidget*  self;
 
-	GtkComboBoxText*    match_mode;
-	GtkComboBoxText*    quality;
-	GtkComboBoxText*    type;
+	GtkDropDown*        match_mode;
+	GtkDropDown*        quality;
+	GtkDropDown*        type;
 };
 
 void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform);

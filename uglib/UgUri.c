@@ -35,6 +35,7 @@
  */
 
 #include <stdlib.h>
+#include <strings.h>
 #include <UgString.h>
 #include <UgUri.h>
 #include <UgUtil.h>

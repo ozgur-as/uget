@@ -40,31 +40,26 @@
 
 #include <glib/gi18n.h>
 
-// static functions
-static GtkTreeView* ugtk_summary_view_new ();
-static void         ugtk_summary_store_realloc_next (GtkListStore* store, GtkTreeIter* iter);
-static void         ugtk_summary_menu_init (UgtkSummary* summary, GtkAccelGroup* accel_group);
+static void ugtk_summary_add_row (UgtkSummary* summary,
+                                   const gchar* icon_name,
+                                   const gchar* name,
+                                   const gchar* value);
+static void ugtk_summary_clear (UgtkSummary* summary);
 
-void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
+void  ugtk_summary_init (UgtkSummary* summary, gpointer accel_group)
 {
 	GtkScrolledWindow*	scroll;
 
-	summary->store = gtk_list_store_new (UGTK_SUMMARY_N_COLUMN,
-			G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-	summary->view = ugtk_summary_view_new ();
-	gtk_tree_view_set_model (summary->view, GTK_TREE_MODEL (summary->store));
+	summary->list_box = GTK_LIST_BOX (gtk_list_box_new ());
+	gtk_list_box_set_selection_mode (summary->list_box, GTK_SELECTION_SINGLE);
 
-	summary->self = gtk_scrolled_window_new (NULL, NULL);
+	summary->self = gtk_scrolled_window_new ();
 	scroll = GTK_SCROLLED_WINDOW (summary->self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll), GTK_WIDGET (summary->view));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (summary->list_box));
 	gtk_widget_set_size_request (summary->self, 200, 90);
-	gtk_widget_show_all (summary->self);
 
-	// menu
-	ugtk_summary_menu_init (summary, accel_group);
 	// visible
 	summary->visible.name = 1;
 	summary->visible.folder = 1;
@@ -75,7 +70,6 @@ void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
 
 void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 {
-	GtkTreeIter   iter;
 	gchar*        name;
 	gchar*        value;
 	gchar*        stock;
@@ -85,12 +79,11 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		UgetCommon*   common;
 	} temp;
 
-	if (node == NULL) {
-		gtk_list_store_clear (summary->store);
-		return;
-	}
+	ugtk_summary_clear (summary);
 
-	iter.stamp = 0;   // used by ugtk_summary_store_realloc_next()
+	if (node == NULL)
+		return;
+
 	temp.common = ug_info_get (node->info, UgetCommonInfo);
 
 	// Summary Name
@@ -105,24 +98,14 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 			if (value == NULL)
 				value = _("unnamed");
 		}
-		ugtk_summary_store_realloc_next (summary->store, &iter);
-		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_FILE,
-				UGTK_SUMMARY_COLUMN_NAME , name,
-				UGTK_SUMMARY_COLUMN_VALUE, value,
-				-1);
+		ugtk_summary_add_row (summary, "text-x-generic", name, value);
 		g_free (name);
 	}
 	// Summary Folder
 	if (summary->visible.folder) {
 		name = g_strconcat (_("Folder"), ":", NULL);
 		value = (temp.common) ? temp.common->folder : NULL;
-		ugtk_summary_store_realloc_next (summary->store, &iter);
-		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_DIRECTORY,
-				UGTK_SUMMARY_COLUMN_NAME , name,
-				UGTK_SUMMARY_COLUMN_VALUE, value,
-				-1);
+		ugtk_summary_add_row (summary, "folder", name, value);
 		g_free (name);
 	}
 	// Summary Category
@@ -135,24 +118,14 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		}
 		else
 			value = NULL;
-		ugtk_summary_store_realloc_next (summary->store, &iter);
-		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_DND_MULTIPLE,
-				UGTK_SUMMARY_COLUMN_NAME , name,
-				UGTK_SUMMARY_COLUMN_VALUE, value,
-				-1);
+		ugtk_summary_add_row (summary, "view-list-symbolic", name, value);
 		g_free (name);
 	}
 	// Summary URL
 	if (summary->visible.uri) {
 		name = g_strconcat (_("URI"), ":", NULL);
 		value = (temp.common) ? temp.common->uri : NULL;
-		ugtk_summary_store_realloc_next (summary->store, &iter);
-		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , GTK_STOCK_NETWORK,
-				UGTK_SUMMARY_COLUMN_NAME , name,
-				UGTK_SUMMARY_COLUMN_VALUE, value,
-				-1);
+		ugtk_summary_add_row (summary, "network-workgroup", name, value);
 		g_free (name);
 	}
 	// Summary Message
@@ -161,80 +134,83 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 		temp.event = (UgetEvent*) temp.log->messages.head;
 	if (summary->visible.message) {
 		if (temp.event == NULL) {
-			stock = GTK_STOCK_INFO;
+			stock = "dialog-information";
 			value = NULL;
 		}
 		else {
 			value = temp.event->string;
 			switch (temp.event->type) {
 			case UGET_EVENT_ERROR:
-				stock = GTK_STOCK_DIALOG_ERROR;
+				stock = "dialog-error";
 				break;
 			case UGET_EVENT_WARNING:
-				stock = GTK_STOCK_DIALOG_WARNING;
+				stock = "dialog-warning";
 				break;
 			default:
-				stock = GTK_STOCK_INFO;
+				stock = "dialog-information";
 				break;
 			}
 		}
 		name = g_strconcat (_("Message"), ":", NULL);
-		ugtk_summary_store_realloc_next (summary->store, &iter);
-		gtk_list_store_set (summary->store, &iter,
-				UGTK_SUMMARY_COLUMN_ICON , stock,
-				UGTK_SUMMARY_COLUMN_NAME , name,
-				UGTK_SUMMARY_COLUMN_VALUE, value,
-				-1);
-	}
-	// clear remaining rows
-	if (gtk_tree_model_iter_next (GTK_TREE_MODEL (summary->store), &iter)) {
-		while (gtk_list_store_remove (summary->store, &iter))
-			continue;
+		ugtk_summary_add_row (summary, stock, name, value);
+		g_free (name);
 	}
 }
 
 gchar*  ugtk_summary_get_text_selected (UgtkSummary* summary)
 {
-	GtkTreeModel*		model;
-	GtkTreePath*		path;
-	GtkTreeIter			iter;
-	gchar*				name;
-	gchar*				value;
+	GtkListBoxRow* row;
+	GtkWidget*     box;
+	GtkWidget*     child;
+	const gchar*   name = NULL;
+	const gchar*   value = NULL;
 
-	gtk_tree_view_get_cursor (summary->view, &path, NULL);
-	if (path == NULL)
+	row = gtk_list_box_get_selected_row (summary->list_box);
+	if (row == NULL)
 		return NULL;
 
-	model = GTK_TREE_MODEL (summary->store);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	gtk_tree_model_get (model, &iter,
-			UGTK_SUMMARY_COLUMN_NAME , &name,
-			UGTK_SUMMARY_COLUMN_VALUE, &value,
-			-1);
-	return g_strconcat (name, " ", value, NULL);
+	box = gtk_list_box_row_get_child (row);
+	// children: image, name_label, value_label
+	child = gtk_widget_get_first_child (box);
+	if (child) child = gtk_widget_get_next_sibling (child);  // skip icon
+	if (child) {
+		name = gtk_label_get_text (GTK_LABEL (child));
+		child = gtk_widget_get_next_sibling (child);
+	}
+	if (child)
+		value = gtk_label_get_text (GTK_LABEL (child));
+
+	return g_strconcat (name ? name : "", " ", value ? value : "", NULL);
 }
 
 gchar*  ugtk_summary_get_text_all (UgtkSummary* summary)
 {
-	GtkTreeModel*		model;
-	GtkTreeIter			iter;
-	gchar*				name;
-	gchar*				value;
-	gboolean			valid;
-	GString*			gstr;
+	GString*       gstr;
+	GtkWidget*     row;
+	GtkWidget*     box;
+	GtkWidget*     child;
+	const gchar*   name;
+	const gchar*   value;
+	int            index;
 
-	gstr  = g_string_sized_new (60);
-	model = GTK_TREE_MODEL (summary->store);
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		gtk_tree_model_get (model, &iter,
-				UGTK_SUMMARY_COLUMN_NAME , &name,
-				UGTK_SUMMARY_COLUMN_VALUE, &value,
-				-1);
-		valid = gtk_tree_model_iter_next (model, &iter);
-		// string
-		g_string_append (gstr, name);
+	gstr = g_string_sized_new (60);
+	for (index = 0; ; index++) {
+		row = GTK_WIDGET (gtk_list_box_get_row_at_index (summary->list_box, index));
+		if (row == NULL)
+			break;
+		box = gtk_list_box_row_get_child (GTK_LIST_BOX_ROW (row));
+		child = gtk_widget_get_first_child (box);
+		if (child) child = gtk_widget_get_next_sibling (child);  // skip icon
+		name = NULL;
+		value = NULL;
+		if (child) {
+			name = gtk_label_get_text (GTK_LABEL (child));
+			child = gtk_widget_get_next_sibling (child);
+		}
+		if (child)
+			value = gtk_label_get_text (GTK_LABEL (child));
+		if (name)
+			g_string_append (gstr, name);
 		if (value) {
 			g_string_append_c (gstr, ' ');
 			g_string_append (gstr, value);
@@ -245,69 +221,39 @@ gchar*  ugtk_summary_get_text_all (UgtkSummary* summary)
 }
 
 // ----------------------------------------------------------------------------
-// UgtkSummary static functions
-//
-static GtkTreeView* ugtk_summary_view_new ()
-{
-	GtkTreeView*		view;
-	GtkCellRenderer*	renderer;
+// Static functions
 
-	view = (GtkTreeView*) gtk_tree_view_new ();
-	gtk_tree_view_set_headers_visible (view, FALSE);
-	// columns
-	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_tree_view_insert_column_with_attributes (
-			view, UGTK_SUMMARY_COLUMN_ICON,
-			NULL, renderer,
-			"stock-id", UGTK_SUMMARY_COLUMN_ICON,
-			NULL);
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (
-			view, UGTK_SUMMARY_COLUMN_NAME,
-			_("Item"), renderer,
-			"text", UGTK_SUMMARY_COLUMN_NAME,
-			NULL);
-	gtk_tree_view_insert_column_with_attributes (
-			view, UGTK_SUMMARY_COLUMN_VALUE,
-			_("Value"), renderer,
-			"text", UGTK_SUMMARY_COLUMN_VALUE,
-			NULL);
-	return view;
+static void ugtk_summary_clear (UgtkSummary* summary)
+{
+	GtkWidget* child;
+
+	while ((child = gtk_widget_get_first_child (GTK_WIDGET (summary->list_box))))
+		gtk_list_box_remove (summary->list_box, child);
 }
 
-static void ugtk_summary_store_realloc_next (GtkListStore* store, GtkTreeIter* iter)
+static void ugtk_summary_add_row (UgtkSummary* summary,
+                                   const gchar* icon_name,
+                                   const gchar* name,
+                                   const gchar* value)
 {
-	GtkTreeModel*	model;
+	GtkWidget*  box;
+	GtkWidget*  image;
+	GtkWidget*  name_label;
+	GtkWidget*  value_label;
 
-	model = GTK_TREE_MODEL (store);
-	if (iter->stamp == 0) {
-		if (gtk_tree_model_get_iter_first (model, iter) == FALSE)
-			gtk_list_store_append (store, iter);
-	}
-	else if (gtk_tree_model_iter_next (model, iter) == FALSE)
-		gtk_list_store_append (store, iter);
+	box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+	image = gtk_image_new_from_icon_name (icon_name);
+	gtk_box_append (GTK_BOX (box), image);
+
+	name_label = gtk_label_new (name);
+	gtk_label_set_xalign (GTK_LABEL (name_label), 0.0);
+	gtk_box_append (GTK_BOX (box), name_label);
+
+	value_label = gtk_label_new (value);
+	gtk_label_set_xalign (GTK_LABEL (value_label), 0.0);
+	gtk_label_set_ellipsize (GTK_LABEL (value_label), PANGO_ELLIPSIZE_END);
+	gtk_widget_set_hexpand (value_label, TRUE);
+	gtk_box_append (GTK_BOX (box), value_label);
+
+	gtk_list_box_append (summary->list_box, box);
 }
-
-static void ugtk_summary_menu_init (UgtkSummary* summary, GtkAccelGroup* accel_group)
-{
-	GtkWidget*		image;
-	GtkWidget*		menu;
-	GtkWidget*		menu_item;
-
-	// UgtkSummary.menu
-	menu = gtk_menu_new ();
-	// Copy
-	menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY, accel_group);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-	summary->menu.copy = menu_item;
-	// Copy All
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("Copy _All"));
-	image = gtk_image_new_from_stock (GTK_STOCK_SELECT_ALL, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-	summary->menu.copy_all = menu_item;
-
-	gtk_widget_show_all (menu);
-	summary->menu.self = GTK_MENU (menu);
-}
-

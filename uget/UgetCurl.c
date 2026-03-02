@@ -34,6 +34,7 @@
  *
  */
 
+#include <strings.h>
 #include <UgString.h>
 #include <UgUtil.h>
 #include <UgStdio.h>
@@ -69,8 +70,8 @@ static size_t uget_curl_output_none (char *buffer, size_t size,
 static size_t uget_curl_output_default (char *buffer, size_t size,
                                         size_t nmemb, void* data);
 static int    uget_curl_progress (UgetCurl* ugcurl,
-                                  double  dltotal, double  dlnow,
-                                  double  ultotal, double  ulnow);
+                                  curl_off_t dltotal, curl_off_t dlnow,
+                                  curl_off_t ultotal, curl_off_t ulnow);
 #ifdef HAVE_LIBPWMD
 static int  uget_curl_set_proxy_pwmd (UgetCurl* ugcurl, UgetProxy *proxy);
 #endif
@@ -287,9 +288,8 @@ void  uget_curl_run (UgetCurl* ugcurl, int joinable)
 	curl_easy_setopt (ugcurl->curl, CURLOPT_RESUME_FROM_LARGE,
 			(curl_off_t) ugcurl->beg);
 	// Progress  --------------------------------------------------------------
-	curl_easy_setopt (curl, CURLOPT_PROGRESSFUNCTION,
-			(curl_progress_callback) uget_curl_progress);
-	curl_easy_setopt (curl, CURLOPT_PROGRESSDATA, ugcurl);
+	curl_easy_setopt (curl, CURLOPT_XFERINFOFUNCTION, uget_curl_progress);
+	curl_easy_setopt (curl, CURLOPT_XFERINFODATA, ugcurl);
 	curl_easy_setopt (curl, CURLOPT_NOPROGRESS, FALSE);
 
 	// Header -----------------------------------------------------------------
@@ -850,25 +850,22 @@ static size_t uget_curl_output_default (char *buffer, size_t size,
 }
 
 static int    uget_curl_progress (UgetCurl* ugcurl,
-                                  double  dltotal, double  dlnow,
-                                  double  ultotal, double  ulnow)
+                                  curl_off_t dltotal, curl_off_t dlnow,
+                                  curl_off_t ultotal, curl_off_t ulnow)
 {
-	int64_t  dlsize, ulsize;
-
-	dlsize = (int64_t) dlnow;
-	ulsize = (int64_t) ulnow;
-	ugcurl->pos = ugcurl->beg + dlsize;
-	ugcurl->size[1] = ulsize;
-	if (dlsize > 0 || ulsize > 0)
+	ugcurl->pos = ugcurl->beg + (int64_t) dlnow;
+	ugcurl->size[1] = (int64_t) ulnow;
+	if (dlnow > 0 || ulnow > 0)
 		ugcurl->state = UGET_CURL_RUN;
 
 	ugcurl->progress_count++;
 	if (ugcurl->progress_count > PROGRESS_COUNT_LIMIT) {
+		curl_off_t speed_ul, speed_dl;
 		ugcurl->progress_count = 0;
-		curl_easy_getinfo (ugcurl->curl, CURLINFO_SPEED_UPLOAD, &ulnow);
-		curl_easy_getinfo (ugcurl->curl, CURLINFO_SPEED_DOWNLOAD, &dlnow);
-		ugcurl->speed[0] = (int64_t) dlnow;
-		ugcurl->speed[1] = (int64_t) ulnow;
+		curl_easy_getinfo (ugcurl->curl, CURLINFO_SPEED_UPLOAD_T, &speed_ul);
+		curl_easy_getinfo (ugcurl->curl, CURLINFO_SPEED_DOWNLOAD_T, &speed_dl);
+		ugcurl->speed[0] = (int64_t) speed_dl;
+		ugcurl->speed[1] = (int64_t) speed_ul;
 	}
 
 	// speed limit changed

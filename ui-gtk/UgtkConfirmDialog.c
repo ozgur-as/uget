@@ -38,26 +38,26 @@
 
 #include <glib/gi18n.h>
 
-// response
-static void on_confirm_to_exit_response (GtkWidget* dialog, gint response,
-                                         UgtkConfirmDialog* cdialog);
-static void on_confirm_to_delete_response (GtkWidget* dialog, gint response,
-                                           UgtkConfirmDialog* cdialog);
-static void on_confirm_to_delete_category_response (GtkWidget* dialog, gint response,
-                                                    UgtkConfirmDialog* cdialog);
+static void on_confirm_yes (GtkWidget* button, UgtkConfirmDialog* cdialog);
+static void on_confirm_no (GtkWidget* button, UgtkConfirmDialog* cdialog);
+static gboolean on_confirm_close_request (GtkWindow* window, UgtkConfirmDialog* cdialog);
 
 UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp* app)
 {
 	UgtkConfirmDialog* cdialog;
 	GtkWidget*  button;
+	GtkWidget*  button_no;
+	GtkWidget*  button_yes;
 	GtkBox*     hbox;
 	GtkBox*     vbox;
+	GtkBox*     button_box;
 	gchar*      temp;
 	const char* title;
 	const char* label;
 
 	cdialog = g_malloc (sizeof (UgtkConfirmDialog));
 	cdialog->app = app;
+	cdialog->mode = mode;
 	// create confirmation dialog
 	switch (mode) {
 	case UGTK_CONFIRM_DIALOG_EXIT:
@@ -82,69 +82,76 @@ UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp
 	}
 
 	temp = g_strconcat (UGTK_APP_NAME " - ", title, NULL);
-	cdialog->self = (GtkDialog*) gtk_dialog_new_with_buttons (temp,
-			app->window.self,
-			GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_STOCK_NO,  GTK_RESPONSE_NO,
-			GTK_STOCK_YES, GTK_RESPONSE_YES,
-			NULL);
+	cdialog->self = (GtkWindow*) gtk_window_new ();
+	gtk_window_set_title (cdialog->self, temp);
+	gtk_window_set_transient_for (cdialog->self, app->window.self);
+	gtk_window_set_destroy_with_parent (cdialog->self, TRUE);
+	gtk_window_set_modal (cdialog->self, TRUE);
 	g_free (temp);
-#if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
-	gtk_window_set_has_resize_grip ((GtkWindow*) cdialog->self, FALSE);
-#endif
 
-	gtk_container_set_border_width (GTK_CONTAINER (cdialog->self), 4);
-	vbox = (GtkBox*) gtk_dialog_get_content_area (cdialog->self);
+	// main layout
+	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+	gtk_widget_set_margin_start ((GtkWidget*) vbox, 12);
+	gtk_widget_set_margin_end ((GtkWidget*) vbox, 12);
+	gtk_widget_set_margin_top ((GtkWidget*) vbox, 12);
+	gtk_widget_set_margin_bottom ((GtkWidget*) vbox, 12);
+	gtk_window_set_child (cdialog->self, (GtkWidget*) vbox);
+
 	// image and label
-	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (hbox,
-			gtk_image_new_from_stock (GTK_STOCK_DIALOG_QUESTION, GTK_ICON_SIZE_DIALOG),
-			FALSE, FALSE, 8);
-	gtk_box_pack_start (hbox,
-			gtk_label_new (label),
-			FALSE, FALSE, 4);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 6);
+	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+	gtk_box_append (hbox,
+			gtk_image_new_from_icon_name ("dialog-question"));
+	gtk_box_append (hbox,
+			gtk_label_new (label));
+	gtk_box_append (vbox, (GtkWidget*) hbox);
+
 	// check button
-	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 	button = gtk_check_button_new_with_label (_("Don't ask me again"));
-	gtk_box_pack_end (hbox, button, TRUE, TRUE, 20);
-	gtk_box_pack_end (vbox, (GtkWidget*) hbox, FALSE, FALSE, 10);
-	cdialog->confirmation = (GtkToggleButton*) button;
-	//
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_box_append (vbox, button);
+	cdialog->confirmation = (GtkCheckButton*) button;
+
+	// button box
+	button_box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+	gtk_widget_set_halign ((GtkWidget*) button_box, GTK_ALIGN_END);
+	gtk_widget_set_margin_top ((GtkWidget*) button_box, 6);
+	gtk_box_append (vbox, (GtkWidget*) button_box);
+
+	button_no = gtk_button_new_with_mnemonic (_("_No"));
+	gtk_box_append (button_box, button_no);
+	button_yes = gtk_button_new_with_mnemonic (_("_Yes"));
+	gtk_box_append (button_box, button_yes);
 
 	switch (mode) {
 	case UGTK_CONFIRM_DIALOG_EXIT:
 		app->dialogs.exit_confirmation = (GtkWidget*) cdialog->self;
-		g_signal_connect (cdialog->self, "response",
-				G_CALLBACK (on_confirm_to_exit_response), cdialog);
 		break;
 
 	case UGTK_CONFIRM_DIALOG_DELETE:
 		app->dialogs.delete_confirmation = (GtkWidget*) cdialog->self;
-		g_signal_connect (cdialog->self, "response",
-				G_CALLBACK (on_confirm_to_delete_response), cdialog);
 		break;
 
 	case UGTK_CONFIRM_DIALOG_DELETE_CATEGORY:
 		app->dialogs.delete_category_confirmation = (GtkWidget*) cdialog->self;
-		gtk_widget_hide ((GtkWidget*) cdialog->confirmation);
-		g_signal_connect (cdialog->self, "response",
-				G_CALLBACK (on_confirm_to_delete_category_response), cdialog);
+		gtk_widget_set_visible ((GtkWidget*) cdialog->confirmation, FALSE);
 		break;
 
 	default:
-		g_signal_connect (cdialog->self, "response",
-				G_CALLBACK (gtk_widget_destroy), NULL);
 		break;
 	}
+
+	g_signal_connect (button_yes, "clicked",
+			G_CALLBACK (on_confirm_yes), cdialog);
+	g_signal_connect (button_no, "clicked",
+			G_CALLBACK (on_confirm_no), cdialog);
+	g_signal_connect (cdialog->self, "close-request",
+			G_CALLBACK (on_confirm_close_request), cdialog);
 
 	return cdialog;
 }
 
 void ugtk_confirm_dialog_free (UgtkConfirmDialog* cdialog)
 {
-	gtk_widget_destroy ((GtkWidget*) cdialog->self);
+	gtk_window_destroy (cdialog->self);
 	g_free (cdialog);
 }
 
@@ -154,59 +161,69 @@ void  ugtk_confirm_dialog_run (UgtkConfirmDialog* cdialog)
 
 	app = cdialog->app;
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, FALSE);
-	gtk_widget_show ((GtkWidget*) cdialog->self);
+	gtk_widget_set_visible ((GtkWidget*) cdialog->self, TRUE);
 }
 
-static void on_confirm_to_exit_response (GtkWidget* dialog, gint response,
-                                         UgtkConfirmDialog* cdialog)
+static void on_confirm_yes (GtkWidget* button, UgtkConfirmDialog* cdialog)
 {
 	UgtkApp*  app;
 
 	app = cdialog->app;
-	app->dialogs.exit_confirmation = NULL;
-	if (response == GTK_RESPONSE_YES) {
-		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
+	switch (cdialog->mode) {
+	case UGTK_CONFIRM_DIALOG_EXIT:
+		app->dialogs.exit_confirmation = NULL;
+		if (gtk_check_button_get_active ((GtkCheckButton*) cdialog->confirmation) == FALSE)
 			app->setting.ui.exit_confirmation = TRUE;
 		else
 			app->setting.ui.exit_confirmation = FALSE;
 		ugtk_app_quit (app);
-	}
-	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
-	ugtk_confirm_dialog_free (cdialog);
-}
+		break;
 
-static void on_confirm_to_delete_response (GtkWidget* dialog, gint response,
-                                           UgtkConfirmDialog* cdialog)
-{
-	UgtkApp*  app;
-
-	app = cdialog->app;
-	app->dialogs.delete_confirmation = NULL;
-	if (response == GTK_RESPONSE_YES) {
-		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
+	case UGTK_CONFIRM_DIALOG_DELETE:
+		app->dialogs.delete_confirmation = NULL;
+		if (gtk_check_button_get_active ((GtkCheckButton*) cdialog->confirmation) == FALSE)
 			app->setting.ui.delete_confirmation = TRUE;
 		else
 			app->setting.ui.delete_confirmation = FALSE;
 		ugtk_app_delete_download (app, TRUE);
+		break;
+
+	case UGTK_CONFIRM_DIALOG_DELETE_CATEGORY:
+		app->dialogs.delete_category_confirmation = NULL;
+		ugtk_app_delete_category (app);
+		break;
+
+	default:
+		break;
 	}
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
 	ugtk_confirm_dialog_free (cdialog);
 }
 
-static void on_confirm_to_delete_category_response (GtkWidget* dialog, gint response,
-                                                    UgtkConfirmDialog* cdialog)
+static void on_confirm_no (GtkWidget* button, UgtkConfirmDialog* cdialog)
 {
 	UgtkApp*  app;
 
 	app = cdialog->app;
-	app->dialogs.delete_category_confirmation = NULL;
-	if (response == GTK_RESPONSE_YES) {
-//		if (gtk_toggle_button_get_active (cdialog->confirmation) == FALSE)
-//			app->setting.ui.delete_category_confirmation = TRUE;
-//		else
-//			app->setting.ui.delete_category_confirmation = FALSE;
-		ugtk_app_delete_category (app);
+	switch (cdialog->mode) {
+	case UGTK_CONFIRM_DIALOG_EXIT:
+		app->dialogs.exit_confirmation = NULL;
+		break;
+	case UGTK_CONFIRM_DIALOG_DELETE:
+		app->dialogs.delete_confirmation = NULL;
+		break;
+	case UGTK_CONFIRM_DIALOG_DELETE_CATEGORY:
+		app->dialogs.delete_category_confirmation = NULL;
+		break;
+	default:
+		break;
 	}
 	gtk_widget_set_sensitive ((GtkWidget*) app->window.self, TRUE);
 	ugtk_confirm_dialog_free (cdialog);
+}
+
+static gboolean on_confirm_close_request (GtkWindow* window, UgtkConfirmDialog* cdialog)
+{
+	on_confirm_no (NULL, cdialog);
+	return TRUE;
 }

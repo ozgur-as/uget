@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) 2005-2020 by C.H. Huang
+ *   Copyright (C) 2012-2020 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  *  This library is free software; you can redistribute it and/or
@@ -34,40 +34,24 @@
  *
  */
 
-#ifndef UGTK_CONFIRM_DIALOG_H
-#define UGTK_CONFIRM_DIALOG_H
+#include <UgtkNodeObject.h>
 
-#include <gtk/gtk.h>
-#include <UgtkApp.h>
+G_DEFINE_TYPE (UgtkNodeObject, ugtk_node_object, G_TYPE_OBJECT)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum {
-	UGTK_CONFIRM_DIALOG_EXIT,
-	UGTK_CONFIRM_DIALOG_DELETE,
-	UGTK_CONFIRM_DIALOG_DELETE_CATEGORY,
-} UgtkConfirmDialogMode;
-
-typedef struct UgtkConfirmDialog        UgtkConfirmDialog;
-
-struct UgtkConfirmDialog
+static void ugtk_node_object_class_init (UgtkNodeObjectClass* klass)
 {
-	GtkWindow*     self;
-	UgtkApp*       app;
-	UgtkConfirmDialogMode  mode;
-
-	GtkCheckButton*  confirmation;
-};
-
-UgtkConfirmDialog*  ugtk_confirm_dialog_new (UgtkConfirmDialogMode mode, UgtkApp* app);
-
-void  ugtk_confirm_dialog_run (UgtkConfirmDialog* cdialog);
-
-
-#ifdef __cplusplus
 }
-#endif
 
-#endif // UGTK_CONFIRM_DIALOG_H
+static void ugtk_node_object_init (UgtkNodeObject* self)
+{
+	self->node = NULL;
+}
+
+UgtkNodeObject* ugtk_node_object_new (UgetNode* node)
+{
+	UgtkNodeObject* obj;
+
+	obj = g_object_new (UGTK_TYPE_NODE_OBJECT, NULL);
+	obj->node = node;
+	return obj;
+}

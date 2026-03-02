@@ -48,10 +48,7 @@
 
 // OpenSSL
 #ifdef USE_OPENSSL
-//#include <openssl/crypto.h>
-#include <openssl/opensslv.h>  // OPENSSL_VERSION_NUMBER
-#include <openssl/modes.h>     // CRYPTO_ctr128_encrypt
-#include <openssl/aes.h>       // AES_BLOCK_SIZE
+#include <openssl/evp.h>       // EVP_* API
 // GnuTLS
 #elif defined USE_GNUTLS
 #include <gcrypt.h>
@@ -481,13 +478,18 @@ static int  mega_parse_attributes(UgetPluginMega* plugin, char* attributes)
 
 #ifdef USE_OPENSSL
 	{
-		AES_KEY  key;
+		EVP_CIPHER_CTX* ctx;
+		int outlen, tmplen;
 
 		attr = ug_malloc(length);
-		AES_set_decrypt_key((uint8_t*)plugin->key, 128, &key);
-//		AES_cbc_decrypt(temp, attr, length, &key, iv, AES_DECRYPT);
-		CRYPTO_cbc128_decrypt((uint8_t*)buffer, (uint8_t*)attr, length,
-		                      &key, (uint8_t*)iv, (block128_f)AES_decrypt);
+		ctx = EVP_CIPHER_CTX_new();
+		EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL,
+		                   (uint8_t*)plugin->key, (uint8_t*)iv);
+		EVP_CIPHER_CTX_set_padding(ctx, 0);
+		EVP_DecryptUpdate(ctx, (uint8_t*)attr, &outlen,
+		                  (uint8_t*)buffer, length);
+		EVP_DecryptFinal_ex(ctx, (uint8_t*)attr + outlen, &tmplen);
+		EVP_CIPHER_CTX_free(ctx);
 	}
 #endif  // USE_OPENSSL
 
@@ -561,13 +563,15 @@ static int  mega_parse_attributes(UgetPluginMega* plugin, char* attributes)
 // s  is size
 
 static size_t curl_output_mega_result(char* text, size_t size,
-                                      size_t nmemb, UgetPluginMega* plugin)
+                                      size_t nmemb, void* userdata)
 {
+	UgetPluginMega* plugin = (UgetPluginMega*) userdata;
+
 	size *= nmemb;
 	ug_json_parse(&plugin->json, text, size);
 
 #ifndef NDEBUG
-	printf("%.*s\n", size, text);
+	printf("%.*s\n", (int) size, text);
 #endif
 
 	return size;
@@ -674,37 +678,21 @@ int  mega_decrypt_file(UgetPluginMega* plugin, int preset_progress)
 
 #ifdef USE_OPENSSL
 	{
-		AES_KEY  aeskey;
-		int      length;
-		unsigned int   num;
-		unsigned char* data_in;
-		unsigned char* data_out;
-		unsigned char* ecount_buf;
+		EVP_CIPHER_CTX* ctx;
+		int      length, outlen;
+		unsigned char  data_in[16];
+		unsigned char  data_out[16];
 
-		data_in    = ug_malloc(AES_BLOCK_SIZE * 3);
-		data_out   = data_in + AES_BLOCK_SIZE;
-		ecount_buf = data_out + AES_BLOCK_SIZE;
-
-		// set to zeros before the first call to ctr128_encrypt
-		memset(ecount_buf, 0, AES_BLOCK_SIZE);
-		num = 0;
-
-		// CTR mode doesn't need separate encrypt and decrypt method.
-		AES_set_encrypt_key((uint8_t*)plugin->key, 128, &aeskey);
+		ctx = EVP_CIPHER_CTX_new();
+		EVP_EncryptInit_ex(ctx, EVP_aes_128_ctr(), NULL,
+		                   (uint8_t*)plugin->key, (uint8_t*)plugin->iv);
 
 		while (1) {
-			length = fread(data_in, 1, AES_BLOCK_SIZE, file_in);
+			length = fread(data_in, 1, 16, file_in);
 
-	#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-			CRYPTO_ctr128_encrypt(data_in, data_out, length,
-					&aeskey, (uint8_t*)plugin->iv, ecount_buf, &num,
-							(block128_f)AES_encrypt);
-	#else
-			AES_ctr128_encrypt(data_in, data_out, length,
-					&aeskey, (uint8_t*)plugin->iv, ecount_buf, &num);
-	#endif
+			EVP_EncryptUpdate(ctx, data_out, &outlen, data_in, length);
 
-			fwrite(data_out, 1, length, file_out);
+			fwrite(data_out, 1, outlen, file_out);
 
 			// decrypting progress
 			plugin->target_progress->complete = ug_ftell(file_out);
@@ -712,11 +700,14 @@ int  mega_decrypt_file(UgetPluginMega* plugin, int preset_progress)
 					plugin->target_progress->complete * 4 / plugin->target_progress->total;
 			plugin->synced = FALSE;
 			// check EOF
-			if (length < AES_BLOCK_SIZE)
+			if (length < 16)
 				break;
 		}
 
-		ug_free(data_in);
+		EVP_EncryptFinal_ex(ctx, data_out, &outlen);
+		if (outlen > 0)
+			fwrite(data_out, 1, outlen, file_out);
+		EVP_CIPHER_CTX_free(ctx);
 	}
 #endif  // USE_OPENSSL
 

@@ -42,8 +42,11 @@
 // Callback
 static void ugtk_batch_dialog_set_completed (UgtkBatchDialog* bdialog,
                                              gboolean       completed);
-static void on_response (GtkDialog *dialog, gint response_id,
-                         UgtkBatchDialog* bdialog);
+static void on_back_clicked (GtkWidget* button, UgtkBatchDialog* bdialog);
+static void on_forward_clicked (GtkWidget* button, UgtkBatchDialog* bdialog);
+static void on_batch_ok (GtkWidget* button, UgtkBatchDialog* bdialog);
+static void on_batch_cancel (GtkWidget* button, UgtkBatchDialog* bdialog);
+static gboolean on_batch_close_request (GtkWindow* window, UgtkBatchDialog* bdialog);
 
 // ----------------------------------------------------------------------------
 // UgtkBatchDialog
@@ -56,31 +59,35 @@ UgtkBatchDialog*  ugtk_batch_dialog_new (const char* title,
 	ugtk_node_dialog_init ((UgtkNodeDialog*) bdialog, title, app, FALSE);
 	ugtk_download_form_set_multiple (&bdialog->download, TRUE);
 
-#if GTK_MAJOR_VERSION <= 3 && GTK_MINOR_VERSION < 14
-	gtk_window_set_has_resize_grip ((GtkWindow*)bdialog->self, FALSE);
-#endif
-	gtk_window_resize ((GtkWindow*)bdialog->self, 500, 350);
+	gtk_window_set_default_size (bdialog->self, 500, 350);
 	// back button
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_GO_BACK,
-	                       GTK_RESPONSE_REJECT);
+	bdialog->back_button = gtk_button_new_with_mnemonic (_("_Back"));
+	gtk_box_append (bdialog->button_box, bdialog->back_button);
 	// forward button
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_GO_FORWARD,
-	                       GTK_RESPONSE_ACCEPT);
-	// OK & cancel buttons
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_CANCEL,
-	                       GTK_RESPONSE_CANCEL);
-	gtk_dialog_add_button (bdialog->self, GTK_STOCK_OK,
-	                       GTK_RESPONSE_OK);
-	gtk_dialog_set_default_response (bdialog->self, GTK_RESPONSE_OK);
+	bdialog->forward_button = gtk_button_new_with_mnemonic (_("_Forward"));
+	gtk_box_append (bdialog->button_box, bdialog->forward_button);
+	// cancel button
+	bdialog->cancel_button = gtk_button_new_with_mnemonic (_("_Cancel"));
+	gtk_box_append (bdialog->button_box, bdialog->cancel_button);
+	// OK button
+	bdialog->ok_button = gtk_button_new_with_mnemonic (_("_OK"));
+	gtk_widget_add_css_class (bdialog->ok_button, "suggested-action");
+	gtk_box_append (bdialog->button_box, bdialog->ok_button);
 
 	// set button sensitive
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_OK, FALSE);
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_ACCEPT, FALSE);
-	// response handler
-	g_signal_connect (bdialog->self, "response",
-			G_CALLBACK (on_response), bdialog);
+	gtk_widget_set_sensitive (bdialog->ok_button, FALSE);
+	gtk_widget_set_sensitive (bdialog->forward_button, FALSE);
+	// signal handlers
+	g_signal_connect (bdialog->back_button, "clicked",
+			G_CALLBACK (on_back_clicked), bdialog);
+	g_signal_connect (bdialog->forward_button, "clicked",
+			G_CALLBACK (on_forward_clicked), bdialog);
+	g_signal_connect (bdialog->cancel_button, "clicked",
+			G_CALLBACK (on_batch_cancel), bdialog);
+	g_signal_connect (bdialog->ok_button, "clicked",
+			G_CALLBACK (on_batch_ok), bdialog);
+	g_signal_connect (bdialog->self, "close-request",
+			G_CALLBACK (on_batch_close_request), bdialog);
 	return bdialog;
 }
 
@@ -97,16 +104,17 @@ void  ugtk_batch_dialog_use_selector (UgtkBatchDialog* bdialog)
 {
 	GtkRequisition  requisition;
 
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_REJECT, FALSE);
+	gtk_widget_set_sensitive (bdialog->back_button, FALSE);
 	// add Page 1
 	ugtk_selector_init (&bdialog->selector, (GtkWindow*) bdialog->self);
 	gtk_widget_get_preferred_size (bdialog->notebook, &requisition, NULL);
 	gtk_widget_set_size_request (bdialog->selector.self,
 			requisition.width, requisition.height);
-	gtk_box_pack_end (bdialog->hbox, bdialog->selector.self, TRUE, TRUE, 0);
+	gtk_widget_set_hexpand (bdialog->selector.self, TRUE);
+	gtk_widget_set_vexpand (bdialog->selector.self, TRUE);
+	gtk_box_append (GTK_BOX(bdialog->hbox), bdialog->selector.self);
 	// hide Page 2
-	gtk_widget_hide (bdialog->notebook);
+	gtk_widget_set_visible(bdialog->notebook, FALSE);
 	// set focus
 	gtk_window_set_focus (GTK_WINDOW (bdialog->self),
 			GTK_WIDGET (bdialog->selector.notebook));
@@ -119,16 +127,17 @@ void  ugtk_batch_dialog_use_sequencer (UgtkBatchDialog* bdialog)
 {
 	GtkRequisition  requisition;
 
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_REJECT, FALSE);
+	gtk_widget_set_sensitive (bdialog->back_button, FALSE);
 	// add Page 1
 	ugtk_sequence_init (&bdialog->sequencer);
 	gtk_widget_get_preferred_size (bdialog->notebook, &requisition, NULL);
 	gtk_widget_set_size_request (bdialog->sequencer.self,
 			requisition.width, requisition.height);
-	gtk_box_pack_end (bdialog->hbox, bdialog->sequencer.self, TRUE, TRUE, 0);
+	gtk_widget_set_hexpand (bdialog->sequencer.self, TRUE);
+	gtk_widget_set_vexpand (bdialog->sequencer.self, TRUE);
+	gtk_box_append (GTK_BOX(bdialog->hbox), bdialog->sequencer.self);
 	// hide Page 2
-	gtk_widget_hide (bdialog->notebook);
+	gtk_widget_set_visible(bdialog->notebook, FALSE);
 	// set focus
 	gtk_window_set_focus (GTK_WINDOW (bdialog->self),
 			GTK_WIDGET (bdialog->sequencer.entry));
@@ -139,24 +148,15 @@ void  ugtk_batch_dialog_use_sequencer (UgtkBatchDialog* bdialog)
 
 void  ugtk_batch_dialog_disable_batch (UgtkBatchDialog* bdialog)
 {
-	GtkWidget*  widget;
-
 	ugtk_download_form_set_multiple (&bdialog->download, FALSE);
 	ugtk_node_dialog_monitor_uri ((UgtkNodeDialog*) bdialog);
-	// forward to next page.
-	gtk_dialog_response (bdialog->self, GTK_RESPONSE_ACCEPT);
-	// disable forward and back button
-	gtk_dialog_set_response_sensitive (bdialog->self,
-	                                   GTK_RESPONSE_REJECT, FALSE);
-	gtk_dialog_set_response_sensitive (bdialog->self,
-	                                   GTK_RESPONSE_ACCEPT, FALSE);
-	// hide forward and back button
-	widget = gtk_dialog_get_widget_for_response (bdialog->self,
-	                                             GTK_RESPONSE_REJECT);
-	gtk_widget_set_visible (widget, FALSE);
-	widget = gtk_dialog_get_widget_for_response (bdialog->self,
-	                                             GTK_RESPONSE_ACCEPT);
-	gtk_widget_set_visible (widget, FALSE);
+	// forward to next page
+	on_forward_clicked (bdialog->forward_button, bdialog);
+	// disable and hide forward and back button
+	gtk_widget_set_sensitive (bdialog->back_button, FALSE);
+	gtk_widget_set_sensitive (bdialog->forward_button, FALSE);
+	gtk_widget_set_visible (bdialog->back_button, FALSE);
+	gtk_widget_set_visible (bdialog->forward_button, FALSE);
 }
 
 void  ugtk_batch_dialog_run (UgtkBatchDialog* bdialog)
@@ -167,8 +167,7 @@ void  ugtk_batch_dialog_run (UgtkBatchDialog* bdialog)
 	if (bdialog->selector.self)
 		ugtk_selector_count_marked (&bdialog->selector);
 
-//	gtk_dialog_run (ndialog->self);
-	gtk_widget_show ((GtkWidget*) bdialog->self);
+	gtk_widget_set_visible((GtkWidget*) bdialog->self, TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -177,10 +176,8 @@ void  ugtk_batch_dialog_run (UgtkBatchDialog* bdialog)
 static void ugtk_batch_dialog_set_completed (UgtkBatchDialog* bdialog,
                                              gboolean       completed)
 {
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_OK, completed);
-	gtk_dialog_set_response_sensitive (bdialog->self,
-			GTK_RESPONSE_ACCEPT, completed);
+	gtk_widget_set_sensitive (bdialog->ok_button, completed);
+	gtk_widget_set_sensitive (bdialog->forward_button, completed);
 }
 
 static void on_no_batch_response (UgtkBatchDialog* bdialog)
@@ -195,7 +192,7 @@ static void on_no_batch_response (UgtkBatchDialog* bdialog)
 	ugtk_download_form_get_folders (&bdialog->download,
 	                                &app->setting);
 
-	uri = gtk_entry_get_text ((GtkEntry*)bdialog->download.uri_entry);
+	uri = gtk_editable_get_text ((GtkEditable*)bdialog->download.uri_entry);
 	if (ugtk_node_dialog_confirm_existing((UgtkNodeDialog*) bdialog, uri)) {
 		dnode = uget_node_new (NULL);
 		ugtk_node_dialog_get ((UgtkNodeDialog*) bdialog, dnode->info);
@@ -264,50 +261,49 @@ static void on_selector_response (UgtkBatchDialog* bdialog)
 	g_list_free (uri_list);
 }
 
-static void on_response (GtkDialog *dialog, gint response_id,
-                         UgtkBatchDialog* bdialog)
+static void on_back_clicked (GtkWidget* button, UgtkBatchDialog* bdialog)
 {
-	switch (response_id) {
-	case GTK_RESPONSE_REJECT:  // back button
-		gtk_dialog_set_response_sensitive (bdialog->self,
-				GTK_RESPONSE_REJECT, FALSE);
-		gtk_dialog_set_response_sensitive (bdialog->self,
-				GTK_RESPONSE_ACCEPT, TRUE);
-		// switch page
-		gtk_widget_hide (bdialog->notebook);
-		if (bdialog->selector.self)
-			gtk_widget_show (bdialog->selector.self);
-		else if (bdialog->sequencer.self)
-			gtk_widget_show (bdialog->sequencer.self);
-		break;
+	gtk_widget_set_sensitive (bdialog->back_button, FALSE);
+	gtk_widget_set_sensitive (bdialog->forward_button, TRUE);
+	// switch page
+	gtk_widget_set_visible (bdialog->notebook, FALSE);
+	if (bdialog->selector.self)
+		gtk_widget_set_visible (bdialog->selector.self, TRUE);
+	else if (bdialog->sequencer.self)
+		gtk_widget_set_visible (bdialog->sequencer.self, TRUE);
+}
 
-	case GTK_RESPONSE_ACCEPT:  // forward button
-		gtk_dialog_set_response_sensitive (bdialog->self,
-				GTK_RESPONSE_REJECT, TRUE);
-		gtk_dialog_set_response_sensitive (bdialog->self,
-				GTK_RESPONSE_ACCEPT, FALSE);
-		// switch page
-		gtk_widget_show (bdialog->notebook);
-		if (bdialog->selector.self)
-			gtk_widget_hide (bdialog->selector.self);
-		else if (bdialog->sequencer.self)
-			gtk_widget_hide (bdialog->sequencer.self);
-		break;
+static void on_forward_clicked (GtkWidget* button, UgtkBatchDialog* bdialog)
+{
+	gtk_widget_set_sensitive (bdialog->back_button, TRUE);
+	gtk_widget_set_sensitive (bdialog->forward_button, FALSE);
+	// switch page
+	gtk_widget_set_visible (bdialog->notebook, TRUE);
+	if (bdialog->selector.self)
+		gtk_widget_set_visible (bdialog->selector.self, FALSE);
+	else if (bdialog->sequencer.self)
+		gtk_widget_set_visible (bdialog->sequencer.self, FALSE);
+}
 
-	case GTK_RESPONSE_CANCEL:
-	default:
-		ugtk_batch_dialog_free (bdialog);
-		break;
+static void on_batch_ok (GtkWidget* button, UgtkBatchDialog* bdialog)
+{
+	ugtk_node_dialog_store_recent ((UgtkNodeDialog*) bdialog, bdialog->app);
+	if (gtk_widget_get_sensitive (bdialog->download.uri_entry))
+		on_no_batch_response (bdialog);
+	if (bdialog->sequencer.self)
+		on_sequencer_response (bdialog);
+	else if (bdialog->selector.self)
+		on_selector_response (bdialog);
+	ugtk_batch_dialog_free (bdialog);
+}
 
-	case GTK_RESPONSE_OK:
-		ugtk_node_dialog_store_recent ((UgtkNodeDialog*) bdialog, bdialog->app);
-		if (gtk_widget_get_sensitive (bdialog->download.uri_entry))
-			on_no_batch_response (bdialog);
-		if (bdialog->sequencer.self)
-			on_sequencer_response (bdialog);
-		else if (bdialog->selector.self)
-			on_selector_response (bdialog);
-		ugtk_batch_dialog_free (bdialog);
-		break;
-	}
+static void on_batch_cancel (GtkWidget* button, UgtkBatchDialog* bdialog)
+{
+	ugtk_batch_dialog_free (bdialog);
+}
+
+static gboolean on_batch_close_request (GtkWindow* window, UgtkBatchDialog* bdialog)
+{
+	ugtk_batch_dialog_free (bdialog);
+	return TRUE;
 }

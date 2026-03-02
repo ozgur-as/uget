@@ -34,6 +34,7 @@
  *
  */
 
+#include <strings.h>
 #include <UgString.h>
 #include <UgUri.h>
 #include <UgUtil.h>
@@ -626,7 +627,8 @@ int  uget_aria2_launch (UgetAria2* uaria2)
 
 	argv = ug_argv_from_cmd (uaria2->args, NULL, 1);
 	argv[0] = uaria2->path;
-	pipe (execpipe);
+	if (pipe (execpipe) == -1)
+		return FALSE;
 	// close on exec
 	fcntl (execpipe[1], F_SETFD, fcntl (execpipe[1], F_GETFD) | FD_CLOEXEC);
 
@@ -641,7 +643,8 @@ int  uget_aria2_launch (UgetAria2* uaria2)
 		// on success, never returns
 		execvp (uaria2->path, argv);
 		temp = errno;
-		write (execpipe[1], &temp, sizeof (temp));
+		if (write (execpipe[1], &temp, sizeof (temp)) < 0)
+			{ /* parent will detect exec failure via read */ }
 		// doesn't matter what you exit with
 		exit(0);
 	}

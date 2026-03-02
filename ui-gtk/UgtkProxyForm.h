@@ -56,7 +56,7 @@ struct UgtkProxyForm
 {
 	GtkWidget*    self;     // top level widget
 
-	GtkWidget*    type;     // GtkComboBox
+	GtkWidget*    type;     // GtkDropDown
 
 	// classic
 //	struct UgtkProxyFormStd {

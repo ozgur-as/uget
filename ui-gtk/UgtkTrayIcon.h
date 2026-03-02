@@ -37,11 +37,13 @@
 #ifndef UGTK_TRAY_ICON_H
 #define UGTK_TRAY_ICON_H
 
-#include <gtk/gtk.h>
+#include <gio/gio.h>
 #include <UgtkConfig.h>
 
 #ifdef HAVE_APP_INDICATOR
-#include <libappindicator/app-indicator.h>
+#include <libdbusmenu-glib/server.h>
+#include <libdbusmenu-glib/menuitem.h>
+#include <libdbusmenu-glib/client.h>
 #endif
 
 #ifdef __cplusplus
@@ -50,8 +52,9 @@ extern "C" {
 
 typedef struct UgtkTrayIcon   UgtkTrayIcon;
 typedef struct UgtkApp        UgtkApp;
+
 // --------------------------------
-// Tray Icon
+// Tray Icon State
 
 enum UgtkTrayIconState
 {
@@ -60,53 +63,47 @@ enum UgtkTrayIconState
 	UGTK_TRAY_ICON_STATE_ERROR,
 };
 
+// --------------------------------
+// Tray Icon Structure
+
 struct UgtkTrayIcon
 {
 #ifdef HAVE_APP_INDICATOR
-	AppIndicator*  indicator;
-	AppIndicator*  indicator_temp;
+	GDBusConnection*    connection;
+	guint               bus_name_id;
+	guint               registration_id;
+	DbusmenuServer*     menu_server;
+	DbusmenuMenuitem*   root_menuitem;
+	// Menu items we need references to for state sync
+	DbusmenuMenuitem*   item_clipboard_monitor;
+	DbusmenuMenuitem*   item_clipboard_quiet;
+	DbusmenuMenuitem*   item_commandline_quiet;
+	DbusmenuMenuitem*   item_skip_existing;
+	DbusmenuMenuitem*   item_apply_recent;
+	DbusmenuMenuitem*   item_offline_mode;
+	DbusmenuMenuitem*   item_create_torrent;
+	DbusmenuMenuitem*   item_create_metalink;
+	gchar*              icon_name;
+	gchar*              attention_icon_name;
+	gchar*              icon_theme_path;
 #endif
-	GtkStatusIcon* self;
-	gboolean       visible;
-	gboolean       error_occurred;
-	guint          state;    // UgtkTrayIconState
-
-	struct UgtkTrayIconMenu
-	{
-		GtkWidget*  self;    // (GtkMenu) pop-up menu
-
-		GtkWidget*  create_download;
-		GtkWidget*  create_clipboard;
-		GtkWidget*  create_torrent;
-		GtkWidget*  create_metalink;
-
-		gboolean    emission;
-		GtkWidget*  clipboard_monitor;
-		GtkWidget*  clipboard_quiet;
-		GtkWidget*  commandline_quiet;
-		GtkWidget*  skip_existing;
-		GtkWidget*  apply_recent;
-
-		GtkWidget*  settings;
-		GtkWidget*  about;
-		GtkWidget*  show_window;
-		GtkWidget*  offline_mode;
-		GtkWidget*  quit;
-	} menu;
+	gboolean            visible;
+	gboolean            error_occurred;
+	guint               state;    // UgtkTrayIconState
 };
 
-void  ugtk_tray_icon_init (UgtkTrayIcon* trayicon);
+void  ugtk_tray_icon_init (UgtkTrayIcon* trayicon, UgtkApp* app);
 void  ugtk_tray_icon_set_info (UgtkTrayIcon* trayicon, guint n_active, gint64 down_speed, gint64 up_speed);
 void  ugtk_tray_icon_set_visible (UgtkTrayIcon* trayicon, gboolean visible);
 
-#ifdef HAVE_APP_INDICATOR
-void  ugtk_tray_icon_use_indicator (UgtkTrayIcon* trayicon, gboolean enable);
-#endif
+// Sync menu checkbox states with app settings
+void  ugtk_tray_icon_sync_menu (UgtkTrayIcon* trayicon, UgtkApp* app);
 
-void  ugtk_trayicon_init_callback (UgtkTrayIcon* trayicon, UgtkApp* app);
+// Set sensitivity of torrent/metalink menu items
+void  ugtk_tray_icon_set_plugin_sensitive (UgtkTrayIcon* trayicon, gboolean sensitive);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // UGTK_TRAY_H
+#endif // UGTK_TRAY_ICON_H

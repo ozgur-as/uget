@@ -112,7 +112,7 @@ struct UgtkDownloadForm
 	GtkWidget*  spin_retry;		// counts
 	GtkWidget*  spin_delay;		// seconds
 
-	GtkToggleButton*  timestamp;
+	GtkCheckButton*   timestamp;
 
 	// ----------------------------------------------------
 	// User changed entry

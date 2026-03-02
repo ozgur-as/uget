@@ -36,7 +36,6 @@
 
 #include <UgString.h>
 #include <UgtkTrayIcon.h>
-#include <UgtkAboutDialog.h>
 #include <UgtkApp.h>
 
 #include <glib/gi18n.h>
@@ -45,460 +44,671 @@
 #define UGTK_TRAY_ICON_ERROR_NAME   "uget-tray-error"
 #define UGTK_TRAY_ICON_ACTIVE_NAME  "uget-tray-downloading"
 
-void ugtk_tray_icon_init (UgtkTrayIcon* trayicon)
+#ifdef HAVE_APP_INDICATOR
+
+// ============================================================================
+// StatusNotifierItem D-Bus interface XML
+// ============================================================================
+
+static const gchar sni_introspection_xml[] =
+	"<node>"
+	"  <interface name='org.kde.StatusNotifierItem'>"
+	"    <property name='Category' type='s' access='read'/>"
+	"    <property name='Id' type='s' access='read'/>"
+	"    <property name='Title' type='s' access='read'/>"
+	"    <property name='Status' type='s' access='read'/>"
+	"    <property name='IconName' type='s' access='read'/>"
+	"    <property name='IconThemePath' type='s' access='read'/>"
+	"    <property name='AttentionIconName' type='s' access='read'/>"
+	"    <property name='Menu' type='o' access='read'/>"
+	"    <property name='ItemIsMenu' type='b' access='read'/>"
+	"    <property name='WindowId' type='u' access='read'/>"
+	"    <property name='ToolTip' type='(sa(iiay)ss)' access='read'/>"
+	"    <method name='ContextMenu'>"
+	"      <arg direction='in' name='x' type='i'/>"
+	"      <arg direction='in' name='y' type='i'/>"
+	"    </method>"
+	"    <method name='Activate'>"
+	"      <arg direction='in' name='x' type='i'/>"
+	"      <arg direction='in' name='y' type='i'/>"
+	"    </method>"
+	"    <method name='SecondaryActivate'>"
+	"      <arg direction='in' name='x' type='i'/>"
+	"      <arg direction='in' name='y' type='i'/>"
+	"    </method>"
+	"    <method name='Scroll'>"
+	"      <arg direction='in' name='delta' type='i'/>"
+	"      <arg direction='in' name='orientation' type='s'/>"
+	"    </method>"
+	"    <signal name='NewTitle'/>"
+	"    <signal name='NewIcon'/>"
+	"    <signal name='NewStatus'>"
+	"      <arg type='s'/>"
+	"    </signal>"
+	"    <signal name='NewToolTip'/>"
+	"  </interface>"
+	"</node>";
+
+// Store the app pointer for D-Bus method callbacks
+static UgtkApp* sni_app = NULL;
+
+// ============================================================================
+// SNI D-Bus property/method handlers
+// ============================================================================
+
+static const gchar*
+sni_status_string (UgtkTrayIcon* trayicon)
 {
-	GtkWidget*  image;
-	GtkWidget*  menu;
-	GtkWidget*  menu_item;
-	gchar*      icon_name;
-	gchar*      file_name;
+	if (!trayicon->visible)
+		return "Passive";
+	if (trayicon->state == UGTK_TRAY_ICON_STATE_ERROR ||
+	    trayicon->state == UGTK_TRAY_ICON_STATE_RUNNING)
+		return "NeedsAttention";
+	return "Active";
+}
 
-	// UgTrayIcon.menu
-	menu = gtk_menu_new ();
-	// New Download
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New _Download..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-new", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_download = menu_item;
+static GVariant*
+sni_get_property (GDBusConnection* connection,
+                  const gchar* sender,
+                  const gchar* object_path,
+                  const gchar* interface_name,
+                  const gchar* property_name,
+                  GError** error,
+                  gpointer user_data)
+{
+	UgtkTrayIcon* trayicon = (UgtkTrayIcon*) user_data;
 
-	// New Clipboard batch
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Clipboard _batch..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("edit-paste", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_clipboard = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// New Torrent
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Torrent..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_torrent = menu_item;
-
-	// New Metalink
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("New Metalink..."));
-//	image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.create_metalink = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// Settings shortcut
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Clipboard _Monitor"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.clipboard_monitor = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Clipboard works quietly"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.clipboard_quiet = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Command-line works quietly"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.commandline_quiet = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Skip existing URI"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.skip_existing = menu_item;
-
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("Apply recent download settings"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.apply_recent = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-	// Settings
-	menu_item = gtk_image_menu_item_new_with_mnemonic (_("_Settings..."));
-#if GTK_MAJOR_VERSION >= 3 && GTK_MINOR_VERSION >= 10
-	image = gtk_image_new_from_icon_name ("document-properties", GTK_ICON_SIZE_MENU);
-#else
-	image = gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
-#endif
-	gtk_image_menu_item_set_image ((GtkImageMenuItem*)menu_item, image);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.settings = menu_item;
-
-	// About
-	menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, NULL);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.about = menu_item;
-
-	gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_separator_menu_item_new() );
-
-#ifdef HAVE_APP_INDICATOR
-	// Show window
-	menu_item = gtk_menu_item_new_with_mnemonic (_("Show window"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.show_window = menu_item;
-#endif
-
-	// Offline mode
-	menu_item = gtk_check_menu_item_new_with_mnemonic (_("_Offline Mode"));
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.offline_mode = menu_item;
-
-	// Quit
-	menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, NULL);
-	gtk_menu_shell_append ((GtkMenuShell*)menu, menu_item);
-	trayicon->menu.quit = menu_item;
-
-	gtk_widget_show_all (menu);
-	trayicon->menu.self = menu;
-
-	// decide tray icon
-	file_name = g_build_filename (UG_DATADIR, "icons",
-	                         "hicolor", "16x16", "apps",
-	                         "uget-icon.png", NULL);
-	if (g_file_test (file_name, G_FILE_TEST_IS_REGULAR))
-		icon_name = UGTK_TRAY_ICON_NAME;
-	else
-		icon_name = GTK_STOCK_GO_DOWN;
-	g_free (file_name);
-#ifdef HAVE_APP_INDICATOR
-	trayicon->indicator = app_indicator_new ("uget-gtk", icon_name,
-			APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-	trayicon->indicator_temp = trayicon->indicator;
-	if (trayicon->indicator) {
-		app_indicator_set_menu (trayicon->indicator, GTK_MENU (trayicon->menu.self));
-//		app_indicator_set_attention_icon_full (trayicon->indicator,
-//				UGTK_TRAY_ICON_ACTIVE_NAME, NULL);
-		app_indicator_set_attention_icon (trayicon->indicator,
-				UGTK_TRAY_ICON_ACTIVE_NAME);
-		app_indicator_set_status (trayicon->indicator,
-				APP_INDICATOR_STATUS_PASSIVE);
+	if (g_strcmp0 (property_name, "Category") == 0)
+		return g_variant_new_string ("ApplicationStatus");
+	if (g_strcmp0 (property_name, "Id") == 0)
+		return g_variant_new_string ("uget-gtk");
+	if (g_strcmp0 (property_name, "Title") == 0)
+		return g_variant_new_string (UGTK_APP_NAME);
+	if (g_strcmp0 (property_name, "Status") == 0)
+		return g_variant_new_string (sni_status_string (trayicon));
+	if (g_strcmp0 (property_name, "IconName") == 0)
+		return g_variant_new_string (trayicon->icon_name ? trayicon->icon_name : UGTK_TRAY_ICON_NAME);
+	if (g_strcmp0 (property_name, "IconThemePath") == 0)
+		return g_variant_new_string (trayicon->icon_theme_path ? trayicon->icon_theme_path : "");
+	if (g_strcmp0 (property_name, "AttentionIconName") == 0)
+		return g_variant_new_string (trayicon->attention_icon_name ? trayicon->attention_icon_name : UGTK_TRAY_ICON_ACTIVE_NAME);
+	if (g_strcmp0 (property_name, "Menu") == 0)
+		return g_variant_new_object_path ("/MenuBar");
+	if (g_strcmp0 (property_name, "ItemIsMenu") == 0)
+		return g_variant_new_boolean (FALSE);
+	if (g_strcmp0 (property_name, "WindowId") == 0)
+		return g_variant_new_uint32 (0);
+	if (g_strcmp0 (property_name, "ToolTip") == 0) {
+		// (sa(iiay)ss) - icon-name, icon-pixmap array, title, description
+		GVariantBuilder icon_array;
+		g_variant_builder_init (&icon_array, G_VARIANT_TYPE ("a(iiay)"));
+		return g_variant_new ("(sa(iiay)ss)", "", &icon_array,
+		                      UGTK_APP_NAME, "");
 	}
-#endif	// HAVE_APP_INDICATOR
-	trayicon->self = gtk_status_icon_new_from_icon_name (icon_name);
-	gtk_status_icon_set_visible (trayicon->self, FALSE);
+
+	g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_PROPERTY,
+	             "Unknown property: %s", property_name);
+	return NULL;
+}
+
+static void
+sni_method_call (GDBusConnection* connection,
+                 const gchar* sender,
+                 const gchar* object_path,
+                 const gchar* interface_name,
+                 const gchar* method_name,
+                 GVariant* parameters,
+                 GDBusMethodInvocation* invocation,
+                 gpointer user_data)
+{
+	if (g_strcmp0 (method_name, "Activate") == 0) {
+		// Left click: show/present window
+		if (sni_app) {
+			if (gtk_widget_get_visible ((GtkWidget*) sni_app->window.self))
+				gtk_window_present (sni_app->window.self);
+			else {
+				gtk_widget_set_visible ((GtkWidget*) sni_app->window.self, TRUE);
+				gtk_window_present (sni_app->window.self);
+				ugtk_app_decide_trayicon_visible (sni_app);
+			}
+		}
+	}
+	// ContextMenu, SecondaryActivate, Scroll: no-op (menu handled by dbusmenu)
+	g_dbus_method_invocation_return_value (invocation, NULL);
+}
+
+static const GDBusInterfaceVTable sni_vtable = {
+	sni_method_call,
+	sni_get_property,
+	NULL,  // set_property not needed
+};
+
+// ============================================================================
+// SNI D-Bus signal helpers
+// ============================================================================
+
+static void
+sni_emit_signal (UgtkTrayIcon* trayicon, const gchar* signal_name, GVariant* params)
+{
+	if (!trayicon->connection)
+		return;
+	g_dbus_connection_emit_signal (trayicon->connection, NULL,
+	                               "/StatusNotifierItem",
+	                               "org.kde.StatusNotifierItem",
+	                               signal_name, params, NULL);
+}
+
+static void
+sni_emit_new_icon (UgtkTrayIcon* trayicon)
+{
+	sni_emit_signal (trayicon, "NewIcon", NULL);
+}
+
+static void
+sni_emit_new_status (UgtkTrayIcon* trayicon)
+{
+	sni_emit_signal (trayicon, "NewStatus",
+	                 g_variant_new ("(s)", sni_status_string (trayicon)));
+}
+
+static void
+sni_emit_new_tooltip (UgtkTrayIcon* trayicon)
+{
+	sni_emit_signal (trayicon, "NewToolTip", NULL);
+}
+
+// ============================================================================
+// Register with StatusNotifierWatcher
+// ============================================================================
+
+static void
+sni_register_with_watcher (UgtkTrayIcon* trayicon)
+{
+	if (!trayicon->connection)
+		return;
+
+	gchar* bus_name = g_strdup_printf ("org.kde.StatusNotifierItem-%d-1", getpid ());
+	g_dbus_connection_call (trayicon->connection,
+	                        "org.kde.StatusNotifierWatcher",
+	                        "/StatusNotifierWatcher",
+	                        "org.kde.StatusNotifierWatcher",
+	                        "RegisterStatusNotifierItem",
+	                        g_variant_new ("(s)", bus_name),
+	                        NULL,
+	                        G_DBUS_CALL_FLAGS_NONE,
+	                        -1, NULL, NULL, NULL);
+	g_free (bus_name);
+}
+
+// ============================================================================
+// Bus name acquired/lost callbacks
+// ============================================================================
+
+static void
+on_bus_name_acquired (GDBusConnection* connection, const gchar* name, gpointer user_data)
+{
+	UgtkTrayIcon* trayicon = (UgtkTrayIcon*) user_data;
+	sni_register_with_watcher (trayicon);
+}
+
+static void
+on_bus_name_lost (GDBusConnection* connection, const gchar* name, gpointer user_data)
+{
+	// Connection lost or name couldn't be acquired
+}
+
+// ============================================================================
+// Menu item callbacks
+// ============================================================================
+
+static void
+on_create_download (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	ugtk_app_create_download (app, NULL, NULL);
+}
+
+static void
+on_create_clipboard (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	ugtk_app_clipboard_batch (app);
+}
+
+static void
+on_create_torrent (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	ugtk_app_create_torrent (app);
+}
+
+static void
+on_create_metalink (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	ugtk_app_create_metalink (app);
+}
+
+static void
+on_toggle_item (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	int current = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE);
+	int new_state = (current == DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED)
+		? DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED
+		: DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	dbusmenu_menuitem_property_set_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE, new_state);
+}
+
+static void
+on_clipboard_monitor (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.clipboard.monitor = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "clipboard-monitor");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_clipboard_quiet (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.clipboard.quiet = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "clipboard-quiet");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_commandline_quiet (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.commandline.quiet = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "commandline-quiet");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_skip_existing (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.ui.skip_existing = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "skip-existing");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_apply_recent (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.ui.apply_recent = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "apply-recent");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_settings (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "settings");
+	if (menubar_action)
+		g_action_activate (menubar_action, NULL);
+}
+
+static void
+on_about (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "about");
+	if (menubar_action)
+		g_action_activate (menubar_action, NULL);
+}
+
+static void
+on_show_window (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	if (gtk_widget_get_visible ((GtkWidget*) app->window.self))
+		gtk_window_present (app->window.self);
+	else {
+		gtk_widget_set_visible ((GtkWidget*) app->window.self, TRUE);
+		gtk_window_present (app->window.self);
+		ugtk_app_decide_trayicon_visible (app);
+	}
+}
+
+static void
+on_offline_mode (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	on_toggle_item (item, timestamp, user_data);
+	gboolean active = dbusmenu_menuitem_property_get_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE)
+		== DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED;
+	app->setting.offline_mode = active;
+	GAction* menubar_action = g_action_map_lookup_action (G_ACTION_MAP (app->action_group), "offline-mode");
+	if (menubar_action)
+		g_action_change_state (menubar_action, g_variant_new_boolean (active));
+}
+
+static void
+on_quit (DbusmenuMenuitem* item, guint timestamp, gpointer user_data)
+{
+	UgtkApp* app = (UgtkApp*) user_data;
+	ugtk_app_decide_to_quit (app);
+}
+
+// ============================================================================
+// Menu construction helpers
+// ============================================================================
+
+static DbusmenuMenuitem*
+create_menu_item (const gchar* label, GCallback callback, gpointer user_data)
+{
+	DbusmenuMenuitem* item = dbusmenu_menuitem_new ();
+	dbusmenu_menuitem_property_set (item, DBUSMENU_MENUITEM_PROP_LABEL, label);
+	g_signal_connect (item, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED, callback, user_data);
+	return item;
+}
+
+static DbusmenuMenuitem*
+create_toggle_item (const gchar* label, gboolean initial_state, GCallback callback, gpointer user_data)
+{
+	DbusmenuMenuitem* item = dbusmenu_menuitem_new ();
+	dbusmenu_menuitem_property_set (item, DBUSMENU_MENUITEM_PROP_LABEL, label);
+	dbusmenu_menuitem_property_set (item, DBUSMENU_MENUITEM_PROP_TOGGLE_TYPE, DBUSMENU_MENUITEM_TOGGLE_CHECK);
+	dbusmenu_menuitem_property_set_int (item, DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		initial_state ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
+	g_signal_connect (item, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED, callback, user_data);
+	return item;
+}
+
+static DbusmenuMenuitem*
+create_separator (void)
+{
+	DbusmenuMenuitem* item = dbusmenu_menuitem_new ();
+	dbusmenu_menuitem_property_set (item, DBUSMENU_MENUITEM_PROP_TYPE, DBUSMENU_CLIENT_TYPES_SEPARATOR);
+	return item;
+}
+
+static void
+build_menu (UgtkTrayIcon* trayicon, UgtkApp* app)
+{
+	DbusmenuMenuitem* root = dbusmenu_menuitem_new ();
+	trayicon->root_menuitem = root;
+
+	// Section 1: Create downloads
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("New Download..."), G_CALLBACK (on_create_download), app));
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("New Clipboard batch..."), G_CALLBACK (on_create_clipboard), app));
+
+	dbusmenu_menuitem_child_append (root, create_separator ());
+
+	// Section 2: Torrent/Metalink
+	trayicon->item_create_torrent = create_menu_item (_("New Torrent..."), G_CALLBACK (on_create_torrent), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_create_torrent);
+	trayicon->item_create_metalink = create_menu_item (_("New Metalink..."), G_CALLBACK (on_create_metalink), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_create_metalink);
+
+	dbusmenu_menuitem_child_append (root, create_separator ());
+
+	// Section 3: Setting toggles
+	trayicon->item_clipboard_monitor = create_toggle_item (
+		_("Clipboard Monitor"), FALSE, G_CALLBACK (on_clipboard_monitor), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_clipboard_monitor);
+
+	trayicon->item_clipboard_quiet = create_toggle_item (
+		_("Clipboard works quietly"), FALSE, G_CALLBACK (on_clipboard_quiet), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_clipboard_quiet);
+
+	trayicon->item_commandline_quiet = create_toggle_item (
+		_("Command-line works quietly"), FALSE, G_CALLBACK (on_commandline_quiet), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_commandline_quiet);
+
+	trayicon->item_skip_existing = create_toggle_item (
+		_("Skip existing URI"), FALSE, G_CALLBACK (on_skip_existing), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_skip_existing);
+
+	trayicon->item_apply_recent = create_toggle_item (
+		_("Apply recent download settings"), FALSE, G_CALLBACK (on_apply_recent), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_apply_recent);
+
+	dbusmenu_menuitem_child_append (root, create_separator ());
+
+	// Section 4: Settings and About
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("Settings..."), G_CALLBACK (on_settings), app));
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("About"), G_CALLBACK (on_about), app));
+
+	dbusmenu_menuitem_child_append (root, create_separator ());
+
+	// Section 5: Window, Offline, Quit
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("Show window"), G_CALLBACK (on_show_window), app));
+	trayicon->item_offline_mode = create_toggle_item (
+		_("Offline Mode"), FALSE, G_CALLBACK (on_offline_mode), app);
+	dbusmenu_menuitem_child_append (root, trayicon->item_offline_mode);
+	dbusmenu_menuitem_child_append (root,
+		create_menu_item (_("Quit"), G_CALLBACK (on_quit), app));
+
+	// Attach root to DbusmenuServer
+	trayicon->menu_server = dbusmenu_server_new ("/MenuBar");
+	dbusmenu_server_set_root (trayicon->menu_server, root);
+}
+
+#endif // HAVE_APP_INDICATOR
+
+// ============================================================================
+// Public Functions
+// ============================================================================
+
+void ugtk_tray_icon_init (UgtkTrayIcon* trayicon, UgtkApp* app)
+{
+	trayicon->visible = FALSE;
+	trayicon->error_occurred = FALSE;
+	trayicon->state = UGTK_TRAY_ICON_STATE_NORMAL;
+
+#ifdef HAVE_APP_INDICATOR
+	GError* error = NULL;
+	GDBusNodeInfo* node_info = NULL;
+
+	sni_app = app;
+
+	// Determine icon theme path for development fallback
+	// IconThemePath must point to the directory CONTAINING "hicolor/",
+	// not the "hicolor/" directory itself, because the icon theme system
+	// expects to find theme directories (like hicolor/) within the search path.
+	trayicon->icon_theme_path = NULL;
+	gchar* file_name = g_build_filename (UG_DATADIR, "icons",
+	                                     "hicolor", "24x24", "apps",
+	                                     "uget-tray-default.png", NULL);
+	if (!g_file_test (file_name, G_FILE_TEST_IS_REGULAR)) {
+		gchar* cwd = g_get_current_dir ();
+		gchar* source_icons = g_build_filename (cwd, "pixmaps", "icons", NULL);
+		gchar* source_hicolor = g_build_filename (source_icons, "hicolor", NULL);
+		if (!g_file_test (source_hicolor, G_FILE_TEST_IS_DIR)) {
+			g_free (source_icons);
+			g_free (source_hicolor);
+			gchar* parent = g_path_get_dirname (cwd);
+			source_icons = g_build_filename (parent, "pixmaps", "icons", NULL);
+			source_hicolor = g_build_filename (source_icons, "hicolor", NULL);
+			g_free (parent);
+		}
+		if (g_file_test (source_hicolor, G_FILE_TEST_IS_DIR))
+			trayicon->icon_theme_path = source_icons;
+		else
+			g_free (source_icons);
+		g_free (source_hicolor);
+		g_free (cwd);
+	}
+	g_free (file_name);
+
+	trayicon->icon_name = g_strdup (UGTK_TRAY_ICON_NAME);
+	trayicon->attention_icon_name = g_strdup (UGTK_TRAY_ICON_ACTIVE_NAME);
+
+	// Connect to session bus
+	trayicon->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	if (!trayicon->connection) {
+		g_warning ("Failed to connect to session bus: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	// Parse introspection XML and register the object
+	node_info = g_dbus_node_info_new_for_xml (sni_introspection_xml, &error);
+	if (!node_info) {
+		g_warning ("Failed to parse SNI introspection XML: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	trayicon->registration_id = g_dbus_connection_register_object (
+		trayicon->connection,
+		"/StatusNotifierItem",
+		node_info->interfaces[0],
+		&sni_vtable,
+		trayicon,
+		NULL,
+		&error);
+	g_dbus_node_info_unref (node_info);
+
+	if (trayicon->registration_id == 0) {
+		g_warning ("Failed to register SNI object: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	// Build the dbusmenu
+	build_menu (trayicon, app);
+
+	// Acquire the well-known bus name
+	gchar* bus_name = g_strdup_printf ("org.kde.StatusNotifierItem-%d-1", getpid ());
+	trayicon->bus_name_id = g_bus_own_name (G_BUS_TYPE_SESSION,
+	                                         bus_name,
+	                                         G_BUS_NAME_OWNER_FLAGS_NONE,
+	                                         NULL,
+	                                         on_bus_name_acquired,
+	                                         on_bus_name_lost,
+	                                         trayicon,
+	                                         NULL);
+	g_free (bus_name);
+#endif
 }
 
 void ugtk_tray_icon_set_info (UgtkTrayIcon* trayicon, guint n_active, gint64 down_speed, gint64 up_speed)
 {
-	gchar*  string;
-	char*   string_down_speed;
-	char*   string_up_speed;
-	guint   current_state;
+#ifdef HAVE_APP_INDICATOR
+	if (!trayicon->connection)
+		return;
 
-	// change tray icon
+	const gchar* new_icon;
+	guint        current_state;
+
+	// Determine icon state
 	if (trayicon->error_occurred) {
-		string = UGTK_TRAY_ICON_ERROR_NAME;
+		new_icon = UGTK_TRAY_ICON_ERROR_NAME;
 		current_state = UGTK_TRAY_ICON_STATE_ERROR;
 	}
 	else if (n_active > 0) {
-		string = UGTK_TRAY_ICON_ACTIVE_NAME;
+		new_icon = UGTK_TRAY_ICON_ACTIVE_NAME;
 		current_state = UGTK_TRAY_ICON_STATE_RUNNING;
 	}
 	else {
-		string = UGTK_TRAY_ICON_NAME;
+		new_icon = UGTK_TRAY_ICON_NAME;
 		current_state = UGTK_TRAY_ICON_STATE_NORMAL;
 	}
 
+	// Update icon if state changed
 	if (trayicon->state != current_state) {
-		trayicon->state  = current_state;
-#ifdef HAVE_APP_INDICATOR
-		if (trayicon->indicator) {
-			trayicon->error_occurred = FALSE;
-			if (app_indicator_get_status (trayicon->indicator) != APP_INDICATOR_STATUS_PASSIVE) {
-				if (current_state == UGTK_TRAY_ICON_STATE_NORMAL) {
-					app_indicator_set_status (trayicon->indicator,
-							APP_INDICATOR_STATUS_ACTIVE);
-				}
-				else {
-					app_indicator_set_attention_icon (trayicon->indicator, string);
-	//				app_indicator_set_attention_icon_full (trayicon->indicator,
-	//						string, "attention");
-					app_indicator_set_status (trayicon->indicator,
-							APP_INDICATOR_STATUS_ATTENTION);
-				}
-			}
+		trayicon->state = current_state;
+		trayicon->error_occurred = FALSE;
+
+		g_free (trayicon->icon_name);
+		trayicon->icon_name = g_strdup (new_icon);
+
+		if (trayicon->visible) {
+			sni_emit_new_icon (trayicon);
+			sni_emit_new_status (trayicon);
 		}
-		else
-#endif	// HAVE_APP_INDICATOR
-		gtk_status_icon_set_from_icon_name (trayicon->self, string);
 	}
 
-	// change tooltip
-	string_down_speed = ug_str_from_int_unit (down_speed, "/s");
-	string_up_speed   = ug_str_from_int_unit (up_speed, "/s");
-	string = g_strdup_printf (
-			UGTK_APP_NAME " " PACKAGE_VERSION "\n"
-			"%u %s" "\n"
-			"\xE2\x86\x93 %s"     // "↓"
-			" , "
-			"\xE2\x86\x91 %s",    // "↑"
-			n_active, _("tasks"),
-			string_down_speed,
-			string_up_speed);
-#ifdef HAVE_APP_INDICATOR
-	if (trayicon->indicator) {
-//		g_object_set (trayicon->indicator, "icon-desc", string, NULL);
-//		g_object_set (trayicon->indicator, "attention-icon-desc", string, NULL);
-	}
-	else
-#endif	// HAVE_APP_INDICATOR
-	gtk_status_icon_set_tooltip_text (trayicon->self, string);
-
-	ug_free (string_down_speed);
-	ug_free (string_up_speed);
-	g_free (string);
+	// Emit tooltip update
+	sni_emit_new_tooltip (trayicon);
+#endif
 }
 
-void  ugtk_tray_icon_set_visible (UgtkTrayIcon* trayicon, gboolean visible)
+void ugtk_tray_icon_set_visible (UgtkTrayIcon* trayicon, gboolean visible)
 {
-#ifdef HAVE_APP_INDICATOR
-	if (trayicon->indicator) {
-		if (visible)
-			app_indicator_set_status (trayicon->indicator,
-					APP_INDICATOR_STATUS_ACTIVE);
-		else
-			app_indicator_set_status (trayicon->indicator,
-					APP_INDICATOR_STATUS_PASSIVE);
-	}
-	else
-#endif	// HAVE_APP_INDICATOR
-	gtk_status_icon_set_visible (trayicon->self, visible);
 	trayicon->visible = visible;
-}
 
 #ifdef HAVE_APP_INDICATOR
+	if (!trayicon->connection)
+		return;
 
-void  ugtk_tray_icon_use_indicator (UgtkTrayIcon* trayicon, gboolean enable)
-{
-	ugtk_tray_icon_set_visible (trayicon, FALSE);
-	if (enable)
-		trayicon->indicator = trayicon->indicator_temp;
-	else
-		trayicon->indicator = NULL;
-	ugtk_tray_icon_set_visible (trayicon, trayicon->visible);
-}
-
-#endif // HAVE_APP_INDICATOR
-
-// ----------------------------------------------------------------------------
-// Callback
-
-static void	on_trayicon_activate (GtkStatusIcon* status_icon, UgtkApp* app)
-{
-	gint  x, y;
-
-	if (gtk_widget_get_visible ((GtkWidget*) app->window.self) == TRUE) {
-		// get position and size
-		gtk_window_get_position (app->window.self, &x, &y);
-		gtk_window_get_size (app->window.self,
-				&app->setting.window.width, &app->setting.window.height);
-		// gtk_window_get_position() may return: x == -32000, y == -32000
-		if (x + app->setting.window.width > 0)
-			app->setting.window.x = x;
-		if (y + app->setting.window.height > 0)
-			app->setting.window.y = y;
-		// hide window
-#if defined _WIN32 || defined _WIN64
-//		gtk_window_iconify (app->window.self);
-#endif
-		gtk_widget_hide ((GtkWidget*) app->window.self);
-	}
-	else {
-#if defined _WIN32 || defined _WIN64
-//		gtk_window_deiconify (app->window.self);
-#endif
-		gtk_widget_show ((GtkWidget*) app->window.self);
-		gtk_window_present (app->window.self);
-		ugtk_app_decide_trayicon_visible (app);
-		// set position and size
-		gtk_window_move (app->window.self,
-				app->setting.window.x, app->setting.window.y);
-		gtk_window_resize (app->window.self,
-				app->setting.window.width, app->setting.window.height);
-	}
-	// clear error status
-	if (app->trayicon.error_occurred) {
-		app->trayicon.error_occurred = FALSE;
-		app->trayicon.state = UGTK_TRAY_ICON_STATE_NORMAL;
-		gtk_status_icon_set_from_icon_name (status_icon, UGTK_TRAY_ICON_NAME);
-	}
-}
-
-static void	on_trayicon_popup_menu (GtkStatusIcon* status_icon, guint button,
-                                    guint activate_time, UgtkTrayIcon* trayicon)
-{
-	gtk_menu_set_screen ((GtkMenu*) trayicon->menu.self,
-			gtk_status_icon_get_screen (status_icon));
-#if defined _WIN32 || defined _WIN64
-	gtk_menu_popup ((GtkMenu*) trayicon->menu.self,
-			NULL, NULL,
-			NULL, NULL,
-			button, activate_time);
-#else
-	gtk_menu_popup ((GtkMenu*) trayicon->menu.self,
-			NULL, NULL,
-			gtk_status_icon_position_menu, status_icon,
-			button, activate_time);
+	sni_emit_new_status (trayicon);
 #endif
 }
 
-#if defined _WIN32 || defined _WIN64
-static gboolean	tray_menu_timeout (GtkMenu* menu)
+void ugtk_tray_icon_sync_menu (UgtkTrayIcon* trayicon, UgtkApp* app)
 {
-	gtk_menu_popdown (menu);
-	// return FALSE if the source should be removed.
-	return FALSE;
-}
-
-static gboolean	tray_menu_leave_enter (GtkWidget* menu, GdkEventCrossing* event, gpointer data)
-{
-	static guint	tray_menu_timer = 0;
-
-	if (event->type == GDK_LEAVE_NOTIFY &&
-		(event->detail == GDK_NOTIFY_ANCESTOR || event->detail == GDK_NOTIFY_UNKNOWN))
-	{
-		if (tray_menu_timer == 0) {
-			tray_menu_timer = g_timeout_add (500,
-					(GSourceFunc) tray_menu_timeout, menu);
-		}
-	}
-	else if (event->type == GDK_ENTER_NOTIFY && event->detail == GDK_NOTIFY_ANCESTOR)
-	{
-		if (tray_menu_timer != 0) {
-			g_source_remove (tray_menu_timer);
-			tray_menu_timer = 0;
-		}
-	}
-	return FALSE;
-}
-#endif // _WIN32 || _WIN64
-
-static void	on_create_download (GtkWidget* widget, UgtkApp* app)
-{
-	ugtk_app_create_download (app, NULL, NULL);
-}
-
-static void on_clipboard_monitor (GtkWidget* widget, UgtkApp* app)
-{
-	if (app->trayicon.menu.emission)
-		g_signal_emit_by_name (app->menubar.edit.clipboard_monitor, "activate");
-}
-
-static void on_clipboard_quiet (GtkWidget* widget, UgtkApp* app)
-{
-	if (app->trayicon.menu.emission)
-		g_signal_emit_by_name (app->menubar.edit.clipboard_quiet, "activate");
-}
-
-static void on_commandline_quiet (GtkWidget* widget, UgtkApp* app)
-{
-	if (app->trayicon.menu.emission)
-		g_signal_emit_by_name (app->menubar.edit.commandline_quiet, "activate");
-}
-
-static void on_skip_existing (GtkWidget* widget, UgtkApp* app)
-{
-	if (app->trayicon.menu.emission)
-		g_signal_emit_by_name (app->menubar.edit.skip_existing, "activate");
-}
-
-static void on_apply_recent (GtkWidget* widget, UgtkApp* app)
-{
-	if (app->trayicon.menu.emission)
-		g_signal_emit_by_name (app->menubar.edit.apply_recent, "activate");
-}
-
-static void  on_config_settings (GtkWidget* widget, UgtkApp* app)
-{
-	g_signal_emit_by_name (app->menubar.edit.settings, "activate");
-}
-
-static void  on_offline_mode (GtkWidget* widget, UgtkApp* app)
-{
-	gboolean  offline;
-
-	offline = gtk_check_menu_item_get_active ((GtkCheckMenuItem*) widget);
-	app->setting.offline_mode = offline;
-	// file menu
-	offline = gtk_check_menu_item_get_active (
-			(GtkCheckMenuItem*) app->menubar.file.offline_mode);
-	if (offline != app->setting.offline_mode) {
-		gtk_check_menu_item_set_active (
-				(GtkCheckMenuItem*) app->menubar.file.offline_mode,
-				app->setting.offline_mode);
-	}
-}
-
-static void  on_about (GtkWidget* widget, UgtkApp* app)
-{
-	g_signal_emit_by_name (app->menubar.help.about_uget, "activate");
-}
-
 #ifdef HAVE_APP_INDICATOR
-static void	on_trayicon_show_window (GtkWidget* widget, UgtkApp* app)
-{
-	if (gtk_widget_get_visible ((GtkWidget*) app->window.self))
-		gtk_window_present (app->window.self);
-	else {
-		gtk_widget_show ((GtkWidget*) app->window.self);
-//		gtk_window_deiconify (app->window.self);
-		gtk_window_present (app->window.self);
-		ugtk_app_decide_trayicon_visible (app);
-	}
-}
-#endif // HAVE_APP_INDICATOR
+	if (!trayicon->root_menuitem)
+		return;
 
-void  ugtk_trayicon_init_callback (struct UgtkTrayIcon* trayicon, UgtkApp* app)
-{
-	g_signal_connect (trayicon->self, "activate",
-			G_CALLBACK (on_trayicon_activate), app);
-	g_signal_connect (trayicon->self, "popup-menu",
-			G_CALLBACK (on_trayicon_popup_menu), trayicon);
+	dbusmenu_menuitem_property_set_int (trayicon->item_clipboard_monitor,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.clipboard.monitor ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
 
-#if defined _WIN32 || defined _WIN64
-	g_signal_connect (trayicon->menu.self, "leave-notify-event",
-			G_CALLBACK (tray_menu_leave_enter), NULL);
-	g_signal_connect (trayicon->menu.self, "enter-notify-event",
-			G_CALLBACK (tray_menu_leave_enter), NULL);
+	dbusmenu_menuitem_property_set_int (trayicon->item_clipboard_quiet,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.clipboard.quiet ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
+
+	dbusmenu_menuitem_property_set_int (trayicon->item_commandline_quiet,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.commandline.quiet ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
+
+	dbusmenu_menuitem_property_set_int (trayicon->item_skip_existing,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.ui.skip_existing ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
+
+	dbusmenu_menuitem_property_set_int (trayicon->item_apply_recent,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.ui.apply_recent ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
+
+	dbusmenu_menuitem_property_set_int (trayicon->item_offline_mode,
+		DBUSMENU_MENUITEM_PROP_TOGGLE_STATE,
+		app->setting.offline_mode ? DBUSMENU_MENUITEM_TOGGLE_STATE_CHECKED : DBUSMENU_MENUITEM_TOGGLE_STATE_UNCHECKED);
 #endif
-	g_signal_connect (trayicon->menu.create_download, "activate",
-			G_CALLBACK (on_create_download), app);
-	g_signal_connect_swapped (trayicon->menu.create_clipboard, "activate",
-			G_CALLBACK (ugtk_app_clipboard_batch), app);
-	g_signal_connect_swapped (trayicon->menu.create_torrent, "activate",
-			G_CALLBACK (ugtk_app_create_torrent), app);
-	g_signal_connect_swapped (trayicon->menu.create_metalink, "activate",
-			G_CALLBACK (ugtk_app_create_metalink), app);
-
-	trayicon->menu.emission = TRUE;
-	g_signal_connect (trayicon->menu.clipboard_monitor, "activate",
-			G_CALLBACK (on_clipboard_monitor), app);
-	g_signal_connect (trayicon->menu.clipboard_quiet, "activate",
-			G_CALLBACK (on_clipboard_quiet), app);
-	g_signal_connect (trayicon->menu.commandline_quiet, "activate",
-			G_CALLBACK (on_commandline_quiet), app);
-	g_signal_connect (trayicon->menu.skip_existing, "activate",
-			G_CALLBACK (on_skip_existing), app);
-	g_signal_connect (trayicon->menu.apply_recent, "activate",
-			G_CALLBACK (on_apply_recent), app);
-
-	g_signal_connect (trayicon->menu.settings, "activate",
-			G_CALLBACK (on_config_settings), app);
-	g_signal_connect (trayicon->menu.offline_mode, "toggled",
-			G_CALLBACK (on_offline_mode), app);
-	g_signal_connect (trayicon->menu.about, "activate",
-			G_CALLBACK (on_about), app);
-	g_signal_connect_swapped (trayicon->menu.quit, "activate",
-			G_CALLBACK (ugtk_app_decide_to_quit), app);
-
-#ifdef HAVE_APP_INDICATOR
-	g_signal_connect (trayicon->menu.show_window, "activate",
-			G_CALLBACK (on_trayicon_show_window), app);
-#endif // HAVE_APP_INDICATOR
 }
 
+void ugtk_tray_icon_set_plugin_sensitive (UgtkTrayIcon* trayicon, gboolean sensitive)
+{
+#ifdef HAVE_APP_INDICATOR
+	if (!trayicon->root_menuitem)
+		return;
+
+	dbusmenu_menuitem_property_set_bool (trayicon->item_create_torrent,
+		DBUSMENU_MENUITEM_PROP_ENABLED, sensitive);
+	dbusmenu_menuitem_property_set_bool (trayicon->item_create_metalink,
+		DBUSMENU_MENUITEM_PROP_ENABLED, sensitive);
+#endif
+}

@@ -58,10 +58,13 @@ typedef enum {
 } UgtkNodeDialogMode;
 
 #define UGTK_NODE_DIALOG_MEMBERS  \
-	GtkDialog*    self;           \
+	GtkWindow*    self;           \
 	GtkBox*       hbox;           \
 	GtkWidget*    notebook;       \
-	GtkTreeView*  node_view;      \
+	GtkBox*       button_box;     \
+	GtkWidget*    ok_button;      \
+	GtkWidget*    cancel_button;  \
+	GtkWidget*    node_view;       \
 	UgtkNodeTree* node_tree;      \
 	gulong        handler_id[3];  \
 	UgtkApp*      app;            \
@@ -75,23 +78,16 @@ struct UgtkNodeDialog
 {
 	UGTK_NODE_DIALOG_MEMBERS;
 /*	// ------ UgtkNodeDialog members ------
-	GtkDialog*    self;
+	GtkWindow*    self;
 	GtkBox*       hbox;
 	GtkWidget*    notebook;
-	GtkTreeView*  node_view;
-	UgtkNodeTree* node_tree;
-	gulong        handler_id[3];
-	UgtkApp*      app;
-	UgetNode*     note;
-	UgInfo*       node_info;
-	UgtkProxyForm     proxy;
-	UgtkDownloadForm  download;
-	UgtkCategoryForm  category;
+	GtkBox*       button_box;
+	GtkWidget*    ok_button;
+	GtkWidget*    cancel_button;
+	...
  */
 
-	// handler_id[0] : "row-changed"
-	// handler_id[1] : "row-deleted"
-	// handler_id[2] : "row-inserted"
+	// handler_id[0] : "items-changed" on category model
 };
 
 UgtkNodeDialog*  ugtk_node_dialog_new (const char* title,

@@ -34,9 +34,7 @@
  *
  */
 
-/*
- * This file base on GTK+ 2.0 Tree View Tutorial - custom-list.h
- */
+// GListModel implementation for UgetNode flat list (fake nodes).
 
 #ifndef UGTK_NODE_LIST_H
 #define UGTK_NODE_LIST_H
@@ -50,29 +48,21 @@ extern "C" {
 
 #define UGTK_TYPE_NODE_LIST              (ugtk_node_list_get_type ())
 #define UGTK_NODE_LIST(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), UGTK_TYPE_NODE_LIST, UgtkNodeList))
-#define UGTK_NODE_LIST_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass),  UGTK_TYPE_NODE_LIST, UgtkNodeListClass))
 #define UGTK_IS_NODE_LIST(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UGTK_TYPE_NODE_LIST))
-#define UGTK_IS_NODE_LIST_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass),  UGTK_TYPE_NODE_LIST))
-#define UGTK_NODE_LIST_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj),  UGTK_TYPE_NODE_LIST, UgtkNodeListClass))
 
 typedef struct UgtkNodeList       UgtkNodeList;
 typedef struct UgtkNodeListClass  UgtkNodeListClass;
 
-// ----------------------------------------------------------------------------
-// UgtkNodeList : GtkTreeModel for UgetNode real and fake nodes.
-
+// GListModel for UgetNode: shows root (optionally) + first n_fake children.
 struct UgtkNodeList
 {
-	GObject     parent;  // this MUST be the first member
+	GObject     parent;
 
 	UgetNode*   root;
-	gint        stamp;   // Random integer to check whether an iter belongs to our model
-
 	gint        n_fake;
-	gboolean    root_visible;  // show root as first item
+	gboolean    root_visible;
+	guint       last_count;
 };
-
-// ------------------------------------
 
 struct UgtkNodeListClass
 {
@@ -82,6 +72,9 @@ struct UgtkNodeListClass
 UgtkNodeList*  ugtk_node_list_new (UgetNode* root, gint n_fake, gboolean root_visible);
 
 GType  ugtk_node_list_get_type (void);
+
+// Notify the model that items changed (call after root/data changes)
+void  ugtk_node_list_refresh (UgtkNodeList* ulist);
 
 #ifdef __cplusplus
 }

@@ -46,26 +46,10 @@ extern "C" {
 
 typedef	struct	UgtkSummary            UgtkSummary;
 
-enum UGTK_SUMMARY_COLUMN
-{
-	UGTK_SUMMARY_COLUMN_ICON,
-	UGTK_SUMMARY_COLUMN_NAME,
-	UGTK_SUMMARY_COLUMN_VALUE,
-	UGTK_SUMMARY_N_COLUMN
-};
-
 struct UgtkSummary
 {
-	GtkWidget*      self;    // (GtkScrolledWindow) container for view
-	GtkTreeView*    view;
-	GtkListStore*   store;
-
-	struct
-	{
-		GtkMenu*    self;       // (GtkMenu) pop-up menu
-		GtkWidget*  copy;       // GtkMenuItem
-		GtkWidget*  copy_all;   // GtkMenuItem
-	} menu;
+	GtkWidget*      self;    // (GtkScrolledWindow) container
+	GtkListBox*     list_box;
 
 	struct
 	{
@@ -77,7 +61,7 @@ struct UgtkSummary
 	} visible;
 };
 
-void  ugtk_summary_init (UgtkSummary* summary, GtkAccelGroup* accel_group);
+void  ugtk_summary_init (UgtkSummary* summary, gpointer accel_group);
 void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node);
 
 // call g_free() to free returned string.
@@ -90,5 +74,3 @@ gchar* ugtk_summary_get_text_all (UgtkSummary* summary);
 #endif
 
 #endif  // End of UGTK_SUMMARY_H
-
-

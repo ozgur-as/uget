@@ -159,9 +159,9 @@ static int  a2cf_piece_read (UgetA2cfPiece* piece, FILE* file)
 {
 	uint32_t  bitfield_len = piece->bitfield_len;
 
-	ug_fread (file, (char*)&piece->index, 4);
-	ug_fread (file, (char*)&piece->length, 4);
-	ug_fread (file, (char*)&piece->bitfield_len, 4);
+	(void) ug_fread (file, (char*)&piece->index, 4);
+	(void) ug_fread (file, (char*)&piece->length, 4);
+	(void) ug_fread (file, (char*)&piece->bitfield_len, 4);
 	piece->index = uint32_from_be (piece->index);
 	piece->length = uint32_from_be (piece->length);
 	piece->bitfield_len = uint32_from_be (piece->bitfield_len);
@@ -169,7 +169,7 @@ static int  a2cf_piece_read (UgetA2cfPiece* piece, FILE* file)
 	if (bitfield_len < piece->bitfield_len)
 		return FALSE;
 //	piece->bitfield = ug_malloc (piece->bitfield_len);
-	ug_fread (file, piece->bitfield, piece->bitfield_len);
+	(void) ug_fread (file, piece->bitfield, piece->bitfield_len);
 	return TRUE;
 }
 
@@ -366,8 +366,8 @@ int  uget_a2cf_load (UgetA2cf* a2cf, const char* filename)
 	if (file == NULL)
 		return FALSE;
 	// version
-	ug_fread (file, (char*)&a2cf->ver, 2);
-	ug_fread (file, (char*)&a2cf->ext, 4);
+	(void) ug_fread (file, (char*)&a2cf->ver, 2);
+	(void) ug_fread (file, (char*)&a2cf->ext, 4);
 	a2cf->ver = uint16_from_be (a2cf->ver);
 	a2cf->ext = uint32_from_be (a2cf->ext);
 	// check file version - uGet only support version 1
@@ -376,7 +376,7 @@ int  uget_a2cf_load (UgetA2cf* a2cf, const char* filename)
 
 	// info hash
 	a2cf->info_hash_len = 0;
-	ug_fread (file, (char*)&a2cf->info_hash_len, 4);
+	(void) ug_fread (file, (char*)&a2cf->info_hash_len, 4);
 	a2cf->info_hash_len = uint32_from_be (a2cf->info_hash_len);
 	if (a2cf->info_hash_len > INFO_HASH_LEN_MAX)
 		goto failed;
@@ -384,12 +384,12 @@ int  uget_a2cf_load (UgetA2cf* a2cf, const char* filename)
 		a2cf->info_hash = NULL;
 	else {
 		a2cf->info_hash = ug_malloc (a2cf->info_hash_len);
-		ug_fread (file, a2cf->info_hash, a2cf->info_hash_len);
+		(void) ug_fread (file, a2cf->info_hash, a2cf->info_hash_len);
 	}
 
-	ug_fread (file, (char*)&a2cf->piece_len, 4);
-	ug_fread (file, (char*)&a2cf->total_len, 8);
-	ug_fread (file, (char*)&a2cf->upload_len, 8);
+	(void) ug_fread (file, (char*)&a2cf->piece_len, 4);
+	(void) ug_fread (file, (char*)&a2cf->total_len, 8);
+	(void) ug_fread (file, (char*)&a2cf->upload_len, 8);
 	a2cf->piece_len = uint32_from_be (a2cf->piece_len);
 	a2cf->total_len = uint64_from_be (a2cf->total_len);
 	a2cf->upload_len = uint64_from_be (a2cf->upload_len);
@@ -413,7 +413,7 @@ int  uget_a2cf_load (UgetA2cf* a2cf, const char* filename)
 
 	// The number of in-flight pieces.
 	n_pieces = 0;
-	ug_fread (file, (char*)&n_pieces, 4);
+	(void) ug_fread (file, (char*)&n_pieces, 4);
 	n_pieces = uint32_from_be (n_pieces);
 
 	// piece.index_end - calculate number of the last piece

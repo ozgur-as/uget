@@ -55,14 +55,10 @@ struct UgtkSelectorItem
 	void*     data;
 };
 
-// GtkListStore for UgtkSelectorItem
-static GList* ugtk_selector_store_get_marked   (GtkListStore* store, GList* list);
-static void   ugtk_selector_store_set_mark_all (GtkListStore* store, gboolean mark);
-static void   ugtk_selector_store_clear        (GtkListStore* store);
-// GtkTreeView for UgtkSelectorItem
-static GtkTreeView*     ugtk_selector_view_new (const gchar* title, gboolean active_toggled);
-static GtkCellRenderer* ugtk_selector_view_get_renderer_toggle (GtkTreeView* view);
-
+// GPtrArray helpers for UgtkSelectorItem
+static GList* ugtk_selector_items_get_marked   (GPtrArray* items, GList* list);
+static void   ugtk_selector_items_set_mark_all (GPtrArray* items, gboolean mark);
+static void   ugtk_selector_items_clear        (GPtrArray* items);
 
 // ----------------------------------------------------------------------------
 // UgtkSelector
@@ -70,14 +66,17 @@ static GtkCellRenderer* ugtk_selector_view_get_renderer_toggle (GtkTreeView* vie
 static void ugtk_selector_init_ui (UgtkSelector* selector);
 static void ugtk_selector_filter_init (struct UgtkSelectorFilter* filter, UgtkSelector* selector);
 static void ugtk_selector_filter_show (struct UgtkSelectorFilter* filter, UgtkSelectorPage* page);
+// forward declarations
+void ugtk_selector_page_rebuild_list (UgtkSelectorPage* page, UgtkSelector* selector);
 // signal handlers
-static void on_selector_item_toggled (GtkCellRendererToggle* cell, gchar* path_str, UgtkSelector* selector);
 static void on_selector_mark_all    (GtkWidget* button, UgtkSelector* selector);
 static void on_selector_mark_none   (GtkWidget* button, UgtkSelector* selector);
 static void on_selector_mark_filter (GtkWidget* button, UgtkSelector* selector);
-static void on_filter_dialog_response (GtkDialog* dialog, gint response_id, UgtkSelector* selector);
-static void on_filter_button_all  (GtkWidget* widget, GtkTreeView* treeview);
-static void on_filter_button_none (GtkWidget* widget, GtkTreeView* treeview);
+static void on_filter_ok (GtkWidget* button, UgtkSelector* selector);
+static void on_filter_cancel (GtkWidget* button, UgtkSelector* selector);
+static gboolean on_filter_close_request (GtkWindow* window, UgtkSelector* selector);
+static void on_filter_button_all (GtkWidget* widget, gpointer user_data);
+static void on_filter_button_none (GtkWidget* widget, gpointer user_data);
 
 void  ugtk_selector_init (UgtkSelector* selector, GtkWindow* parent)
 {
@@ -111,14 +110,14 @@ void  ugtk_selector_finalize (UgtkSelector* selector)
 	g_array_free (selector->pages, TRUE);
 
 	// UgtkSelectorFilter finalize
-	gtk_widget_destroy (GTK_WIDGET (selector->filter.dialog));
+	gtk_window_destroy (GTK_WINDOW (selector->filter.dialog));
 }
 
 void  ugtk_selector_hide_href (UgtkSelector* selector)
 {
-	gtk_widget_hide ((GtkWidget*) selector->href_label);
-	gtk_widget_hide ((GtkWidget*) selector->href_entry);
-	gtk_widget_hide ((GtkWidget*) selector->href_separator);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_label, FALSE);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_entry, FALSE);
+	gtk_widget_set_visible ((GtkWidget*) selector->href_separator, FALSE);
 }
 
 static GList*  ugtk_selector_get_marked (UgtkSelector* selector)
@@ -130,7 +129,7 @@ static GList*  ugtk_selector_get_marked (UgtkSelector* selector)
 	list = NULL;
 	for (index = 0;  index < selector->pages->len;  index++) {
 		page = &g_array_index (selector->pages, UgtkSelectorPage, index);
-		list = ugtk_selector_store_get_marked (page->store, list);
+		list = ugtk_selector_items_get_marked (page->items, list);
 	}
 	return g_list_reverse (list);
 }
@@ -144,7 +143,7 @@ GList*  ugtk_selector_get_marked_uris (UgtkSelector* selector)
 	const gchar* base_href;
 
 	list = ugtk_selector_get_marked (selector);
-	base_href = gtk_entry_get_text (selector->href_entry);
+	base_href = gtk_editable_get_text (GTK_EDITABLE (selector->href_entry));
 	if (base_href[0] == 0)
 		base_href = NULL;
 	for (link = list;  link;  link = link->next) {
@@ -175,7 +174,6 @@ gint  ugtk_selector_count_marked (UgtkSelector* selector)
 	count = 0;
 	for (index = 0;  index < selector->pages->len;  index++) {
 		count += g_array_index (selector->pages, UgtkSelectorPage, index).n_marked;
-//		count += page->n_marked;
 	}
 	if (selector->notify.func)
 		selector->notify.func (selector->notify.data, (count) ? TRUE: FALSE);
@@ -191,14 +189,13 @@ gint   ugtk_selector_n_items (UgtkSelector* selector)
 	count = 0;
 	for (index = 0;  index < selector->pages->len;  index++) {
 		page = &g_array_index (selector->pages, UgtkSelectorPage, index);
-		count += gtk_tree_model_iter_n_children (GTK_TREE_MODEL (page->store), NULL);
+		count += page->items->len;
 	}
 	return count;
 }
 
 UgtkSelectorPage*  ugtk_selector_add_page (UgtkSelector* selector, const gchar* title)
 {
-	GtkCellRenderer*  renderer;
 	UgtkSelectorPage* page;
 	GArray*           array;
 
@@ -206,9 +203,6 @@ UgtkSelectorPage*  ugtk_selector_add_page (UgtkSelector* selector, const gchar* 
 	g_array_set_size (array, array->len + 1);
 	page = &g_array_index (array, UgtkSelectorPage, array->len - 1);
 	ugtk_selector_page_init (page);
-	renderer = ugtk_selector_view_get_renderer_toggle (page->view);
-	g_signal_connect (renderer, "toggled",
-			G_CALLBACK (on_selector_item_toggled), selector);
 
 	gtk_notebook_append_page (selector->notebook, page->self, gtk_label_new (title));
 	return page;
@@ -230,133 +224,191 @@ UgtkSelectorPage*  ugtk_selector_get_page (UgtkSelector* selector, gint nth_page
 // ----------------------------------------------------------------------------
 // UgtkSelectorFilter use UgtkSelectorFilterData in UgtkSelectorPage
 //
-static GtkWidget*  ugtk_selector_filter_view_init (GtkTreeView* item_view)
+
+static void ugtk_selector_filter_rebuild_list (GtkListBox* list_box, GPtrArray* items)
 {
-	GtkSizeGroup* sizegroup;
-	GtkWidget*    widget;
-	GtkBox*       vbox;
-	GtkBox*       hbox;
+	GtkWidget* child;
+	guint i;
 
-	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-	// filter view and it's scrolled window
-	gtk_widget_set_size_request ((GtkWidget*) item_view, 120, 120);
-	widget = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget),
-			GTK_SHADOW_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget),
-			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (item_view));
-	gtk_box_pack_start (vbox, widget, TRUE, TRUE, 2);
-	// button
-	sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 2);
-	widget = gtk_button_new_with_label (_("All"));
-	gtk_size_group_add_widget (sizegroup, widget);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
-	g_signal_connect (widget, "clicked",
-			G_CALLBACK (on_filter_button_all), item_view);
-	widget = gtk_button_new_with_label (_("None"));
-	gtk_size_group_add_widget (sizegroup, widget);
-	gtk_box_pack_start (hbox, widget, FALSE, FALSE, 1);
-	g_signal_connect (widget, "clicked",
-			G_CALLBACK (on_filter_button_none), item_view);
+	// Clear existing rows
+	while ((child = gtk_widget_get_first_child (GTK_WIDGET (list_box))))
+		gtk_list_box_remove (list_box, child);
 
-	return (GtkWidget*) vbox;
+	// Add rows
+	for (i = 0; i < items->len; i++) {
+		UgtkSelectorItem* item = g_ptr_array_index (items, i);
+		GtkWidget* box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+		GtkWidget* check = gtk_check_button_new ();
+		GtkWidget* label = gtk_label_new (item->uri);
+
+		gtk_check_button_set_active (GTK_CHECK_BUTTON (check), item->mark);
+		gtk_label_set_xalign (GTK_LABEL (label), 0.0);
+		gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+		gtk_widget_set_hexpand (label, TRUE);
+		gtk_box_append (GTK_BOX (box), check);
+		gtk_box_append (GTK_BOX (box), label);
+		gtk_list_box_append (list_box, box);
+
+		// Store item pointer on the check button
+		g_object_set_data (G_OBJECT (check), "selector-item", item);
+	}
+}
+
+static void on_filter_check_toggled (GtkCheckButton* check, gpointer user_data)
+{
+	UgtkSelectorItem* item = g_object_get_data (G_OBJECT (check), "selector-item");
+	if (item)
+		item->mark = gtk_check_button_get_active (check);
+}
+
+static void ugtk_selector_filter_connect_toggles (GtkListBox* list_box)
+{
+	GtkWidget* row;
+	int i;
+
+	for (i = 0; ; i++) {
+		row = GTK_WIDGET (gtk_list_box_get_row_at_index (list_box, i));
+		if (!row) break;
+		GtkWidget* box = gtk_list_box_row_get_child (GTK_LIST_BOX_ROW (row));
+		GtkWidget* check = gtk_widget_get_first_child (box);
+		if (check)
+			g_signal_connect (check, "toggled", G_CALLBACK (on_filter_check_toggled), NULL);
+	}
 }
 
 static void ugtk_selector_filter_init (struct UgtkSelectorFilter* filter, UgtkSelector* selector)
 {
-	GtkDialog*  dialog;
+	GtkWindow*  window;
 	GtkWidget*  widget;
 	GtkBox*     vbox;
 	GtkBox*     hbox;
+	GtkBox*     button_box;
+	GtkWidget*  cancel_button;
+	GtkWidget*  ok_button;
 	gchar*      title;
 
 	title  = g_strconcat (UGTK_APP_NAME " - ", _("Mark by filter"), NULL);
-	dialog = (GtkDialog*) gtk_dialog_new_with_buttons (title, selector->parent,
-			0,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK,     GTK_RESPONSE_OK,
-			NULL);
+	window = (GtkWindow*) gtk_window_new ();
+	gtk_window_set_title (window, title);
 	g_free (title);
-	gtk_window_set_modal ((GtkWindow*) dialog, FALSE);
-//	gtk_window_set_resizable ((GtkWindow*) dialog, FALSE);
-	gtk_window_set_destroy_with_parent ((GtkWindow*) dialog, TRUE);
-	gtk_window_set_transient_for ((GtkWindow*) dialog, selector->parent);
-	gtk_window_resize ((GtkWindow*) dialog, 480, 330);
-	g_signal_connect (dialog, "response",
-			G_CALLBACK (on_filter_dialog_response), selector);
-	filter->dialog = dialog;
+	gtk_window_set_modal (window, FALSE);
+	gtk_window_set_destroy_with_parent (window, TRUE);
+	gtk_window_set_transient_for (window, selector->parent);
+	gtk_window_set_default_size (window, 480, 330);
+	filter->dialog = window;
 
-	vbox = (GtkBox*) gtk_dialog_get_content_area (dialog);
-	gtk_box_pack_start (vbox,
-			gtk_label_new (_("Mark URLs by host AND filename extension.")),
-			FALSE, FALSE, 3);
-	gtk_box_pack_start (vbox,
-			gtk_label_new (_("This will reset all marks of URLs.")),
-			FALSE, FALSE, 3);
+	// main layout
+	vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+	gtk_window_set_child (window, (GtkWidget*) vbox);
+	gtk_box_append (vbox,
+			gtk_label_new (_("Mark URLs by host AND filename extension.")));
+	gtk_box_append (vbox,
+			gtk_label_new (_("This will reset all marks of URLs.")));
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, TRUE, TRUE, 1);
+	gtk_widget_set_vexpand ((GtkWidget*) hbox, TRUE);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 
-	// filter view -----------------------
-	// left side
-	filter->host_view = ugtk_selector_view_new (_("Host"), TRUE);
-	widget = ugtk_selector_filter_view_init (filter->host_view);
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 2);
-	// right side (filename extension)
-	filter->ext_view = ugtk_selector_view_new (_("File Ext."), TRUE);
-	widget = ugtk_selector_filter_view_init (filter->ext_view);
-	gtk_box_pack_start (hbox, widget, FALSE, TRUE, 2);
+	// filter views - host
+	filter->host_list = GTK_LIST_BOX (gtk_list_box_new ());
+	{
+		GtkBox* host_vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+		gtk_box_append (host_vbox, gtk_label_new (_("Host")));
+		GtkWidget* host_scroll = gtk_scrolled_window_new ();
+		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (host_scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+		gtk_widget_set_vexpand (host_scroll, TRUE);
+		gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (host_scroll), GTK_WIDGET (filter->host_list));
+		gtk_box_append (host_vbox, host_scroll);
+		GtkBox* host_btn_box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
+		widget = gtk_button_new_with_label (_("All"));
+		g_object_set_data (G_OBJECT (widget), "filter-list", filter->host_list);
+		g_signal_connect (widget, "clicked", G_CALLBACK (on_filter_button_all), NULL);
+		gtk_box_append (host_btn_box, widget);
+		widget = gtk_button_new_with_label (_("None"));
+		g_object_set_data (G_OBJECT (widget), "filter-list", filter->host_list);
+		g_signal_connect (widget, "clicked", G_CALLBACK (on_filter_button_none), NULL);
+		gtk_box_append (host_btn_box, widget);
+		gtk_box_append (host_vbox, (GtkWidget*) host_btn_box);
+		gtk_widget_set_hexpand ((GtkWidget*) host_vbox, TRUE);
+		gtk_box_append (hbox, (GtkWidget*) host_vbox);
+	}
+	// filter views - ext
+	filter->ext_list = GTK_LIST_BOX (gtk_list_box_new ());
+	{
+		GtkBox* ext_vbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
+		gtk_box_append (ext_vbox, gtk_label_new (_("File Ext.")));
+		GtkWidget* ext_scroll = gtk_scrolled_window_new ();
+		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (ext_scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+		gtk_widget_set_vexpand (ext_scroll, TRUE);
+		gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (ext_scroll), GTK_WIDGET (filter->ext_list));
+		gtk_box_append (ext_vbox, ext_scroll);
+		GtkBox* ext_btn_box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
+		widget = gtk_button_new_with_label (_("All"));
+		g_object_set_data (G_OBJECT (widget), "filter-list", filter->ext_list);
+		g_signal_connect (widget, "clicked", G_CALLBACK (on_filter_button_all), NULL);
+		gtk_box_append (ext_btn_box, widget);
+		widget = gtk_button_new_with_label (_("None"));
+		g_object_set_data (G_OBJECT (widget), "filter-list", filter->ext_list);
+		g_signal_connect (widget, "clicked", G_CALLBACK (on_filter_button_none), NULL);
+		gtk_box_append (ext_btn_box, widget);
+		gtk_box_append (ext_vbox, (GtkWidget*) ext_btn_box);
+		gtk_widget_set_hexpand ((GtkWidget*) ext_vbox, TRUE);
+		gtk_box_append (hbox, (GtkWidget*) ext_vbox);
+	}
 
-	gtk_widget_show_all (GTK_WIDGET (vbox));
+	// button box
+	button_box = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+	gtk_widget_set_halign ((GtkWidget*) button_box, GTK_ALIGN_END);
+	gtk_widget_set_margin_top ((GtkWidget*) button_box, 6);
+	gtk_widget_set_margin_bottom ((GtkWidget*) button_box, 6);
+	gtk_widget_set_margin_end ((GtkWidget*) button_box, 6);
+	gtk_box_append (vbox, (GtkWidget*) button_box);
+	cancel_button = gtk_button_new_with_mnemonic (_("_Cancel"));
+	gtk_box_append (button_box, cancel_button);
+	ok_button = gtk_button_new_with_mnemonic (_("_OK"));
+	gtk_widget_add_css_class (ok_button, "suggested-action");
+	gtk_box_append (button_box, ok_button);
+
+	g_signal_connect (ok_button, "clicked",
+			G_CALLBACK (on_filter_ok), selector);
+	g_signal_connect (cancel_button, "clicked",
+			G_CALLBACK (on_filter_cancel), selector);
+	g_signal_connect (window, "close-request",
+			G_CALLBACK (on_filter_close_request), selector);
 }
 
 static void ugtk_selector_filter_show (struct UgtkSelectorFilter* filter, UgtkSelectorPage* page)
 {
 	GtkWindow* parent;
 
-	gtk_tree_view_set_model (filter->host_view,
-			GTK_TREE_MODEL (page->filter.host));
-	gtk_tree_view_set_model (filter->ext_view,
-			GTK_TREE_MODEL (page->filter.ext));
+	ugtk_selector_filter_rebuild_list (filter->host_list, page->filter.host);
+	ugtk_selector_filter_connect_toggles (filter->host_list);
+	ugtk_selector_filter_rebuild_list (filter->ext_list, page->filter.ext);
+	ugtk_selector_filter_connect_toggles (filter->ext_list);
 
-	// disable sensitive of parent window
-	// enable sensitive in function on_filter_dialog_response()
 	parent = gtk_window_get_transient_for ((GtkWindow*) filter->dialog);
 	if (parent)
 		gtk_widget_set_sensitive ((GtkWidget*) parent, FALSE);
-	// create filter dialog
-	if (gtk_window_get_modal (parent))
-		gtk_dialog_run (filter->dialog);
-	else
-		gtk_widget_show ((GtkWidget*) filter->dialog);
+	gtk_widget_set_visible ((GtkWidget*) filter->dialog, TRUE);
 }
 
 //	signal handler ------------------------------
-static void on_selector_item_toggled (GtkCellRendererToggle* cell, gchar* path_str, UgtkSelector* selector)
-{
-	UgtkSelectorPage*  page;
-	UgtkSelectorItem*  item;
-	GtkTreeIter    iter;
-	GtkTreePath*   path;
-	GtkTreeModel*  model;
 
-	page  = ugtk_selector_get_page (selector, -1);
-	model = GTK_TREE_MODEL (page->store);
-	path  = gtk_tree_path_new_from_string (path_str);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	gtk_tree_model_get (model, &iter, 0, &item, -1);
-	// UgtkSelectorItem.mark
-	item->mark ^= 1;
-	if (item->mark)
-		page->n_marked++;
-	else
-		page->n_marked--;
-	// count and notify
-	ugtk_selector_count_marked (selector);
+static void on_item_check_toggled (GtkCheckButton* check, UgtkSelector* selector)
+{
+	UgtkSelectorItem* item = g_object_get_data (G_OBJECT (check), "selector-item");
+	UgtkSelectorPage* page = ugtk_selector_get_page (selector, -1);
+	if (!item || !page) return;
+
+	gboolean new_mark = gtk_check_button_get_active (check);
+	if (new_mark != item->mark) {
+		item->mark = new_mark;
+		if (item->mark)
+			page->n_marked++;
+		else
+			page->n_marked--;
+		ugtk_selector_count_marked (selector);
+	}
 }
 
 static void on_selector_mark_all (GtkWidget* button, UgtkSelector* selector)
@@ -366,10 +418,9 @@ static void on_selector_mark_all (GtkWidget* button, UgtkSelector* selector)
 	page = ugtk_selector_get_page (selector, -1);
 	if (page == NULL)
 		return;
-	ugtk_selector_store_set_mark_all (page->store, TRUE);
-	gtk_widget_queue_draw (GTK_WIDGET (page->view));
-	// count and notify
-	page->n_marked = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (page->store), NULL);
+	ugtk_selector_items_set_mark_all (page->items, TRUE);
+	page->n_marked = page->items->len;
+	ugtk_selector_page_rebuild_list (page, selector);
 	ugtk_selector_count_marked (selector);
 }
 
@@ -380,11 +431,45 @@ static void on_selector_mark_none (GtkWidget* button, UgtkSelector* selector)
 	page = ugtk_selector_get_page (selector, -1);
 	if (page == NULL)
 		return;
-	ugtk_selector_store_set_mark_all (page->store, FALSE);
-	gtk_widget_queue_draw (GTK_WIDGET (page->view));
-	// count and notify
+	ugtk_selector_items_set_mark_all (page->items, FALSE);
 	page->n_marked = 0;
+	ugtk_selector_page_rebuild_list (page, selector);
 	ugtk_selector_count_marked (selector);
+}
+
+static void on_filter_button_all (GtkWidget* widget, gpointer user_data)
+{
+	GtkListBox* list_box = g_object_get_data (G_OBJECT (widget), "filter-list");
+	if (!list_box) return;
+	// Set all checkboxes to active
+	for (int i = 0; ; i++) {
+		GtkWidget* row = GTK_WIDGET (gtk_list_box_get_row_at_index (list_box, i));
+		if (!row) break;
+		GtkWidget* box = gtk_list_box_row_get_child (GTK_LIST_BOX_ROW (row));
+		GtkWidget* check = gtk_widget_get_first_child (box);
+		if (check) {
+			UgtkSelectorItem* item = g_object_get_data (G_OBJECT (check), "selector-item");
+			if (item) item->mark = TRUE;
+			gtk_check_button_set_active (GTK_CHECK_BUTTON (check), TRUE);
+		}
+	}
+}
+
+static void on_filter_button_none (GtkWidget* widget, gpointer user_data)
+{
+	GtkListBox* list_box = g_object_get_data (G_OBJECT (widget), "filter-list");
+	if (!list_box) return;
+	for (int i = 0; ; i++) {
+		GtkWidget* row = GTK_WIDGET (gtk_list_box_get_row_at_index (list_box, i));
+		if (!row) break;
+		GtkWidget* box = gtk_list_box_row_get_child (GTK_LIST_BOX_ROW (row));
+		GtkWidget* check = gtk_widget_get_first_child (box);
+		if (check) {
+			UgtkSelectorItem* item = g_object_get_data (G_OBJECT (check), "selector-item");
+			if (item) item->mark = FALSE;
+			gtk_check_button_set_active (GTK_CHECK_BUTTON (check), FALSE);
+		}
+	}
 }
 
 static void on_selector_mark_filter (GtkWidget* button, UgtkSelector* selector)
@@ -398,91 +483,113 @@ static void on_selector_mark_filter (GtkWidget* button, UgtkSelector* selector)
 	ugtk_selector_filter_show (&selector->filter, page);
 }
 
-static void on_filter_dialog_response (GtkDialog* dialog, gint response_id, UgtkSelector* selector)
+static void on_filter_ok (GtkWidget* button, UgtkSelector* selector)
 {
 	UgtkSelectorPage*  page;
 	GtkWindow*  parent;
 
-	if (response_id == GTK_RESPONSE_OK) {
-		// update selection of page
-		page = ugtk_selector_get_page (selector, -1);
-		if (page)
-			ugtk_selector_page_mark_by_filter_all (page);
-	}
-	// enable parent window
-	parent = gtk_window_get_transient_for ((GtkWindow*) dialog);
+	page = ugtk_selector_get_page (selector, -1);
+	if (page)
+		ugtk_selector_page_mark_by_filter_all (page);
+	parent = gtk_window_get_transient_for (selector->filter.dialog);
 	if (parent)
 		gtk_widget_set_sensitive ((GtkWidget*) parent, TRUE);
-	// hide filter dialog
-	gtk_widget_hide ((GtkWidget*) dialog);
-	// count and notify
+	gtk_widget_set_visible ((GtkWidget*) selector->filter.dialog, FALSE);
+	// Rebuild main page list to reflect changes
+	if (page)
+		ugtk_selector_page_rebuild_list (page, selector);
 	ugtk_selector_count_marked (selector);
 }
 
-static void on_filter_button_all (GtkWidget* widget, GtkTreeView* treeview)
+static void on_filter_cancel (GtkWidget* button, UgtkSelector* selector)
 {
-	GtkListStore*  store;
+	GtkWindow*  parent;
 
-	store = (GtkListStore*) gtk_tree_view_get_model (treeview);
-	ugtk_selector_store_set_mark_all (store, TRUE);
-	gtk_widget_queue_draw ((GtkWidget*) treeview);
+	parent = gtk_window_get_transient_for (selector->filter.dialog);
+	if (parent)
+		gtk_widget_set_sensitive ((GtkWidget*) parent, TRUE);
+	gtk_widget_set_visible ((GtkWidget*) selector->filter.dialog, FALSE);
+	ugtk_selector_count_marked (selector);
 }
 
-static void on_filter_button_none (GtkWidget* widget, GtkTreeView* treeview)
+static gboolean on_filter_close_request (GtkWindow* window, UgtkSelector* selector)
 {
-	GtkListStore*  store;
-
-	store = (GtkListStore*) gtk_tree_view_get_model (treeview);
-	ugtk_selector_store_set_mark_all (store, FALSE);
-	gtk_widget_queue_draw ((GtkWidget*) treeview);
+	on_filter_cancel (NULL, selector);
+	return TRUE;
 }
 
 
 // ----------------------------------------------------------------------------
 // UgtkSelectorPage
 //
+
+void ugtk_selector_page_rebuild_list (UgtkSelectorPage* page, UgtkSelector* selector)
+{
+	GtkWidget* child;
+	guint i;
+
+	while ((child = gtk_widget_get_first_child (GTK_WIDGET (page->list_box))))
+		gtk_list_box_remove (page->list_box, child);
+
+	for (i = 0; i < page->items->len; i++) {
+		UgtkSelectorItem* item = g_ptr_array_index (page->items, i);
+		GtkWidget* box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+		GtkWidget* check = gtk_check_button_new ();
+		GtkWidget* label = gtk_label_new (item->uri);
+
+		gtk_check_button_set_active (GTK_CHECK_BUTTON (check), item->mark);
+		gtk_label_set_xalign (GTK_LABEL (label), 0.0);
+		gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+		gtk_widget_set_hexpand (label, TRUE);
+		gtk_box_append (GTK_BOX (box), check);
+		gtk_box_append (GTK_BOX (box), label);
+		gtk_list_box_append (page->list_box, box);
+
+		g_object_set_data (G_OBJECT (check), "selector-item", item);
+		if (selector)
+			g_signal_connect (check, "toggled", G_CALLBACK (on_item_check_toggled), selector);
+	}
+}
+
 void  ugtk_selector_page_init (UgtkSelectorPage* page)
 {
 	GtkScrolledWindow*  scrolled;
 
-	page->store = gtk_list_store_new (1, G_TYPE_POINTER);
-	page->view  = ugtk_selector_view_new (_("URL"), FALSE);
-	gtk_tree_view_set_model (page->view, GTK_TREE_MODEL (page->store));
-	// scrolled
-	page->self = gtk_scrolled_window_new (NULL, NULL);
+	page->items = g_ptr_array_new ();
+	page->list_box = GTK_LIST_BOX (gtk_list_box_new ());
+	gtk_list_box_set_selection_mode (page->list_box, GTK_SELECTION_NONE);
+
+	page->self = gtk_scrolled_window_new ();
 	scrolled = GTK_SCROLLED_WINDOW (page->self);
-	gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scrolled,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled), GTK_WIDGET (page->view));
-	gtk_widget_show (page->self);
+	gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (scrolled), GTK_WIDGET (page->list_box));
+	gtk_widget_set_visible(page->self, TRUE);
 
-	// total marked count
 	page->n_marked = 0;
 
 	// UgtkSelectorFilterData initialize
 	page->filter.hash = g_hash_table_new_full (g_str_hash, g_str_equal,
 			NULL, (GDestroyNotify) g_list_free);
-	page->filter.host = gtk_list_store_new (1, G_TYPE_POINTER);
-	page->filter.ext  = gtk_list_store_new (1, G_TYPE_POINTER);
+	page->filter.host = g_ptr_array_new ();
+	page->filter.ext  = g_ptr_array_new ();
 }
 
 void  ugtk_selector_page_finalize (UgtkSelectorPage* page)
 {
-	ugtk_selector_store_clear (page->store);
-	g_object_unref (page->store);
+	ugtk_selector_items_clear (page->items);
+	g_ptr_array_free (page->items, TRUE);
 
 	// UgtkSelectorFilterData finalize
 	g_hash_table_destroy (page->filter.hash);
-	ugtk_selector_store_clear (page->filter.host);
-	g_object_unref (page->filter.host);
-	ugtk_selector_store_clear (page->filter.ext);
-	g_object_unref (page->filter.ext);
+	ugtk_selector_items_clear (page->filter.host);
+	g_ptr_array_free (page->filter.host, TRUE);
+	ugtk_selector_items_clear (page->filter.ext);
+	g_ptr_array_free (page->filter.ext, TRUE);
 }
 
 int  ugtk_selector_page_add_uris (UgtkSelectorPage* page, GList* uris)
 {
-	GtkTreeIter       iter;
 	UgtkSelectorItem* item;
 	int  counts;
 
@@ -495,17 +602,15 @@ int  ugtk_selector_page_add_uris (UgtkSelectorPage* page, GList* uris)
 		item->uri  = uris->data;
 		item->data = NULL;
 		uris->data = NULL;  // item->uri
-		gtk_list_store_append (page->store, &iter);
-		gtk_list_store_set (page->store, &iter, 0, item, -1);
+		g_ptr_array_add (page->items, item);
 		page->n_marked++;
 	}
 	return counts;
 }
 
-static void ugtk_selector_page_add_filter (UgtkSelectorPage* page, GtkListStore* filter_store, gchar* key, UgtkSelectorItem* value)
+static void ugtk_selector_page_add_filter (UgtkSelectorPage* page, GPtrArray* filter_items, gchar* key, UgtkSelectorItem* value)
 {
 	UgtkSelectorItem* filter_item;
-	GtkTreeIter  iter;
 	GList*       filter_list;
 	gchar*       orig_key;
 
@@ -516,8 +621,7 @@ static void ugtk_selector_page_add_filter (UgtkSelectorPage* page, GtkListStore*
 		filter_item->uri  = key;
 		filter_item->mark = TRUE;
 		filter_item->data = NULL;
-		gtk_list_store_append (filter_store, &iter);
-		gtk_list_store_set (filter_store, &iter, 0, filter_item, -1);
+		g_ptr_array_add (filter_items, filter_item);
 		filter_list = NULL;
 	}
 	else {
@@ -532,48 +636,43 @@ static void ugtk_selector_page_add_filter (UgtkSelectorPage* page, GtkListStore*
 void  ugtk_selector_page_make_filter (UgtkSelectorPage* page)
 {
 	UgtkSelectorItem* item;
-	GtkTreeModel*   model;
-	GtkTreeIter     iter;
 	UgUri*  upart;
 	int     value;
 	gchar*  key;
+	guint   i;
 
 	if (g_hash_table_size (page->filter.hash))
 		return;
 
 	upart = g_slice_alloc (sizeof (UgUri));
-	model = GTK_TREE_MODEL (page->store);
-	value = gtk_tree_model_get_iter_first (model, &iter);
-	while (value) {
-		gtk_tree_model_get (model, &iter, 0, &item, -1);
-		// create filter by host ----------------
+	for (i = 0; i < page->items->len; i++) {
+		item = g_ptr_array_index (page->items, i);
+		// create filter by host
 		ug_uri_init (upart, item->uri);
 		if (upart->authority)
 			key = g_strndup (item->uri, upart->path);
 		else
 			key = g_strdup ("(none)");
 		ugtk_selector_page_add_filter (page, page->filter.host, key, item);
-		// create filter by filename extension --
+		// create filter by filename extension
 		value = ug_uri_part_file_ext (upart, (const char**) &key);
 		if (value)
 			key = g_strdup_printf (".%.*s", value, key);
 		else
 			key = g_strdup (".(none)");
 		ugtk_selector_page_add_filter (page, page->filter.ext, key, item);
-		// next
-		value = gtk_tree_model_iter_next (model, &iter);
 	}
 	g_slice_free1 (sizeof (UgUri), upart);
 }
 
-static void ugtk_selector_page_mark_by_filter (UgtkSelectorPage* page, GtkListStore* filter_store)
+static void ugtk_selector_page_mark_by_filter (UgtkSelectorPage* page, GPtrArray* filter_items)
 {
 	UgtkSelectorItem*  item;
 	GList*  related;
 	GList*  marked;
 	GList*  link;
 
-	marked = ugtk_selector_store_get_marked (filter_store, NULL);
+	marked = ugtk_selector_items_get_marked (filter_items, NULL);
 	for (link = marked;  link;  link = link->next) {
 		item = link->data;
 		related = g_hash_table_lookup (page->filter.hash, item->uri);
@@ -588,23 +687,17 @@ static void ugtk_selector_page_mark_by_filter (UgtkSelectorPage* page, GtkListSt
 void  ugtk_selector_page_mark_by_filter_all (UgtkSelectorPage* page)
 {
 	UgtkSelectorItem*  item;
-	GtkTreeModel*  model;
-	GtkTreeIter    iter;
-	gboolean       valid;
+	guint i;
 
 	// clear all mark
-	ugtk_selector_store_set_mark_all (page->store, FALSE);
+	ugtk_selector_items_set_mark_all (page->items, FALSE);
 	page->n_marked = 0;
 	// If filter (host and filename extension) was selected, increase mark count.
 	ugtk_selector_page_mark_by_filter (page, page->filter.host);
 	ugtk_selector_page_mark_by_filter (page, page->filter.ext);
 	// remark
-	model = GTK_TREE_MODEL (page->store);
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		gtk_tree_model_get (model, &iter, 0, &item, -1);
-		valid = gtk_tree_model_iter_next (model, &iter);
-		// decrease mark count. If mark count is 2, it still marked.
+	for (i = 0; i < page->items->len; i++) {
+		item = g_ptr_array_index (page->items, i);
 		if (item->mark > 0) {
 			item->mark--;
 			if (item->mark)
@@ -615,155 +708,39 @@ void  ugtk_selector_page_mark_by_filter_all (UgtkSelectorPage* page)
 
 
 // ----------------------------------------------------------------------------
-// GtkListStore for UgtkSelectorItem
+// GPtrArray helpers for UgtkSelectorItem
 
-// (UgItem*) list->data. To free the returned value, call g_list_free()
-static GList*  ugtk_selector_store_get_marked (GtkListStore* store, GList* list)
+static GList*  ugtk_selector_items_get_marked (GPtrArray* items, GList* list)
 {
-	UgtkSelectorItem*  item;
-	GtkTreeModel*  model;
-	GtkTreeIter    iter;
-	gboolean       valid;
-
-	model = GTK_TREE_MODEL (store);
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		gtk_tree_model_get (model, &iter, 0, &item, -1);
-		valid = gtk_tree_model_iter_next (model, &iter);
+	guint i;
+	for (i = 0; i < items->len; i++) {
+		UgtkSelectorItem* item = g_ptr_array_index (items, i);
 		if (item->mark)
 			list = g_list_prepend (list, item);
 	}
 	return list;
 }
 
-static void ugtk_selector_store_set_mark_all (GtkListStore* store, gboolean mark)
+static void ugtk_selector_items_set_mark_all (GPtrArray* items, gboolean mark)
 {
-	UgtkSelectorItem*  item;
-	GtkTreeModel*  model;
-	GtkTreeIter    iter;
-	gboolean       valid;
-
-	model = (GtkTreeModel*) store;
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		gtk_tree_model_get (model, &iter, 0, &item, -1);
-		valid = gtk_tree_model_iter_next (model, &iter);
+	guint i;
+	for (i = 0; i < items->len; i++) {
+		UgtkSelectorItem* item = g_ptr_array_index (items, i);
 		item->mark = mark;
 	}
 }
 
-static void ugtk_selector_store_clear (GtkListStore* store)
+static void ugtk_selector_items_clear (GPtrArray* items)
 {
-	UgtkSelectorItem*  item;
-	GtkTreeModel*   model;
-	GtkTreeIter     iter;
-
-	model = GTK_TREE_MODEL (store);
-	while (gtk_tree_model_get_iter_first (model, &iter)) {
-		gtk_tree_model_get (model, &iter, 0, &item, -1);
-		gtk_list_store_remove (store, &iter);
+	guint i;
+	for (i = 0; i < items->len; i++) {
+		UgtkSelectorItem* item = g_ptr_array_index (items, i);
 		g_free (item->uri);
 		g_slice_free1 (sizeof (UgtkSelectorItem), item);
 	}
+	g_ptr_array_set_size (items, 0);
 }
 
-// ----------------------------------------------------------------------------
-// GtkTreeView for UgtkSelectorItem
-//
-static void col_set_toggle (GtkTreeViewColumn *column,
-                            GtkCellRenderer   *cell,
-                            GtkTreeModel      *model,
-                            GtkTreeIter       *iter,
-                            gpointer           data)
-{
-	UgtkSelectorItem*  item;
-
-	gtk_tree_model_get (model, iter, 0, &item, -1);
-	g_object_set (cell, "active", item->mark, NULL);
-}
-
-static void col_set_uri (GtkTreeViewColumn *column,
-                         GtkCellRenderer   *cell,
-                         GtkTreeModel      *model,
-                         GtkTreeIter       *iter,
-                         gpointer           data)
-{
-	UgtkSelectorItem*  item;
-
-	gtk_tree_model_get (model, iter, 0, &item, -1);
-	g_object_set (cell, "text", item->uri, NULL);
-}
-
-// toggled callback
-static void on_cell_toggled (GtkCellRendererToggle* cell,
-                             gchar*                 path_str,
-                             GtkTreeView*           view)
-{
-	GtkTreeIter    iter;
-	GtkTreePath*   path;
-	GtkTreeModel*  model;
-	UgtkSelectorItem*  item;
-
-	path  = gtk_tree_path_new_from_string (path_str);
-	model = gtk_tree_view_get_model (view);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	gtk_tree_model_get (model, &iter, 0, &item, -1);
-	item->mark ^= 1;
-}
-
-static GtkTreeView* ugtk_selector_view_new (const gchar* title, gboolean active_toggled)
-{
-	GtkTreeView*       view;
-	GtkCellRenderer*   renderer;
-	GtkTreeViewColumn* column;
-
-	view = (GtkTreeView*) gtk_tree_view_new ();
-//	gtk_tree_view_set_fixed_height_mode (view, TRUE);
-	// UgtkSelectorItem.mark
-	renderer = gtk_cell_renderer_toggle_new ();
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (column, "M");
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func (column, renderer,
-			col_set_toggle, NULL, NULL);
-	gtk_tree_view_column_set_resizable (column, FALSE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-	gtk_tree_view_column_set_min_width (column, 15);
-//	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_append_column (view, column);
-	if (active_toggled) {
-		g_signal_connect (renderer, "toggled",
-				G_CALLBACK (on_cell_toggled), view);
-	}
-	// UgtkSelectorItem.uri
-	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (column, title);
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func (column, renderer,
-			col_set_uri, NULL, NULL);
-	gtk_tree_view_column_set_resizable (column, TRUE);
-//	gtk_tree_view_column_set_expand (column, TRUE);
-//	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_append_column (view, column);
-
-	gtk_widget_show (GTK_WIDGET (view));
-	return view;
-}
-
-static GtkCellRenderer* ugtk_selector_view_get_renderer_toggle (GtkTreeView* view)
-{
-	GtkCellRenderer*   renderer;
-	GtkTreeViewColumn* column;
-	GList*             list;
-
-	column = gtk_tree_view_get_column (view, 0);
-	list = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT (column));
-	renderer = list->data;
-	g_list_free (list);
-	return renderer;
-}
 
 // UI
 static void ugtk_selector_init_ui (UgtkSelector* selector)
@@ -777,34 +754,34 @@ static void ugtk_selector_init_ui (UgtkSelector* selector)
 	vbox = (GtkBox*) selector->self;
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	string = g_strconcat (_("Base hypertext reference"), " <base href> :", NULL);
 	selector->href_label = gtk_label_new (string);
 	g_free (string);
-	gtk_box_pack_start (hbox, selector->href_label, FALSE, TRUE, 1);
+	gtk_box_append (hbox, selector->href_label);
 
 	selector->href_entry = (GtkEntry*) gtk_entry_new ();
-	gtk_box_pack_start (vbox, (GtkWidget*) selector->href_entry, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) selector->href_entry);
 	selector->href_separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
-	gtk_box_pack_start (vbox, selector->href_separator, FALSE, FALSE, 1);
+	gtk_box_append (vbox, selector->href_separator);
 
 	selector->notebook = (GtkNotebook*) gtk_notebook_new ();
-	gtk_box_pack_start (vbox, (GtkWidget*) selector->notebook, TRUE, TRUE, 1);
+	gtk_box_append (vbox, (GtkWidget*) selector->notebook);
 
 	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-	gtk_box_pack_start (vbox, (GtkWidget*) hbox, FALSE, FALSE, 1);
+	gtk_box_append (vbox, (GtkWidget*) hbox);
 	// select all
 	widget = gtk_button_new_with_mnemonic (_("Mark _All"));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_all = widget;
 	// select none
 	widget = gtk_button_new_with_mnemonic (_("Mark _None"));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_none = widget;
 	// select by filter
 	widget = gtk_button_new_with_mnemonic (_("_Mark by filter..."));
-	gtk_box_pack_start (hbox, widget, TRUE, TRUE, 1);
+	gtk_box_append (hbox, widget);
 	selector->select_filter = widget;
 
-	gtk_widget_show_all ((GtkWidget*) vbox);
+	gtk_widget_set_visible ((GtkWidget*) vbox, TRUE);
 }

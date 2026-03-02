@@ -172,8 +172,8 @@ fi
 
 # GTK settings
 echo "  Creating GTK settings..."
-mkdir -p "$DIST_DIR/etc/gtk-3.0"
-cat > "$DIST_DIR/etc/gtk-3.0/settings.ini" << 'EOF'
+mkdir -p "$DIST_DIR/etc/gtk-4.0"
+cat > "$DIST_DIR/etc/gtk-4.0/settings.ini" << 'EOF'
 [Settings]
 gtk-theme-name=Windows10
 gtk-icon-theme-name=hicolor

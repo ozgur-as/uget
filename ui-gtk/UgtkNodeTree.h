@@ -34,9 +34,7 @@
  *
  */
 
-/*
- * This file base on GTK+ 2.0 Tree View Tutorial - custom-list.h
- */
+// GListModel implementation for UgetNode children (with optional prefix).
 
 #ifndef UGTK_NODE_TREE_H
 #define UGTK_NODE_TREE_H
@@ -50,32 +48,24 @@ extern "C" {
 
 #define UGTK_TYPE_NODE_TREE              (ugtk_node_tree_get_type ())
 #define UGTK_NODE_TREE(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), UGTK_TYPE_NODE_TREE, UgtkNodeTree))
-#define UGTK_NODE_TREE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass),  UGTK_TYPE_NODE_TREE, UgtkNodeTreeClass))
 #define UGTK_IS_NODE_TREE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UGTK_TYPE_NODE_TREE))
-#define UGTK_IS_NODE_TREE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass),  UGTK_TYPE_NODE_TREE))
-#define UGTK_NODE_TREE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj),  UGTK_TYPE_NODE_TREE, UgtkNodeTreeClass))
 
 typedef struct UgtkNodeTree       UgtkNodeTree;
 typedef struct UgtkNodeTreeClass  UgtkNodeTreeClass;
 
-// ----------------------------------------------------------------------------
-// UgtkNodeTree : GtkTreeModel for UgNode (UgetNode) parent and children nodes.
-
+// GListModel for UgetNode: shows prefix children + root children (flat).
 struct UgtkNodeTree
 {
-	GObject     parent;  // this MUST be the first member
+	GObject     parent;
 
 	UgetNode*   root;
-	gint        stamp;   // Random integer to check whether an iter belongs to our model
-	gboolean    list_only;
+	guint       last_count;
 
 	struct {
 		UgetNode* root;
 		gint      len;
 	} prefix;
 };
-
-// ------------------------------------
 
 struct UgtkNodeTreeClass
 {
@@ -86,6 +76,9 @@ UgtkNodeTree*  ugtk_node_tree_new (UgetNode* root, gboolean list_only);
 
 GType  ugtk_node_tree_get_type (void);
 void   ugtk_node_tree_set_prefix (UgtkNodeTree* utree, UgetNode* prefix_root, gint prefix_len);
+
+// Notify the model that items changed
+void  ugtk_node_tree_refresh (UgtkNodeTree* utree);
 
 #ifdef __cplusplus
 }

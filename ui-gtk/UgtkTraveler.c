@@ -35,191 +35,210 @@
  */
 
 #include <UgtkTraveler.h>
+#include <UgtkNodeObject.h>
 #include <UgtkApp.h>
 
-// signal handler
-static void on_state_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
-static void on_category_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
-static void on_download_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler);
-static void on_category_row_deleted (GtkTreeModel* model, GtkTreePath* path, UgtkTraveler* traveler);
-static void on_download_row_deleted (GtkTreeModel* model, GtkTreePath* path, UgtkTraveler* traveler);
+// signal handlers
+static void on_state_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler);
+static void on_category_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler);
+static void on_download_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler);
+
 // static data
-const static void*          sort_callbacks[UGTK_NODE_N_COLUMNS];
 const static UgCompareFunc  compare_funcs[UGTK_NODE_N_COLUMNS];
+
+// helper: get UgetNode* at position in a GListModel
+static UgetNode* get_node_at (GListModel* model, guint pos)
+{
+	UgtkNodeObject* obj;
+	UgetNode* node;
+
+	obj = g_list_model_get_item (model, pos);
+	if (obj == NULL)
+		return NULL;
+	node = obj->node;
+	g_object_unref (obj);
+	return node;
+}
+
+// helper: find position of a UgetNode in a GListModel
+static int find_node_position (GListModel* model, UgetNode* target)
+{
+	guint n = g_list_model_get_n_items (model);
+	guint i;
+
+	for (i = 0; i < n; i++) {
+		UgtkNodeObject* obj = g_list_model_get_item (model, i);
+		if (obj) {
+			UgetNode* node = obj->node;
+			g_object_unref (obj);
+			if (node == target)
+				return (int) i;
+		}
+	}
+	return -1;
+}
 
 void  ugtk_traveler_init (UgtkTraveler* traveler, UgtkApp* app)
 {
 	GtkScrolledWindow*  scroll;
-	GtkTreePath*        path;
-	GtkTreeViewColumn*  column;
-	gint                nth;
 
 	traveler->app = app;
-	// status
-	traveler->state.self = ugtk_node_view_new_for_state ();
-	traveler->state.view = GTK_TREE_VIEW (traveler->state.self);
-	traveler->state.model = ugtk_node_list_new (NULL, 4, TRUE);
-	gtk_tree_view_set_model (traveler->state.view,
-			GTK_TREE_MODEL (traveler->state.model));
 
-	// category
-	traveler->category.self = gtk_scrolled_window_new (NULL, NULL);
-	traveler->category.view = (GtkTreeView*) ugtk_node_view_new_for_category ();
+	// --- state ---
+	traveler->state.model = ugtk_node_list_new (NULL, 4, TRUE);
+	traveler->state.selection = gtk_single_selection_new (
+			G_LIST_MODEL (g_object_ref (traveler->state.model)));
+	gtk_single_selection_set_autoselect (traveler->state.selection, FALSE);
+	gtk_single_selection_set_can_unselect (traveler->state.selection, TRUE);
+
+	traveler->state.self = ugtk_node_view_new_for_state ();
+	traveler->state.view = GTK_LIST_VIEW (traveler->state.self);
+	gtk_list_view_set_model (traveler->state.view,
+			GTK_SELECTION_MODEL (traveler->state.selection));
+
+	// --- category ---
 	traveler->category.model = ugtk_node_tree_new (&app->sorted, TRUE);
 	ugtk_node_tree_set_prefix (traveler->category.model, &app->mix, 1);
-	gtk_tree_view_set_model (traveler->category.view,
-			GTK_TREE_MODEL (traveler->category.model));
+	traveler->category.selection = gtk_single_selection_new (
+			G_LIST_MODEL (g_object_ref (traveler->category.model)));
+	gtk_single_selection_set_autoselect (traveler->category.selection, FALSE);
+	gtk_single_selection_set_can_unselect (traveler->category.selection, TRUE);
+
+	traveler->category.self = gtk_scrolled_window_new ();
+	GtkWidget* cat_view_widget = ugtk_node_view_new_for_category ();
+	traveler->category.view = GTK_LIST_VIEW (cat_view_widget);
+	gtk_list_view_set_model (traveler->category.view,
+			GTK_SELECTION_MODEL (traveler->category.selection));
 	gtk_widget_set_size_request (traveler->category.self, 165, 100);
 	scroll = GTK_SCROLLED_WINDOW (traveler->category.self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll),
-			GTK_WIDGET (traveler->category.view));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (traveler->category.view));
 
-	// download
-	traveler->download.self = gtk_scrolled_window_new (NULL, NULL);
-	traveler->download.view = (GtkTreeView*) ugtk_node_view_new_for_download ();
+	// --- download ---
 	traveler->download.model = ugtk_node_tree_new (NULL, TRUE);
-	gtk_tree_view_set_model (traveler->download.view,
-			GTK_TREE_MODEL (traveler->download.model));
+	traveler->download.selection = gtk_multi_selection_new (
+			G_LIST_MODEL (g_object_ref (traveler->download.model)));
+
+	traveler->download.self = gtk_scrolled_window_new ();
+	GtkWidget* dl_view_widget = ugtk_node_view_new_for_download ();
+	traveler->download.view = GTK_COLUMN_VIEW (dl_view_widget);
+	gtk_column_view_set_model (traveler->download.view,
+			GTK_SELECTION_MODEL (traveler->download.selection));
 	scroll = GTK_SCROLLED_WINDOW (traveler->download.self);
-	gtk_scrolled_window_set_shadow_type (scroll, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scroll,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scroll),
-			GTK_WIDGET (traveler->download.view));
+	gtk_scrolled_window_set_child (scroll, GTK_WIDGET (traveler->download.view));
 
-	path = gtk_tree_path_new_first ();
-	gtk_tree_view_set_cursor (traveler->state.view, path, NULL, FALSE);
-	gtk_tree_view_set_cursor (traveler->category.view, path, NULL, FALSE);
-	gtk_tree_path_free (path);
-
-	// cursor position
+	// cursor position (must be set before signals fire)
 	traveler->state.cursor.pos = -1;
 	traveler->category.cursor.pos = -1;
 	traveler->download.cursor.pos = -1;
-	// signal
-	g_signal_connect (traveler->state.view, "cursor-changed",
-			G_CALLBACK (on_state_cursor_changed), traveler);
-	g_signal_connect (traveler->category.view, "cursor-changed",
-			G_CALLBACK (on_category_cursor_changed), traveler);
-	g_signal_connect (traveler->download.view, "cursor-changed",
-			G_CALLBACK (on_download_cursor_changed), traveler);
-	g_signal_connect (traveler->category.model, "row-deleted",
-			G_CALLBACK (on_category_row_deleted), traveler);
-	g_signal_connect (traveler->download.model, "row-deleted",
-			G_CALLBACK (on_download_row_deleted), traveler);
 
-	for (nth = UGTK_NODE_COLUMN_STATE;  nth < UGTK_NODE_N_COLUMNS;  nth++) {
-		column = gtk_tree_view_get_column (traveler->download.view, nth);
-		g_signal_connect (column, "clicked",
-				G_CALLBACK (sort_callbacks[nth]), traveler);
+	// signals (must be connected before initial selection)
+	g_signal_connect (traveler->state.selection, "selection-changed",
+			G_CALLBACK (on_state_selection_changed), traveler);
+	g_signal_connect (traveler->category.selection, "selection-changed",
+			G_CALLBACK (on_category_selection_changed), traveler);
+	g_signal_connect (traveler->download.selection, "selection-changed",
+			G_CALLBACK (on_download_selection_changed), traveler);
+
+	// GtkSingleSelection autoselects position 0 during construction
+	// (default autoselect=TRUE), so set_selected(0) is a no-op.
+	// Manually initialize the state model with the first category node.
+	{
+		UgetNode* cnode = get_node_at (
+				G_LIST_MODEL (traveler->category.model), 0);
+		if (cnode) {
+			traveler->category.cursor.pos = 0;
+			traveler->category.cursor.node = cnode;
+			traveler->state.model->root = cnode;
+			ugtk_node_list_refresh (traveler->state.model);
+		}
 	}
+	// State model now has items; select first state to populate downloads
+	gtk_single_selection_set_selected (traveler->state.selection, 0);
 }
 
 void  ugtk_traveler_select_category (UgtkTraveler* traveler,
                                      int nth_category, int nth_state)
 {
-	GtkTreePath*  path;
-
-	if (nth_category != -1) {
-		path = gtk_tree_path_new ();
-		gtk_tree_path_append_index (path, nth_category);
-		gtk_tree_view_set_cursor (traveler->category.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-	}
-
-	if (nth_state != -1) {
-		path = gtk_tree_path_new ();
-		gtk_tree_path_append_index (path, nth_state);
-		gtk_tree_view_set_cursor (traveler->state.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-	}
+	if (nth_category >= 0)
+		gtk_single_selection_set_selected (traveler->category.selection, nth_category);
+	if (nth_state >= 0)
+		gtk_single_selection_set_selected (traveler->state.selection, nth_state);
 }
 
 void  ugtk_traveler_set_cursor (UgtkTraveler* traveler, UgetNode* node)
 {
-	GtkTreePath* path;
-	GtkTreeIter  iter;
+	int pos;
 
-	if (node && ugtk_traveler_get_iter (traveler, &iter, node)) {
-		path = gtk_tree_model_get_path (
-				GTK_TREE_MODEL (traveler->download.model), &iter);
-		if (path) {
-//			traveler->download.cursor.node = iter.user_data;
-//			traveler->download.cursor.pos  = *gtk_tree_path_get_indices (path);
-			gtk_tree_view_set_cursor (traveler->download.view,
-			                          path, NULL, FALSE);
-			gtk_tree_path_free (path);
-		}
+	if (node == NULL)
+		return;
+
+	pos = find_node_position (G_LIST_MODEL (traveler->download.model), node);
+	if (pos >= 0) {
+		// Select just this item
+		GtkBitset* bitset = gtk_bitset_new_empty ();
+		gtk_bitset_add (bitset, pos);
+		gtk_selection_model_set_selection (
+				GTK_SELECTION_MODEL (traveler->download.selection),
+				bitset, bitset);
+		gtk_bitset_unref (bitset);
 	}
 }
 
 UgetNode* ugtk_traveler_get_cursor (UgtkTraveler* traveler)
 {
-	GtkTreePath* path;
-	int          nth;
-
-	gtk_tree_view_get_cursor (traveler->download.view, &path, NULL);
-	if (path == NULL)
-		return NULL;
-	nth = *gtk_tree_path_get_indices (path);
-	gtk_tree_path_free (path);
-	return uget_node_nth_child (traveler->download.model->root, nth);
-}
-
-gboolean  ugtk_traveler_get_iter (UgtkTraveler* traveler,
-                                  GtkTreeIter* iter, UgetNode* node)
-{
-	if (node->parent == (UgetNode*) traveler->download.model->root) {
-		iter->stamp = traveler->download.model->stamp;
-		iter->user_data = node;
-		return TRUE;
-	}
-
-	for (node = node->fake;  node;  node = node->peer) {
-		if (ugtk_traveler_get_iter (traveler, iter, node))
-			return TRUE;
-	}
-	return FALSE;
+	return traveler->download.cursor.node;
 }
 
 GList* ugtk_traveler_get_selected (UgtkTraveler* traveler)
 {
-	GtkTreeSelection* selection;
-	GtkTreeModel*     model;
-	GtkTreeIter       iter;
-	GList*      list;
-	GList*      nodes;
-	GList*      cur;
+	GtkBitset*    bitset;
+	GtkBitsetIter iter;
+	guint         pos;
+	GList*        nodes = NULL;
 
-	selection = gtk_tree_view_get_selection (traveler->download.view);
-	list = gtk_tree_selection_get_selected_rows (selection, &model);
-	nodes = NULL;
-	for (cur = list;  cur;  cur = cur->next) {
-		gtk_tree_model_get_iter (model, &iter, cur->data);
-		nodes = g_list_prepend (nodes, iter.user_data);
+	bitset = gtk_selection_model_get_selection (
+			GTK_SELECTION_MODEL (traveler->download.selection));
+
+	if (gtk_bitset_iter_init_first (&iter, bitset, &pos)) {
+		do {
+			UgetNode* node = get_node_at (
+					G_LIST_MODEL (traveler->download.model), pos);
+			if (node)
+				nodes = g_list_prepend (nodes, node);
+		} while (gtk_bitset_iter_next (&iter, &pos));
 	}
-
-	g_list_free_full (list, (GDestroyNotify) gtk_tree_path_free);
+	gtk_bitset_unref (bitset);
 	return nodes;
 }
 
-void  ugtk_traveler_set_selected (UgtkTraveler* traveler,
-                                  GList*        nodes)
+void  ugtk_traveler_set_selected (UgtkTraveler* traveler, GList* nodes)
 {
-	GtkTreeSelection* selection;
-	GtkTreeIter       iter;
+	GtkBitset* select_bitset;
+	GtkBitset* mask_bitset;
+	guint n_items;
 
-	selection = gtk_tree_view_get_selection (traveler->download.view);
-	gtk_tree_selection_unselect_all (selection);
-	for (;  nodes;  nodes = nodes->next) {
+	n_items = g_list_model_get_n_items (G_LIST_MODEL (traveler->download.model));
+	select_bitset = gtk_bitset_new_empty ();
+	mask_bitset = gtk_bitset_new_range (0, n_items);
+
+	for (; nodes; nodes = nodes->next) {
 		if (nodes->data == NULL)
 			continue;
-		if (ugtk_traveler_get_iter (traveler, &iter, nodes->data))
-			gtk_tree_selection_select_iter (selection, &iter);
+		int pos = find_node_position (
+				G_LIST_MODEL (traveler->download.model), nodes->data);
+		if (pos >= 0)
+			gtk_bitset_add (select_bitset, pos);
 	}
+
+	gtk_selection_model_set_selection (
+			GTK_SELECTION_MODEL (traveler->download.selection),
+			select_bitset, mask_bitset);
+	gtk_bitset_unref (select_bitset);
+	gtk_bitset_unref (mask_bitset);
 }
 
 GList*  ugtk_traveler_reserve_selection (UgtkTraveler* traveler)
@@ -253,13 +272,18 @@ void  ugtk_traveler_restore_selection (UgtkTraveler* traveler)
 
 gint  ugtk_traveler_move_selected_up (UgtkTraveler* traveler)
 {
-	GtkTreePath*  path;
 	UgetNode* node;
 	UgetNode* prev;
 	UgetNode* top;
 	GList*    list;
 	GList*    link;
 	int       counts = 0;
+
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
 
 	list = ugtk_traveler_get_selected (traveler);
 	list = g_list_reverse (list);
@@ -285,17 +309,7 @@ gint  ugtk_traveler_move_selected_up (UgtkTraveler* traveler)
 	}
 
 	if (counts > 0) {
-		// scroll to first selected download and move cursor
-		node = list->data;
-		path = gtk_tree_path_new_from_indices (
-				uget_node_child_position (node->parent, node), -1);
-		gtk_tree_view_scroll_to_cell (traveler->download.view,
-	                                  path, NULL, FALSE, 0, 0);
-		gtk_tree_view_set_cursor (traveler->download.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-		// redraw
-		gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
-		// change selected indices
+		ugtk_node_tree_refresh (traveler->download.model);
 		ugtk_traveler_set_selected (traveler, list);
 	}
 	g_list_free (list);
@@ -304,13 +318,18 @@ gint  ugtk_traveler_move_selected_up (UgtkTraveler* traveler)
 
 gint  ugtk_traveler_move_selected_down (UgtkTraveler* traveler)
 {
-	GtkTreePath*  path;
 	UgetNode* node;
 	UgetNode* next;
 	UgetNode* bottom;
 	GList*    list;
 	GList*    link;
 	int       counts = 0;
+
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
 
 	list = ugtk_traveler_get_selected (traveler);
 	for (bottom = NULL, link = list;  link;  link = link->next) {
@@ -335,17 +354,7 @@ gint  ugtk_traveler_move_selected_down (UgtkTraveler* traveler)
 	}
 
 	if (counts > 0) {
-		// scroll to last selected download and move cursor
-		node = list->data;
-		path = gtk_tree_path_new_from_indices (
-				uget_node_child_position (node->parent, node), -1);
-		gtk_tree_view_scroll_to_cell (traveler->download.view,
-	                                  path, NULL, FALSE, 0, 0);
-		gtk_tree_view_set_cursor (traveler->download.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-		// redraw
-		gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
-		// change selected indices
+		ugtk_node_tree_refresh (traveler->download.model);
 		ugtk_traveler_set_selected (traveler, list);
 	}
 	g_list_free (list);
@@ -354,13 +363,18 @@ gint  ugtk_traveler_move_selected_down (UgtkTraveler* traveler)
 
 gint  ugtk_traveler_move_selected_top (UgtkTraveler* traveler)
 {
-	GtkTreePath* path;
 	UgetNode* node;
 	UgetNode* sibling;
 	UgetNode* top;
 	GList*    list;
 	GList*    link;
 	int       counts = 0;
+
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
 
 	list = ugtk_traveler_get_selected (traveler);
 	list = g_list_reverse (list);
@@ -387,14 +401,7 @@ gint  ugtk_traveler_move_selected_top (UgtkTraveler* traveler)
 	}
 
 	if (counts > 0) {
-		// scroll to top and move cursor
-		gtk_tree_view_scroll_to_point (traveler->download.view, -1, 0);
-		path = gtk_tree_path_new_first ();
-		gtk_tree_view_set_cursor (traveler->download.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-		// redraw
-		gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
-		// change selected indices
+		ugtk_node_tree_refresh (traveler->download.model);
 		ugtk_traveler_set_selected (traveler, list);
 	}
 	g_list_free (list);
@@ -403,13 +410,18 @@ gint  ugtk_traveler_move_selected_top (UgtkTraveler* traveler)
 
 gint  ugtk_traveler_move_selected_bottom (UgtkTraveler* traveler)
 {
-	GtkTreePath*  path;
 	UgetNode* node;
 	UgetNode* sibling;
 	UgetNode* bottom;
 	GList*    list;
 	GList*    link;
 	int       counts = 0;
+
+	UgtkApp* app = (UgtkApp*) traveler->app;
+	if (app->setting.download_column.sort.nth != UGTK_NODE_COLUMN_STATE) {
+		ugtk_traveler_set_sorting(traveler, TRUE, UGTK_NODE_COLUMN_STATE, GTK_SORT_ASCENDING);
+		app->setting.download_column.sort.nth = UGTK_NODE_COLUMN_STATE;
+	}
 
 	list = ugtk_traveler_get_selected (traveler);
 	node = list->data;
@@ -430,26 +442,14 @@ gint  ugtk_traveler_move_selected_bottom (UgtkTraveler* traveler)
 			node    = node->real;
 			sibling = sibling->real;
 		}
-		// check this for move to bottom only
 		if (sibling->next == node)
 			continue;
-		// node will be inserted after sibling
 		uget_node_move (node->parent, sibling->next, node);
 		counts++;
 	}
 
 	if (counts > 0) {
-		// scroll to bottom and move cursor
-		node = list->data;
-		path = gtk_tree_path_new_from_indices (
-				node->parent->n_children -1, -1);
-		gtk_tree_view_scroll_to_cell (traveler->download.view,
-	                                  path, NULL, FALSE, 0, 0);
-		gtk_tree_view_set_cursor (traveler->download.view, path, NULL, FALSE);
-		gtk_tree_path_free (path);
-		// redraw
-		gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
-		// change selected indices
+		ugtk_node_tree_refresh (traveler->download.model);
 		ugtk_traveler_set_selected (traveler, list);
 	}
 	g_list_free (list);
@@ -461,17 +461,7 @@ void  ugtk_traveler_set_sorting (UgtkTraveler*  traveler,
                                  UgtkNodeColumn nth_col,
                                  GtkSortType    type)
 {
-	GtkTreeViewColumn*  column;
-	UgtkNodeColumn      pos;
 	GList*  selected;
-
-	for (pos = 0;  pos < UGTK_NODE_N_COLUMNS;  pos++) {
-		column = gtk_tree_view_get_column (traveler->download.view, pos);
-		gtk_tree_view_column_set_clickable (column, sortable);
-		// clear column sort status
-		gtk_tree_view_column_set_sort_order (column, GTK_SORT_ASCENDING);
-		gtk_tree_view_column_set_sort_indicator (column, FALSE);
-	}
 
 	if (nth_col >= UGTK_NODE_N_COLUMNS)
 		return;
@@ -480,294 +470,102 @@ void  ugtk_traveler_set_sorting (UgtkTraveler*  traveler,
 	if (nth_col <= 0)
 		uget_app_set_sorting ((UgetApp*) traveler->app, NULL, FALSE);
 	else {
-		column = gtk_tree_view_get_column (traveler->download.view, nth_col);
-		gtk_tree_view_column_set_sort_order (column, type);
-		gtk_tree_view_column_set_sort_indicator (column, TRUE);
 		uget_app_set_sorting ((UgetApp*) traveler->app, compare_funcs[nth_col],
 				(type == GTK_SORT_DESCENDING) ? TRUE : FALSE);
 	}
 	ugtk_traveler_set_selected (traveler, selected);
 	g_list_free (selected);
-	// redraw
-	gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
+	gtk_widget_queue_draw (GTK_WIDGET (traveler->download.view));
 }
 
 // ----------------------------------------------------------------------------
-// signal handler
-static void on_state_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler)
+// signal handlers
+
+static void on_state_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler)
 {
-	GtkTreeModel*  model;
-	GtkTreePath*   path;
-	GtkTreeIter    iter;
+	guint selected;
 
 	// clear download cursor
 	traveler->download.cursor.node = NULL;
 
 	traveler->state.cursor.pos_last = traveler->state.cursor.pos;
-	gtk_tree_view_get_cursor (view, &path, NULL);
-	if (path == NULL) {
-		traveler->state.cursor.pos  = -1;
+	selected = gtk_single_selection_get_selected (traveler->state.selection);
+	if (selected == GTK_INVALID_LIST_POSITION) {
+		traveler->state.cursor.pos = -1;
 		traveler->state.cursor.node = NULL;
 		return;
 	}
-	if (traveler->state.cursor.pos == gtk_tree_path_get_indices (path)[0])
+	if (traveler->state.cursor.pos == (int)selected)
 		return;
 
-	traveler->state.cursor.pos = gtk_tree_path_get_indices (path)[0];
-	model = gtk_tree_view_get_model (view);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	traveler->state.cursor.node = iter.user_data;
+	traveler->state.cursor.pos = selected;
+	traveler->state.cursor.node = get_node_at (
+			G_LIST_MODEL (traveler->state.model), selected);
 
-	// change download.model and refresh it's view
-	gtk_tree_view_set_model (traveler->download.view, NULL);
-	if (iter.user_data) {
-		traveler->download.model->root = iter.user_data;
-		gtk_tree_view_set_model (traveler->download.view,
-		                         GTK_TREE_MODEL (traveler->download.model));
+	// change download.model root and refresh
+	if (traveler->state.cursor.node) {
+		traveler->download.model->root = traveler->state.cursor.node;
+		ugtk_node_tree_refresh (traveler->download.model);
 	}
 }
 
-static void on_category_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler)
+static void on_category_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler)
 {
-	GtkTreeModel*  model;
-	GtkTreePath*   path;
-	GtkTreeIter    iter;
+	guint selected;
+	UgetNode* node;
 
 	// clear download cursor
 	traveler->download.cursor.node = NULL;
 
 	traveler->category.cursor.pos_last = traveler->category.cursor.pos;
-	gtk_tree_view_get_cursor (view, &path, NULL);
-	if (path == NULL) {
-		traveler->category.cursor.pos  = -1;
+	selected = gtk_single_selection_get_selected (traveler->category.selection);
+	if (selected == GTK_INVALID_LIST_POSITION) {
+		traveler->category.cursor.pos = -1;
 		traveler->category.cursor.node = NULL;
 		return;
 	}
-	if (traveler->category.cursor.pos == gtk_tree_path_get_indices (path)[0])
+	if (traveler->category.cursor.pos == (int)selected)
 		return;
 
-	traveler->category.cursor.pos = gtk_tree_path_get_indices (path)[0];
-	model = gtk_tree_view_get_model (view);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	traveler->category.cursor.node = iter.user_data;
+	traveler->category.cursor.pos = selected;
+	node = get_node_at (G_LIST_MODEL (traveler->category.model), selected);
+	traveler->category.cursor.node = node;
 
-	// change state.model and refresh it's view
-	model = GTK_TREE_MODEL (traveler->state.model);
-	path = gtk_tree_path_new_from_indices (traveler->state.cursor.pos, -1);
-	gtk_tree_view_set_model (traveler->state.view, NULL);
-	traveler->state.model->root = iter.user_data;
-	gtk_tree_view_set_model (traveler->state.view, model);
-	gtk_tree_view_set_cursor (traveler->state.view, path, NULL, FALSE);
-	gtk_tree_path_free (path);
-	// traveler->state.view will emit signal "cursor_changed" and
-	// call on_state_cursor_changed()
+	// change state.model root and refresh
+	if (node) {
+		traveler->state.model->root = node;
+		ugtk_node_list_refresh (traveler->state.model);
+		// re-select the same state position
+		if (traveler->state.cursor.pos >= 0)
+			gtk_single_selection_set_selected (traveler->state.selection,
+					traveler->state.cursor.pos);
+	}
 }
 
-static void on_download_cursor_changed (GtkTreeView* view, UgtkTraveler* traveler)
+static void on_download_selection_changed (GtkSelectionModel* model, guint pos, guint n_items, UgtkTraveler* traveler)
 {
-	GtkTreeModel*  model;
-	GtkTreePath*   path;
-	GtkTreeIter    iter;
+	GtkBitset*    bitset;
+	guint         first;
 
 	traveler->download.cursor.pos_last = traveler->download.cursor.pos;
-	gtk_tree_view_get_cursor (view, &path, NULL);
-	if (path == NULL) {
-		traveler->download.cursor.pos  = -1;
+
+	bitset = gtk_selection_model_get_selection (model);
+	if (gtk_bitset_is_empty (bitset)) {
+		traveler->download.cursor.pos = -1;
 		traveler->download.cursor.node = NULL;
+		gtk_bitset_unref (bitset);
 		return;
 	}
 
-	traveler->download.cursor.pos = gtk_tree_path_get_indices (path)[0];
-	model = gtk_tree_view_get_model (view);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_path_free (path);
-	traveler->download.cursor.node = iter.user_data;
-}
-
-static void on_category_row_deleted (GtkTreeModel* model, GtkTreePath* p, UgtkTraveler* traveler)
-{
-	GtkTreePath* path;
-	GtkTreeIter  iter;
-
-	// update cursor position when row deleted
-	gtk_tree_view_get_cursor (traveler->category.view, &path, NULL);
-	if (path == NULL) {
-		traveler->category.cursor.pos  = 0;
-		traveler->category.cursor.node = NULL;
-		return;
-	}
-	gtk_tree_model_get_iter (model, &iter, path);
-	traveler->category.cursor.node = iter.user_data;
-	traveler->category.cursor.pos  = gtk_tree_path_get_indices (path)[0];
-	gtk_tree_path_free (path);
-}
-
-static void on_download_row_deleted (GtkTreeModel* model, GtkTreePath* p, UgtkTraveler* traveler)
-{
-	GtkTreePath* path;
-	GtkTreeIter  iter;
-
-	// update cursor position when row deleted
-	gtk_tree_view_get_cursor (traveler->download.view, &path, NULL);
-	if (path == NULL) {
-		traveler->download.cursor.node = NULL;
-		traveler->download.cursor.pos  = 0;
-		return;
-	}
-	gtk_tree_model_get_iter (model, &iter, path);
-	traveler->download.cursor.node = iter.user_data;
-	traveler->download.cursor.pos  = gtk_tree_path_get_indices (path)[0];
-	gtk_tree_path_free (path);
-}
-
-// ----------------------------------------------------------------------------
-// signal handler for GtkTreeViewColumn
-
-static void ugtk_tree_view_column_clicked (GtkTreeViewColumn* column,
-                                           UgtkNodeColumn     nth_column,
-                                           UgtkTraveler*      traveler)
-{
-	GtkSortType  sorttype;
-	UgtkApp*     app;
-	gint         pos;
-
-	// get column sort status
-	column = gtk_tree_view_get_column (traveler->download.view, nth_column);
-	sorttype = gtk_tree_view_column_get_sort_order (column);
-	if (gtk_tree_view_column_get_sort_indicator (column)) {
-		if (sorttype == GTK_SORT_ASCENDING)
-			sorttype  = GTK_SORT_DESCENDING;
-		else
-			sorttype  = GTK_SORT_ASCENDING;
-	}
-
-	// clear column sort status
-	for (pos = UGTK_NODE_COLUMN_NAME;  pos < UGTK_NODE_N_COLUMNS;  pos++) {
-		GtkTreeViewColumn*  tmp_column;
-
-		tmp_column = gtk_tree_view_get_column (traveler->download.view, pos);
-		gtk_tree_view_column_set_sort_order (tmp_column, GTK_SORT_ASCENDING);
-		gtk_tree_view_column_set_sort_indicator (tmp_column, FALSE);
-	}
-
-	app = traveler->app;
-	app->setting.download_column.sort.nth = nth_column;
-	app->setting.download_column.sort.type = sorttype;
-	if (nth_column > UGTK_NODE_COLUMN_STATE) {
-		gtk_tree_view_column_set_sort_order (column, sorttype);
-		gtk_tree_view_column_set_sort_indicator (column, TRUE);
-	}
-	uget_app_set_sorting ((UgetApp*) app, compare_funcs[nth_column],
-			(sorttype == GTK_SORT_DESCENDING) ? TRUE : FALSE);
-	// Any Category/Status can't move download position if they were sorted.
-	ugtk_app_decide_download_sensitive (app);
-	gtk_widget_queue_draw ((GtkWidget*) traveler->download.view);
-}
-
-static void on_state_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_STATE, traveler);
-}
-
-static void on_name_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_NAME, traveler);
-}
-
-static void on_complete_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_COMPLETE, traveler);
-}
-
-static void on_size_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_TOTAL, traveler);
-}
-
-static void on_percent_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_PERCENT, traveler);
-}
-
-static void on_elapsed_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_ELAPSED, traveler);
-}
-
-static void on_left_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_LEFT, traveler);
-}
-
-static void on_speed_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_SPEED, traveler);
-}
-
-static void on_upload_speed_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_UPLOAD_SPEED, traveler);
-}
-
-static void on_uploaded_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_UPLOADED, traveler);
-}
-
-static void on_ratio_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_RATIO, traveler);
-}
-
-static void on_retry_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_RETRY, traveler);
-}
-
-static void on_category_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_CATEGORY, traveler);
-}
-
-static void on_url_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_URI, traveler);
-}
-
-static void on_added_on_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_ADDED_ON, traveler);
-}
-
-static void on_completed_on_column_clicked (GtkTreeViewColumn *column, UgtkTraveler* traveler)
-{
-	ugtk_tree_view_column_clicked (column, UGTK_NODE_COLUMN_COMPLETED_ON, traveler);
+	first = gtk_bitset_get_nth (bitset, 0);
+	traveler->download.cursor.pos = first;
+	traveler->download.cursor.node = get_node_at (
+			G_LIST_MODEL (traveler->download.model), first);
+	gtk_bitset_unref (bitset);
 }
 
 // ----------------------------------------------------------------------------
 // static data
-
-const static void* sort_callbacks[UGTK_NODE_N_COLUMNS] =
-{
-	on_state_column_clicked,
-	on_name_column_clicked,
-	on_complete_column_clicked,
-	on_size_column_clicked,
-	on_percent_column_clicked,
-	on_elapsed_column_clicked,
-	on_left_column_clicked,
-	on_speed_column_clicked,
-	on_upload_speed_column_clicked,
-	on_uploaded_column_clicked,
-	on_ratio_column_clicked,
-	on_retry_column_clicked,
-	on_category_column_clicked,
-	on_url_column_clicked,
-	on_added_on_column_clicked,
-	on_completed_on_column_clicked,
-};
 
 const static UgCompareFunc  compare_funcs[UGTK_NODE_N_COLUMNS] =
 {
@@ -788,4 +586,3 @@ const static UgCompareFunc  compare_funcs[UGTK_NODE_N_COLUMNS] =
 	(UgCompareFunc) uget_node_compare_added_time,
 	(UgCompareFunc) uget_node_compare_completed_time,
 };
-

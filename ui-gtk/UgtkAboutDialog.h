@@ -51,19 +51,14 @@ typedef struct UgtkAboutDialog    UgtkAboutDialog;
 
 struct UgtkAboutDialog
 {
-	GtkDialog*   self;
-//	UgtkApp*     app;
+	GtkWindow*   self;
 
-	GdkPixbuf*     pixbuf;
-	GtkWidget*     scrolled;
-	GtkTextView*   textview;
-	GtkTextBuffer* textbuf;
+	GdkTexture*    texture;
 };
 
 UgtkAboutDialog*  ugtk_about_dialog_new (GtkWindow* parent);
 void              ugtk_about_dialog_free (UgtkAboutDialog* adialog);
 
-void ugtk_about_dialog_set_info (UgtkAboutDialog* adialog, const gchar* text);
-void ugtk_about_dialog_run (UgtkAboutDialog* adialog);
+void ugtk_about_dialog_run (UgtkAboutDialog* adialog, const gchar* info_text);
 
 #endif // UGTK_ABOUT_DIALOG_H

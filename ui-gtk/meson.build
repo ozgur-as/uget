@@ -1,10 +1,11 @@
-# ui-gtk - GTK3 User Interface for uGet
+# ui-gtk - GTK4 User Interface for uGet
 # Main executable
 
 ui_gtk_sources = files(
   'UgtkUtil.c',
   'UgtkConfig.c',
   'UgtkSetting.c',
+  'UgtkNodeObject.c',
   'UgtkNodeList.c',
   'UgtkNodeTree.c',
   'UgtkNodeView.c',

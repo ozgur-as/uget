@@ -952,14 +952,14 @@ static UgThreadResult  plugin_thread(UgetPluginCurl* plugin)
 
 static int prepare_existed(UgetCurl* ugcurl, UgetPluginCurl* plugin)
 {
-	double  fsize;
 	long    ftime;
 
 	// file.size
 	if (plugin->file.size) {
+		curl_off_t content_length;
 		curl_easy_getinfo(ugcurl->curl,
-				CURLINFO_CONTENT_LENGTH_DOWNLOAD, &fsize);
-		if (plugin->file.size != ugcurl->beg + (int64_t) fsize) {
+				CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &content_length);
+		if (plugin->file.size != ugcurl->beg + (int64_t) content_length) {
 			// if remote file size and local file size are not the same,
 			// plug-in will create new download file.
 			if (plugin->prepared == FALSE) {
@@ -1008,9 +1008,12 @@ static int prepare_file(UgetCurl* ugcurl, UgetPluginCurl* plugin)
 	curl_easy_getinfo(ugcurl->curl, CURLINFO_FILETIME, &temp.ftime);
 	plugin->file.time = (time_t) temp.ftime;
 	// file.size
-	curl_easy_getinfo(ugcurl->curl,
-			CURLINFO_CONTENT_LENGTH_DOWNLOAD, &temp.fsize);
-	plugin->file.size = (int64_t) temp.fsize + ugcurl->beg;
+	{
+		curl_off_t content_length;
+		curl_easy_getinfo(ugcurl->curl,
+				CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &content_length);
+		plugin->file.size = (int64_t) content_length + ugcurl->beg;
+	}
 	if (plugin->file.size == -1)
 		plugin->file.size = 0;
 

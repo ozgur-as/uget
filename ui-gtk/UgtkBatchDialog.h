@@ -53,21 +53,9 @@ typedef struct  UgtkBatchDialog        UgtkBatchDialog;
 struct UgtkBatchDialog
 {
 	UGTK_NODE_DIALOG_MEMBERS;
-/*	// ------ UgtkNodeDialog members ------
-	GtkDialog*    self;
-	GtkBox*       hbox;
-	GtkWidget*    notebook;
-	GtkTreeView*  node_view;
-	UgtkNodeTree* node_tree;
-	gulong        handler_id[3];
-	UgtkApp*      app;
-	UgetNode*     note;
-	UgData*       node_data;
-	UgtkProxyForm     proxy;
-	UgtkDownloadForm  download;
-	UgtkCategoryForm  category;
- */
 
+	GtkWidget*        back_button;
+	GtkWidget*        forward_button;
 	UgtkSelector      selector;
 	UgtkSequence      sequencer;
 };

@@ -39,9 +39,16 @@
 
 #include <glib/gi18n.h>
 
+static inline void set_margin_all(GtkWidget* w, int m) {
+	gtk_widget_set_margin_start(w, m);
+	gtk_widget_set_margin_end(w, m);
+	gtk_widget_set_margin_top(w, m);
+	gtk_widget_set_margin_bottom(w, m);
+}
+
 // ----------------------------------------------------------------------------
 // UgtkSeqRange
-static void on_type_changed (GtkComboBox* widget, UgtkSeqRange* range);
+static void on_type_changed (GObject* object, GParamSpec* pspec, UgtkSeqRange* range);
 static void on_show (GtkWidget *widget, UgtkSeqRange* range);
 
 void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup* size_group)
@@ -54,17 +61,14 @@ void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup
 	g_signal_connect (range->self, "show",
 			G_CALLBACK (on_show), range);
 	// Type
-	range->type = gtk_combo_box_text_new ();
-	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (range->type),
-			UGTK_SEQ_TYPE_NONE, _("None"));
-	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (range->type),
-			UGTK_SEQ_TYPE_NUMBER, _("Num"));
-	gtk_combo_box_text_insert_text (GTK_COMBO_BOX_TEXT (range->type),
-			UGTK_SEQ_TYPE_CHARACTER, _("Char"));
-	gtk_box_pack_start (box, range->type, FALSE, FALSE, 2);
-	g_signal_connect (range->type, "changed",
+	{
+		const char* seq_types[] = { _("None"), _("Num"), _("Char"), NULL };
+		range->type = (GtkWidget*) gtk_drop_down_new_from_strings (seq_types);
+	}
+	gtk_box_append (box, range->type);
+	g_signal_connect (range->type, "notify::selected",
 			G_CALLBACK (on_type_changed), range);
-	g_signal_connect_swapped (range->type, "changed",
+	g_signal_connect_swapped (range->type, "notify::selected",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// SpinButton - From
@@ -72,73 +76,65 @@ void   ugtk_seq_range_init (UgtkSeqRange* range, UgtkSequence* seq, GtkSizeGroup
 				99999.0, 1.0, 5.0, 0.0);
 	range->spin_from = gtk_spin_button_new (adjustment, 1.0, 0);
 	gtk_size_group_add_widget (size_group, range->spin_from);
-	gtk_box_pack_start (box, range->spin_from, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_from);
 	g_signal_connect_swapped (range->spin_from, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 	// Entry - From
 	range->entry_from = gtk_entry_new ();
-	gtk_entry_set_text (GTK_ENTRY (range->entry_from), "a");
+	gtk_editable_set_text (GTK_EDITABLE (range->entry_from), "a");
 	gtk_entry_set_max_length (GTK_ENTRY (range->entry_from), 1);
-//	gtk_entry_set_width_chars (GTK_ENTRY (range->entry_from), 2);
 	gtk_size_group_add_widget (size_group, range->entry_from);
-	gtk_box_pack_start (box, range->entry_from, FALSE, FALSE, 2);
+	gtk_box_append (box, range->entry_from);
 	g_signal_connect_swapped (GTK_EDITABLE (range->entry_from), "changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// Label - To
 	range->label_to = gtk_label_new (_("To:"));
-//	range->label_to = gtk_label_new_with_mnemonic (_("To:"));
-	gtk_box_pack_start (box, range->label_to, FALSE, FALSE, 2);
-//	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), range->spin_to);
+	gtk_box_append (box, range->label_to);
 
 	// SpinButton - To
 	adjustment = (GtkAdjustment *) gtk_adjustment_new (10.0, 1.0,
 				99999.0, 1.0, 5.0, 0.0);
 	range->spin_to = gtk_spin_button_new (adjustment, 1.0, 0);
-	gtk_box_pack_start (box, range->spin_to, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_to);
 	gtk_size_group_add_widget (size_group, range->spin_to);
 	g_signal_connect_swapped (range->spin_to, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// label - digits
 	range->label_digits = gtk_label_new (_("digits:"));
-//	range->label_digits = gtk_label_new_with_mnemonic (_("digits:"));
-	gtk_box_pack_start (box, range->label_digits, FALSE, FALSE, 2);
-//	gtk_label_set_mnemonic_widget (GTK_LABEL (range->label_digits), range->spin_digits);
+	gtk_box_append (box, range->label_digits);
 
 	// SpinButton - digits
 	adjustment = (GtkAdjustment *) gtk_adjustment_new (2.0, 1.0,
 			20.0, 1.0, 5.0, 0.0);
 	range->spin_digits = gtk_spin_button_new (adjustment, 1.0, 0);
-	gtk_box_pack_start (box, range->spin_digits, FALSE, FALSE, 2);
+	gtk_box_append (box, range->spin_digits);
 	g_signal_connect_swapped (range->spin_digits, "value-changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 
 	// Entry - To
 	range->entry_to = gtk_entry_new ();
-	gtk_entry_set_text (GTK_ENTRY (range->entry_to), "z");
+	gtk_editable_set_text (GTK_EDITABLE (range->entry_to), "z");
 	gtk_entry_set_max_length (GTK_ENTRY (range->entry_to), 1);
-//	gtk_entry_set_width_chars (GTK_ENTRY (range->entry_to), 2);
 	gtk_size_group_add_widget (size_group, range->entry_to);
-	gtk_box_pack_start (box, range->entry_to, FALSE, FALSE, 2);
+	gtk_box_append (box, range->entry_to);
 	g_signal_connect_swapped (GTK_EDITABLE (range->entry_to), "changed",
 			G_CALLBACK(ugtk_sequence_show_preview), seq);
 
 	// label - case-sensitive
 	range->label_case = gtk_label_new (_("case-sensitive"));
-	gtk_box_pack_start (box, range->label_case, FALSE, FALSE, 2);
-
-//	gtk_widget_show_all (range->self);
+	gtk_box_append (box, range->label_case);
 }
 
 void   ugtk_seq_range_set_type (UgtkSeqRange* range, enum UgtkSeqType type)
 {
-	gtk_combo_box_set_active ((GtkComboBox*) range->type, type);
+	gtk_drop_down_set_selected (GTK_DROP_DOWN (range->type), type);
 }
 
 enum UgtkSeqType  ugtk_seq_range_get_type (UgtkSeqRange* range)
 {
-	return gtk_combo_box_get_active ((GtkComboBox*) range->type);
+	return gtk_drop_down_get_selected (GTK_DROP_DOWN (range->type));
 }
 
 // signal handler
@@ -148,11 +144,11 @@ static void on_show (GtkWidget *widget, UgtkSeqRange* range)
 }
 
 // signal handler
-static void on_type_changed (GtkComboBox* widget, UgtkSeqRange* range)
+static void on_type_changed (GObject* object, GParamSpec* pspec, UgtkSeqRange* range)
 {
 	gint      type;
 
-	type = gtk_combo_box_get_active (widget);
+	type = gtk_drop_down_get_selected (GTK_DROP_DOWN (object));
 	switch (type) {
 	case UGTK_SEQ_TYPE_NONE:
 		gtk_widget_set_sensitive (range->label_to, FALSE);
@@ -236,18 +232,19 @@ void  ugtk_sequence_init (UgtkSequence* seq)
 	seq->entry = GTK_ENTRY (entry);
 	gtk_label_set_mnemonic_widget(GTK_LABEL (label), entry);
 	gtk_entry_set_activates_default (seq->entry, TRUE);
-	g_object_set (label, "margin", 3, NULL);
-	g_object_set (entry, "margin", 3, "hexpand", TRUE, NULL);
+	set_margin_all (label, 3);
+	set_margin_all (entry, 3);
+	g_object_set (entry, "hexpand", TRUE, NULL);
 	gtk_grid_attach (grid, label, 0, 0, 1, 1);
 	gtk_grid_attach (grid, entry, 1, 0, 1, 1);
 	g_signal_connect_swapped (GTK_EDITABLE (entry), "changed",
 			G_CALLBACK (ugtk_sequence_show_preview), seq);
 	// e.g.
 	label = gtk_label_new (_("e.g."));
-	g_object_set (label, "margin", 3, NULL);
+	set_margin_all (label, 3);
 	gtk_grid_attach (grid, label, 0, 1, 1, 1);
 	label = gtk_label_new ("http://for.example/path/pre*.jpg");
-	g_object_set (label, "margin", 3, NULL);
+	set_margin_all (label, 3);
 	gtk_grid_attach (grid, label, 1, 1, 1, 1);
 	// separator
 	widget = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
@@ -259,9 +256,9 @@ void  ugtk_sequence_init (UgtkSequence* seq)
 	ugtk_seq_range_init (&seq->range[0], seq, size_group);
 	ugtk_seq_range_init (&seq->range[1], seq, size_group);
 	ugtk_seq_range_init (&seq->range[2], seq, size_group);
-	g_object_set (seq->range[0].self, "margin", 3, NULL);
-	g_object_set (seq->range[1].self, "margin", 3, NULL);
-	g_object_set (seq->range[2].self, "margin", 3, NULL);
+	set_margin_all (seq->range[0].self, 3);
+	set_margin_all (seq->range[1].self, 3);
+	set_margin_all (seq->range[2].self, 3);
 	gtk_grid_attach (grid, seq->range[0].self, 0, 3, 2, 1);
 	gtk_grid_attach (grid, seq->range[1].self, 0, 4, 2, 1);
 	gtk_grid_attach (grid, seq->range[2].self, 0, 5, 2, 1);
@@ -270,16 +267,16 @@ void  ugtk_sequence_init (UgtkSequence* seq)
 	// ------------------------------------------------
 	// preview
 	ugtk_sequence_preview_init (&seq->preview);
-	g_object_set (seq->preview.self, "margin", 3, "expand", TRUE, NULL);
+	set_margin_all (seq->preview.self, 3);
+	g_object_set (seq->preview.self, "hexpand", TRUE, "vexpand", TRUE, NULL);
 	gtk_grid_attach (grid, seq->preview.self, 0, 6, 2, 1);
 
 	ugtk_sequence_show_preview (seq);
-	gtk_widget_show_all (seq->self);
+	gtk_widget_set_visible(seq->self, TRUE);
 }
 
 void  ugtk_sequence_show_preview (UgtkSequence* seq)
 {
-	GtkTreeIter  iter;
 	UgList       result;
 	UgLink*      link;
 	const char*  string;
@@ -289,11 +286,10 @@ void  ugtk_sequence_show_preview (UgtkSequence* seq)
 	ugtk_sequence_add_range (seq, &seq->range[1]);
 	ugtk_sequence_add_range (seq, &seq->range[2]);
 
-	string = gtk_entry_get_text (seq->entry);
+	string = gtk_editable_get_text (GTK_EDITABLE (seq->entry));
 	if (ug_uri_init (NULL, string) == 0) {
 		ugtk_sequence_preview_show (&seq->preview,
 				_("URI is not valid."));
-		// notify
 		if (seq->notify.func)
 			seq->notify.func (seq->notify.data, FALSE);
 		return;
@@ -301,7 +297,6 @@ void  ugtk_sequence_show_preview (UgtkSequence* seq)
 	if (strpbrk (string, "*") == NULL) {
 		ugtk_sequence_preview_show (&seq->preview,
 				_("No wildcard(*) character in URI entry."));
-		// notify
 		if (seq->notify.func)
 			seq->notify.func (seq->notify.data, FALSE);
 		return;
@@ -309,7 +304,6 @@ void  ugtk_sequence_show_preview (UgtkSequence* seq)
 	if (uget_sequence_count (&seq->sequence, string) == 0) {
 		ugtk_sequence_preview_show (&seq->preview,
 				_("No character in 'From' or 'To' entry."));
-		// notify
 		if (seq->notify.func)
 			seq->notify.func (seq->notify.data, FALSE);
 		return;
@@ -318,23 +312,22 @@ void  ugtk_sequence_show_preview (UgtkSequence* seq)
 	ug_list_init (&result);
 	uget_sequence_get_preview (&seq->sequence, string, &result);
 
-	gtk_list_store_clear (seq->preview.store);
-	for (link = result.head;  link;  link = link->next) {
-		gtk_list_store_append (seq->preview.store, &iter);
-		gtk_list_store_set (seq->preview.store, &iter, 0, link->data, -1);
-	}
+	// Clear and repopulate the string list
+	gtk_string_list_splice (seq->preview.store, 0,
+			g_list_model_get_n_items (G_LIST_MODEL (seq->preview.store)), NULL);
+	for (link = result.head;  link;  link = link->next)
+		gtk_string_list_append (seq->preview.store, link->data);
+
 	uget_sequence_clear_result(&result);
-	// notify
 	if (seq->notify.func)
 		seq->notify.func (seq->notify.data, TRUE);
-	return;
 }
 
 int  ugtk_sequence_get_list (UgtkSequence* seq, UgList* result)
 {
 	const char*  string;
 
-	string = gtk_entry_get_text (seq->entry);
+	string = gtk_editable_get_text (GTK_EDITABLE (seq->entry));
 	return uget_sequence_get_list (&seq->sequence, string, result);
 }
 
@@ -355,8 +348,8 @@ static void ugtk_sequence_add_range (UgtkSequence* seq, UgtkSeqRange* range)
 		break;
 
 	case UGTK_SEQ_TYPE_CHARACTER:
-		first  = *gtk_entry_get_text (GTK_ENTRY (range->entry_from));
-		last   = *gtk_entry_get_text (GTK_ENTRY (range->entry_to));
+		first  = *gtk_editable_get_text (GTK_EDITABLE (range->entry_from));
+		last   = *gtk_editable_get_text (GTK_EDITABLE (range->entry_to));
 		digits = 0;
 		break;
 
@@ -367,61 +360,57 @@ static void ugtk_sequence_add_range (UgtkSequence* seq, UgtkSeqRange* range)
 	uget_sequence_add (&seq->sequence, first, last, digits);
 }
 
+// Factory callbacks for preview list
+static void preview_setup_cb (GtkSignalListItemFactory* factory,
+                               GtkListItem* list_item, gpointer user_data)
+{
+	GtkWidget* label = gtk_label_new (NULL);
+	gtk_label_set_xalign (GTK_LABEL (label), 0.0);
+	gtk_list_item_set_child (list_item, label);
+}
+
+static void preview_bind_cb (GtkSignalListItemFactory* factory,
+                              GtkListItem* list_item, gpointer user_data)
+{
+	GtkStringObject* obj = gtk_list_item_get_item (list_item);
+	GtkWidget* label = gtk_list_item_get_child (list_item);
+	gtk_label_set_text (GTK_LABEL (label), gtk_string_object_get_string (obj));
+}
+
 static void ugtk_sequence_preview_init (struct UgtkSequencePreview* preview)
 {
-	GtkScrolledWindow*	scrolled;
-	GtkCellRenderer*	renderer;
-	GtkTreeViewColumn*	column;
-	GtkTreeSelection*	selection;
-	PangoContext*  context;
-	PangoLayout*   layout;
-	int            height;
+	GtkScrolledWindow*          scrolled;
+	GtkSignalListItemFactory*   factory;
+	GtkNoSelection*             no_sel;
 
-	preview->view  = (GtkTreeView*) gtk_tree_view_new ();
-	preview->store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model (preview->view, (GtkTreeModel*) preview->store);
-//	gtk_tree_view_set_fixed_height_mode (preview->view, TRUE);
-	gtk_widget_set_size_request ((GtkWidget*) preview->view, 140, 140);
-	selection = gtk_tree_view_get_selection (preview->view);
-	gtk_tree_selection_set_mode (selection, GTK_SELECTION_NONE);
-	// It will free UgtkSequence.preview_store when UgtkSequence.preview_view destroy.
-	g_object_unref (preview->store);
+	preview->store = gtk_string_list_new (NULL);
 
-	renderer = gtk_cell_renderer_text_new ();
-	column   = gtk_tree_view_column_new_with_attributes (
-			_("Preview"), renderer, "text", 0, NULL);
-//	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_append_column (preview->view, column);
+	factory = GTK_SIGNAL_LIST_ITEM_FACTORY (gtk_signal_list_item_factory_new ());
+	g_signal_connect (factory, "setup", G_CALLBACK (preview_setup_cb), NULL);
+	g_signal_connect (factory, "bind", G_CALLBACK (preview_bind_cb), NULL);
 
-	// calc text height
-	context = gtk_widget_get_pango_context ((GtkWidget*)preview->view);
-	layout = pango_layout_new (context);
-	pango_layout_set_text (layout, "Xy", -1);
-	pango_layout_get_pixel_size (layout, NULL, &height);
-	g_object_unref (layout);
-	height *= 10;
-	if (height < 140)
-		height = 140;
+	no_sel = gtk_no_selection_new (G_LIST_MODEL (preview->store));
+	preview->view = GTK_LIST_VIEW (gtk_list_view_new (GTK_SELECTION_MODEL (no_sel),
+	                               GTK_LIST_ITEM_FACTORY (factory)));
+	gtk_widget_set_size_request (GTK_WIDGET (preview->view), 140, 140);
 
-	preview->self = gtk_scrolled_window_new (NULL, NULL);
-	gtk_widget_set_size_request (preview->self, 140, height);
+	preview->self = gtk_scrolled_window_new ();
+	gtk_widget_set_size_request (preview->self, 140, 140);
 	scrolled = GTK_SCROLLED_WINDOW (preview->self);
-	gtk_scrolled_window_set_shadow_type (scrolled, GTK_SHADOW_IN);
 	gtk_scrolled_window_set_policy (scrolled,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled), GTK_WIDGET (preview->view));
+	gtk_scrolled_window_set_child (scrolled,
+			GTK_WIDGET (preview->view));
 }
 
 static void ugtk_sequence_preview_show (struct UgtkSequencePreview* preview, const gchar* message)
 {
-	GtkTreeIter		iter;
+	const char* items[] = { "", NULL };
 
-	gtk_list_store_clear (preview->store);
-	// skip first row
-	gtk_list_store_append (preview->store, &iter);
-	// show message in second row
-	gtk_list_store_append (preview->store, &iter);
-	gtk_list_store_set (preview->store, &iter, 0, message, -1);
+	// Clear and show message
+	gtk_string_list_splice (preview->store, 0,
+			g_list_model_get_n_items (G_LIST_MODEL (preview->store)), items);
+	gtk_string_list_append (preview->store, message);
 }
 
 // ----------------------------------------------------------------------------
@@ -435,5 +424,3 @@ static void on_destroy (GtkWidget *widget, UgtkSequence* seq)
 {
 	uget_sequence_final (&seq->sequence);
 }
-
-

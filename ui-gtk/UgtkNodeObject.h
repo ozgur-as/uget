@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (C) 2005-2020 by C.H. Huang
+ *   Copyright (C) 2012-2020 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  *  This library is free software; you can redistribute it and/or
@@ -34,63 +34,40 @@
  *
  */
 
-#ifndef UGTK_SETTING_DIALOG_H
-#define UGTK_SETTING_DIALOG_H
+#ifndef UGTK_NODE_OBJECT_H
+#define UGTK_NODE_OBJECT_H
 
 #include <gtk/gtk.h>
-#include <UgtkApp.h>
-#include <UgtkSettingForm.h>
-#include <UgtkScheduleForm.h>
+#include <UgetNode.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct UgtkSettingDialog        UgtkSettingDialog;
+#define UGTK_TYPE_NODE_OBJECT            (ugtk_node_object_get_type ())
+#define UGTK_NODE_OBJECT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UGTK_TYPE_NODE_OBJECT, UgtkNodeObject))
+#define UGTK_IS_NODE_OBJECT(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UGTK_TYPE_NODE_OBJECT))
 
-typedef enum
+typedef struct UgtkNodeObject       UgtkNodeObject;
+typedef struct UgtkNodeObjectClass  UgtkNodeObjectClass;
+
+// GObject wrapper for UgetNode*, required by GListModel
+struct UgtkNodeObject
 {
-	UGTK_SETTING_PAGE_UI,
-	UGTK_SETTING_PAGE_CLIPBOARD,
-	UGTK_SETTING_PAGE_OTHERS,
-} UgtkSettingDialogPage;
-
-struct UgtkSettingDialog
-{
-	GtkWindow*     self;
-	UgtkApp*       app;
-
-	GtkListView*       list_view;
-	GtkStringList*     string_list;
-	GtkSingleSelection* selection;
-	GtkNotebook*   notebook;
-
-	struct UgtkUserInterfaceForm  ui;
-	struct UgtkClipboardForm      clipboard;
-	struct UgtkBandwidthForm      bandwidth;
-	struct UgtkCompletionForm     completion;
-	struct UgtkAutoSaveForm       auto_save;
-	struct UgtkScheduleForm       scheduler;
-	struct UgtkCommandlineForm    commandline;
-	struct UgtkPluginForm         plugin;
-	struct UgtkMediaWebsiteForm   media_website;
+	GObject    parent;
+	UgetNode*  node;
 };
 
-UgtkSettingDialog*  ugtk_setting_dialog_new ();
-void                ugtk_setting_dialog_free (UgtkSettingDialog* sdialog);
+struct UgtkNodeObjectClass
+{
+	GObjectClass  parent_class;
+};
 
-void  ugtk_setting_dialog_run (UgtkSettingDialog* dialog, UgtkApp* app);
-void  ugtk_setting_dialog_set (UgtkSettingDialog* dialog, UgtkSetting* setting);
-void  ugtk_setting_dialog_get (UgtkSettingDialog* dialog, UgtkSetting* setting);
-
-void  ugtk_setting_dialog_add (UgtkSettingDialog* sdialog,
-                               const gchar* title,
-                               GtkWidget*   page);
-
-void  ugtk_setting_dialog_set_page (UgtkSettingDialog* sdialog, int nth);
+GType            ugtk_node_object_get_type (void);
+UgtkNodeObject*  ugtk_node_object_new (UgetNode* node);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // End of UGTK_SETTING_DIALOG_H
+#endif // UGTK_NODE_OBJECT_H
