@@ -34,8 +34,9 @@
  *
  */
 
+#include <string.h>
 #include <UgString.h>
-#include <UgetMedia.h>
+#include <UgetResolver.h>
 #include <UgtkSettingForm.h>
 
 #include <glib/gi18n.h>
@@ -93,7 +94,6 @@ void  ugtk_clipboard_form_init (struct UgtkClipboardForm* cbform)
 
 	gtk_box_append (vbox, gtk_label_new (""));
 
-	// media or storage website
 	widget = gtk_check_button_new_with_mnemonic (_("_Monitor URL of website"));
 	gtk_box_append (vbox, widget);
 	cbform->website = (GtkCheckButton*) widget;
@@ -755,107 +755,188 @@ void  ugtk_plugin_form_get (struct UgtkPluginForm* psform, UgtkSetting* setting)
 }
 
 // ----------------------------------------------------------------------------
-// UgtkMediaWebsiteForm
-//
+// UgtkResolverForm
 
-static void on_match_mode_changed (GObject* object, GParamSpec* pspec, struct UgtkMediaWebsiteForm* mwform)
+static const int resolver_heights[] = { 0, 2160, 1440, 1080, 720, 480, 360, 240 };
+static const int n_resolver_heights = sizeof (resolver_heights) / sizeof (int);
+
+static const char* const resolver_exts[] = { "", "mp4", "webm", "mkv", NULL };
+
+static int height_to_index (int height)
 {
-	gboolean sensitive;
-	int      index;
-
-	index = gtk_drop_down_get_selected (GTK_DROP_DOWN (object));
-	if (index == UGET_MEDIA_MATCH_0)
-		sensitive = FALSE;
-	else
-		sensitive = TRUE;
-
-	gtk_widget_set_sensitive ((GtkWidget*) mwform->quality, sensitive);
-	gtk_widget_set_sensitive ((GtkWidget*) mwform->type, sensitive);
+	int i;
+	for (i = 0; i < n_resolver_heights; i++)
+		if (resolver_heights[i] == height)
+			return i;
+	return 0;  // Best
 }
 
-void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform)
+static int ext_to_index (const char* ext)
+{
+	int i;
+	if (ext == NULL || ext[0] == 0)
+		return 0;
+	for (i = 1; resolver_exts[i] != NULL; i++)
+		if (strcmp (resolver_exts[i], ext) == 0)
+			return i;
+	return 0;
+}
+
+static void on_resolver_enable_toggled (GtkCheckButton* btn, struct UgtkResolverForm* rform)
+{
+	gboolean on = gtk_check_button_get_active (btn);
+	gtk_widget_set_sensitive ((GtkWidget*) rform->max_height, on);
+	gtk_widget_set_sensitive ((GtkWidget*) rform->preferred_ext, on);
+	gtk_widget_set_sensitive ((GtkWidget*) rform->auto_pick, on);
+	gtk_widget_set_sensitive ((GtkWidget*) rform->path, on);
+}
+
+static void resolver_refresh_status (struct UgtkResolverForm* rform)
+{
+	uget_resolver_invalidate ();
+	if (uget_resolver_available ())
+		gtk_label_set_text (rform->status,
+				_("Status: media extractor is available."));
+	else
+		gtk_label_set_text (rform->status,
+				_("Status: media extractor not found in PATH. Install yt-dlp (or set a path below) to enable media downloads."));
+}
+
+static void on_resolver_path_changed (GtkEditable* editable, struct UgtkResolverForm* rform)
+{
+	uget_resolver_set_path (gtk_editable_get_text (editable));
+	resolver_refresh_status (rform);
+}
+
+void  ugtk_resolver_form_init (struct UgtkResolverForm* rform)
 {
 	GtkBox*     vbox;
-	GtkBox*     hbox;
-	GtkWidget*  widget;
 	GtkGrid*    grid;
+	GtkWidget*  widget;
 
-	mwform->self = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	vbox = (GtkBox*) mwform->self;
+	rform->self = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+	vbox = (GtkBox*) rform->self;
 
-	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_append (vbox, (GtkWidget*) hbox);
-	widget = gtk_label_new (_("Media matching mode:"));
-	gtk_box_append (hbox, widget);
-	{
-		const char* match_modes[] = {
-			_("Don't match"), _("Match 1 condition"),
-			_("Match 2 condition"), _("Near quality"), NULL
-		};
-		widget = (GtkWidget*) gtk_drop_down_new_from_strings (match_modes);
-	}
-	mwform->match_mode = (GtkDropDown*) widget;
-	g_signal_connect (mwform->match_mode, "notify::selected",
-			G_CALLBACK (on_match_mode_changed), mwform);
-	gtk_box_append (hbox, widget);
+	// Enable master switch
+	widget = gtk_check_button_new_with_mnemonic (
+			_("_Enable media extraction (via yt-dlp)"));
+	rform->enable = (GtkCheckButton*) widget;
+	gtk_box_append (vbox, widget);
+	g_signal_connect (widget, "toggled",
+			G_CALLBACK (on_resolver_enable_toggled), rform);
 
-	hbox = (GtkBox*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-	gtk_box_append (vbox, (GtkWidget*) hbox);
-	widget = gtk_label_new (_("Match conditions"));
-	gtk_box_append (hbox, widget);
-	gtk_box_append (hbox, gtk_separator_new (GTK_ORIENTATION_HORIZONTAL));
+	// Explanation
+	widget = gtk_label_new (_(
+			"When enabled, clicking the \"find\" icon in the URL field of "
+			"the New Download dialog will query an external extractor to "
+			"fetch available stream formats from media page URLs."));
+	gtk_label_set_wrap (GTK_LABEL (widget), TRUE);
+	gtk_label_set_xalign (GTK_LABEL (widget), 0.0);
+	g_object_set (widget, "margin-start", 24, "margin-end", 4, NULL);
+	gtk_box_append (vbox, widget);
 
-	// conditions
+	// Option grid
 	grid = (GtkGrid*) gtk_grid_new ();
+	gtk_grid_set_column_spacing (grid, 8);
+	gtk_grid_set_row_spacing (grid, 4);
+	g_object_set (grid, "margin-start", 24, "margin-top", 6, "margin-bottom", 6, NULL);
 	gtk_box_append (vbox, (GtkWidget*) grid);
-	// Quality
-	widget = gtk_label_new (_("Quality:"));
-	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
-	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
+
+	// Max height
+	widget = gtk_label_new (_("Max resolution:"));
+	gtk_label_set_xalign (GTK_LABEL (widget), 0.0);
 	gtk_grid_attach (grid, widget, 0, 0, 1, 1);
 	{
-		const char* qualities[] = { "240p", "360p", "480p", "720p", "1080p", NULL };
-		widget = (GtkWidget*) gtk_drop_down_new_from_strings (qualities);
+		const char* heights[] = { _("Best"), "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", NULL };
+		widget = (GtkWidget*) gtk_drop_down_new_from_strings (heights);
 	}
-	mwform->quality = (GtkDropDown*) widget;
-	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
-	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
+	rform->max_height = (GtkDropDown*) widget;
 	gtk_grid_attach (grid, widget, 1, 0, 1, 1);
-	// Type
-	widget = gtk_label_new (_("Type:"));
-	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
-	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
+
+	// Preferred container
+	widget = gtk_label_new (_("Preferred container:"));
+	gtk_label_set_xalign (GTK_LABEL (widget), 0.0);
 	gtk_grid_attach (grid, widget, 0, 1, 1, 1);
 	{
-		const char* types[] = { "mp4", "webm", "3gpp", "flv", NULL };
-		widget = (GtkWidget*) gtk_drop_down_new_from_strings (types);
+		const char* exts[] = { _("Best"), "mp4", "webm", "mkv", NULL };
+		widget = (GtkWidget*) gtk_drop_down_new_from_strings (exts);
 	}
-	mwform->type = (GtkDropDown*) widget;
-	g_object_set (widget, "margin-start", 3, "margin-end", 3, NULL);
-	g_object_set (widget, "margin-top", 2, "margin-bottom", 2, NULL);
+	rform->preferred_ext = (GtkDropDown*) widget;
 	gtk_grid_attach (grid, widget, 1, 1, 1, 1);
 
-	gtk_widget_set_visible(mwform->self, TRUE);
+	// Auto-pick
+	widget = gtk_check_button_new_with_mnemonic (
+			_("_Auto-pick best matching format (skip selector)"));
+	rform->auto_pick = (GtkCheckButton*) widget;
+	g_object_set (widget, "margin-top", 4, NULL);
+	gtk_grid_attach (grid, widget, 0, 2, 2, 1);
+
+	// Path
+	widget = gtk_label_new (_("Extractor:"));
+	gtk_label_set_xalign (GTK_LABEL (widget), 0.0);
+	g_object_set (widget, "margin-top", 6, NULL);
+	gtk_grid_attach (grid, widget, 0, 3, 1, 1);
+
+	widget = gtk_entry_new ();
+	gtk_entry_set_placeholder_text (GTK_ENTRY (widget), "yt-dlp");
+	g_object_set (widget, "hexpand", TRUE, "margin-top", 6, NULL);
+	rform->path = (GtkEntry*) widget;
+	gtk_grid_attach (grid, widget, 1, 3, 1, 1);
+	g_signal_connect (widget, "changed",
+			G_CALLBACK (on_resolver_path_changed), rform);
+
+	// Status line
+	widget = gtk_label_new ("");
+	gtk_label_set_xalign (GTK_LABEL (widget), 0.0);
+	gtk_label_set_wrap (GTK_LABEL (widget), TRUE);
+	g_object_set (widget, "margin-start", 24, "margin-end", 4, "margin-top", 6, NULL);
+	rform->status = (GtkLabel*) widget;
+	gtk_box_append (vbox, widget);
+
+	gtk_widget_set_visible (rform->self, TRUE);
 }
 
-void  ugtk_media_website_form_set (struct UgtkMediaWebsiteForm* mwform, UgtkSetting* setting)
+void  ugtk_resolver_form_set (struct UgtkResolverForm* rform, UgtkSetting* setting)
 {
-	int  nth_quality, nth_type;
+	gtk_check_button_set_active (rform->enable, setting->resolver.enable);
+	gtk_drop_down_set_selected (rform->max_height,
+			height_to_index (setting->resolver.max_height));
+	gtk_drop_down_set_selected (rform->preferred_ext,
+			ext_to_index (setting->resolver.preferred_ext));
+	gtk_check_button_set_active (rform->auto_pick, setting->resolver.auto_pick);
+	gtk_editable_set_text (GTK_EDITABLE (rform->path),
+			setting->resolver.path ? setting->resolver.path : "");
 
-	nth_quality = setting->media.quality - UGET_MEDIA_QUALITY_240P;
-	nth_type = setting->media.type - UGET_MEDIA_TYPE_MP4;
-
-	gtk_drop_down_set_selected (mwform->match_mode, setting->media.match_mode);
-	gtk_drop_down_set_selected (mwform->quality, nth_quality);
-	gtk_drop_down_set_selected (mwform->type, nth_type);
+	// Propagate enable state to option widgets
+	on_resolver_enable_toggled (rform->enable, rform);
+	resolver_refresh_status (rform);
 }
 
-void  ugtk_media_website_form_get (struct UgtkMediaWebsiteForm* mwform, UgtkSetting* setting)
+void  ugtk_resolver_form_get (struct UgtkResolverForm* rform, UgtkSetting* setting)
 {
-	setting->media.match_mode = gtk_drop_down_get_selected (mwform->match_mode);
-	setting->media.quality = gtk_drop_down_get_selected (mwform->quality);
-	setting->media.type = gtk_drop_down_get_selected (mwform->type);
+	int idx;
+	const char* text;
 
-	setting->media.quality += UGET_MEDIA_QUALITY_240P;
-	setting->media.type += UGET_MEDIA_TYPE_MP4;
+	setting->resolver.enable = gtk_check_button_get_active (rform->enable);
+
+	idx = (int) gtk_drop_down_get_selected (rform->max_height);
+	if (idx < 0 || idx >= n_resolver_heights)
+		idx = 0;
+	setting->resolver.max_height = resolver_heights[idx];
+
+	idx = (int) gtk_drop_down_get_selected (rform->preferred_ext);
+	ug_free (setting->resolver.preferred_ext);
+	if (idx > 0 && resolver_exts[idx])
+		setting->resolver.preferred_ext = ug_strdup (resolver_exts[idx]);
+	else
+		setting->resolver.preferred_ext = NULL;
+
+	setting->resolver.auto_pick = gtk_check_button_get_active (rform->auto_pick);
+
+	text = gtk_editable_get_text (GTK_EDITABLE (rform->path));
+	ug_free (setting->resolver.path);
+	setting->resolver.path = (text && text[0]) ? ug_strdup (text) : NULL;
+
+	uget_resolver_set_path (setting->resolver.path);
 }
+

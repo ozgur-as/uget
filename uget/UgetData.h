@@ -88,6 +88,10 @@ struct UgetCommon
 	char*   folder;
 	char*   user;
 	char*   password;
+	// External extractor format selector (e.g. yt-dlp -f "137+140").
+	// When non-NULL, the download is routed through the external
+	// resolver plugin instead of the default HTTP downloader.
+	char*   format_id;
 
 	// timeout
 	unsigned int  connect_timeout;    // second
@@ -118,6 +122,7 @@ struct UgetCommon
 		uint8_t   folder:1;
 		uint8_t   user:1;
 		uint8_t   password:1;
+		uint8_t   format_id:1;
 		uint8_t   timestamp:1;
 		uint8_t   connect_timeout:1;
 		uint8_t   transmit_timeout:1;

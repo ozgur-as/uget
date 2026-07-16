@@ -1,9 +1,7 @@
 uget/pwmd.c
 uget/UgetApp.c
 uget/UgetEvent.c
-uget/UgetMedia-youtube.c
 uget/UgetPluginAria2.c
-uget/UgetPluginMedia.c
 uget/UgetPluginMega.c
 ui-gtk/UgtkAboutDialog.c
 ui-gtk/UgtkApp-main.c

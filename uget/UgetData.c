@@ -63,6 +63,8 @@ static const UgEntry  UgetCommonEntry[] =
 			NULL, UG_ENTRY_NO_NULL},
 	{"password", offsetof(UgetCommon, password), UG_ENTRY_STRING,
 			NULL, UG_ENTRY_NO_NULL},
+	{"format-id", offsetof(UgetCommon, format_id), UG_ENTRY_STRING,
+			NULL, UG_ENTRY_NO_NULL},
 	{"connect-timeout",    offsetof(UgetCommon, connect_timeout),
 			UG_ENTRY_UINT,  NULL, NULL},
 	{"transmit-timeout",   offsetof(UgetCommon, transmit_timeout),
@@ -118,6 +120,7 @@ static void uget_common_final(UgetCommon* common)
 	ug_free(common->folder);
 	ug_free(common->user);
 	ug_free(common->password);
+	ug_free(common->format_id);
 }
 
 static int  uget_common_assign(UgetCommon* common, UgetCommon* src)
@@ -158,6 +161,11 @@ static int  uget_common_assign(UgetCommon* common, UgetCommon* src)
 		ug_free(common->password);
 		common->password = (src->password) ? ug_strdup(src->password) : NULL;
 		common->keeping.password = src->keeping.password;
+	}
+	if (common->keeping.enable == FALSE || common->keeping.format_id == FALSE) {
+		ug_free(common->format_id);
+		common->format_id = (src->format_id) ? ug_strdup(src->format_id) : NULL;
+		common->keeping.format_id = src->keeping.format_id;
 	}
 	// timeout
 	if (common->keeping.enable == FALSE || common->keeping.connect_timeout == FALSE) {

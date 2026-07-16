@@ -39,7 +39,6 @@
 #include <UgetApp.h>
 #include <UgetPluginCurl.h>
 #include <UgetPluginAria2.h>
-#include <UgetPluginMedia.h>
 #include <UgetPluginMega.h>
 #include <UgetPluginEmpty.h>
 
@@ -129,8 +128,6 @@ void  test_download(void)
 	char*        mirrors;
 
 	uri = "https://mega.nz/#F!i5FXiSoD!TObpvqxETCq8TbEhFevzpg";
-//	uri = "https://mega.nz/#!MSpjBRhZ!nZBsUQCAnf71842wXuals_ftSkga3fIQypzBsKEZbmk";
-//	uri = "https://www.youtube.com/watch?v=y2004Xaz2HU";
 //	uri = "http://download.tuxfamily.org/notepadplus/6.5.3/npp.6.5.3.Installer.exe";
 //	uri = "http://ftp.gimp.org/pub/gimp/v2.8/windows/gimp-2.8.10-setup.exe";
 //	mirrors = "ftp://195.220.108.108/linux/fedora/linux/updates/19/x86_64/kernel-3.11.2-201.fc19.x86_64.rpm";
@@ -158,7 +155,6 @@ void  test_download(void)
 
 //	download_by_plugin(info, UgetPluginCurlInfo);
 //	download_by_plugin(info, UgetPluginAria2Info);
-//	download_by_plugin(info, UgetPluginMediaInfo);
 	download_by_plugin(info, UgetPluginMegaInfo);
 	ug_info_unref(info);
 }
@@ -380,7 +376,6 @@ int   main (void)
 	// initialize plug-in
 	uget_plugin_global_set(UgetPluginCurlInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	uget_plugin_global_set(UgetPluginMegaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 //	test_setup_plugin_aria2();
 
@@ -392,7 +387,6 @@ int   main (void)
 	// finalize plug-in
 	uget_plugin_global_set(UgetPluginCurlInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	uget_plugin_global_set(UgetPluginMegaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	ug_sleep(1000);
 

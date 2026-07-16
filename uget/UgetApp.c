@@ -982,7 +982,17 @@ int   uget_app_activate_download (UgetApp* app, UgetNode* dnode)
 		return FALSE;
 	// match plug-in
 	log = ug_info_realloc (dnode->info, UgetLogInfo);
-	temp.pinfo = uget_app_match_plugin (app, common->uri, NULL);
+	// If a format id is set, the user (or auto-pick) picked a non-combined
+	// stream and the download must go through the external resolver plugin
+	// which can download + mux. Look it up by name in the registry.
+	temp.pinfo = NULL;
+	if (common->format_id && common->format_id[0]) {
+		const UgetPluginInfo* p = NULL;
+		if (uget_app_find_plugin (app, "ytdlp", &p))
+			temp.pinfo = (UgetPluginInfo*) p;
+	}
+	if (temp.pinfo == NULL)
+		temp.pinfo = uget_app_match_plugin (app, common->uri, NULL);
 	if (temp.pinfo == NULL) {
 		// no plug-in support
 		uget_app_queue_download (app, dnode);

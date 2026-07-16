@@ -42,8 +42,9 @@
 #include <UgHtmlFilter.h>
 #include <UgetPluginCurl.h>
 #include <UgetPluginAria2.h>
-#include <UgetPluginMedia.h>
 #include <UgetPluginMega.h>
+#include <UgetPluginYtdlp.h>
+#include <UgetResolver.h>
 #include <UgtkApp.h>
 #include <UgtkUtil.h>
 #include <UgtkNodeDialog.h>
@@ -75,8 +76,8 @@ void  ugtk_app_init (UgtkApp* app, UgetRpc* rpc)
 	// plug-in initialize
 	uget_plugin_global_set(UgetPluginCurlInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
+	uget_plugin_global_set(UgetPluginYtdlpInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) TRUE);
 	// apply UgtkSetting
 	ugtk_app_set_plugin_setting (app, &app->setting);
 	ugtk_app_set_window_setting (app, &app->setting);
@@ -123,8 +124,8 @@ void  ugtk_app_final (UgtkApp* app)
 			(void*)(intptr_t) shutdown_now);
 	uget_plugin_global_set(UgetPluginCurlInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 	uget_plugin_global_set(UgetPluginMegaInfo,  UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
+	uget_plugin_global_set(UgetPluginYtdlpInfo, UGET_PLUGIN_GLOBAL_INIT, (void*) FALSE);
 }
 
 void  ugtk_app_save (UgtkApp* app)
@@ -431,19 +432,13 @@ void  ugtk_app_set_plugin_setting (UgtkApp* app, UgtkSetting* setting)
 
 	// set default plug-in
 	uget_app_set_default_plugin ((UgetApp*) app, default_plugin);
-	// set agent plug-in (used by media and MEGA plug-in)
+	// set agent plug-in (used by MEGA plug-in)
 	uget_plugin_agent_global_set(UGET_PLUGIN_AGENT_GLOBAL_PLUGIN,
 	                 (void*) default_plugin);
-	// set media plug-in
-	uget_app_add_plugin ((UgetApp*) app, UgetPluginMediaInfo);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_MEDIA_GLOBAL_MATCH_MODE,
-	                 (void*)(intptr_t) setting->media.match_mode);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_MEDIA_GLOBAL_QUALITY,
-	                 (void*)(intptr_t) setting->media.quality);
-	uget_plugin_global_set(UgetPluginMediaInfo, UGET_PLUGIN_MEDIA_GLOBAL_TYPE,
-	                 (void*)(intptr_t) setting->media.type);
 	// set MEGA plug-in
 	uget_app_add_plugin ((UgetApp*) app, UgetPluginMegaInfo);
+	// set yt-dlp plug-in (matched by format_id field, not URL)
+	uget_app_add_plugin ((UgetApp*) app, UgetPluginYtdlpInfo);
 	// set aria2 plug-in
 	if (setting->plugin_order >= UGTK_PLUGIN_ORDER_ARIA2) {
 		uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_ARIA2_GLOBAL_URI,
@@ -462,6 +457,9 @@ void  ugtk_app_set_plugin_setting (UgtkApp* app, UgtkSetting* setting)
 		limit[1] = setting->aria2.limit.upload * 1024;
 		uget_plugin_global_set(UgetPluginAria2Info, UGET_PLUGIN_GLOBAL_SPEED_LIMIT, limit);
 	}
+
+	// External URL resolver path
+	uget_resolver_set_path (setting->resolver.path);
 
 //	app->aria2.remote_updated = FALSE;
 	ugtk_tray_icon_set_plugin_sensitive (&app->trayicon, sensitive);
@@ -847,6 +845,8 @@ static void on_paste_url_received (GObject *source_object, GAsyncResult *res, gp
             }
             g_list_free_full (list, g_free);
             ugtk_download_form_complete_entry (&ndialog->download);
+            // Auto-resolve if the pasted URL looks like a page URL.
+            ugtk_download_form_trigger_resolve (&ndialog->download);
         }
         g_free (text);
     } else {
@@ -889,6 +889,8 @@ void  ugtk_app_create_download (UgtkApp* app, const char* sub_title, const char*
 		temp.cnode = uget_app_match_category ((UgetApp*) app, &uuri, NULL);
 		if (temp.cnode)
 			cnode = temp.cnode;
+		// Auto-resolve if the pre-filled URL looks like a page URL.
+		ugtk_download_form_trigger_resolve (&ndialog->download);
 	}
 	else {
         // GTK4 Async Clipboard Read
@@ -1874,9 +1876,11 @@ GList* ugtk_clipboard_get_matched (struct UgtkClipboard* clipboard, const gchar*
 			text = NULL;
 		// free URIs if not matched
 		if (text == NULL || g_regex_match (clipboard->regex, text+1, 0, NULL) == FALSE) {
-			// storage or media website
+			// Keep URIs that look extractor-resolvable (page URLs without
+			// a known file extension) so the user can fetch them via the
+			// resolver. clipboard->website is the user-visible toggle.
 			if (clipboard->website == FALSE ||
-			     uget_site_get_id (link->data) == UGET_SITE_UNKNOWN)
+			    uget_resolver_should_handle (link->data) == 0)
 			{
 				g_free (link->data);
 				link->data = NULL;

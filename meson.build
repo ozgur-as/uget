@@ -20,6 +20,7 @@ host_system = host_machine.system()
 # ============================================================================
 
 glib_dep = dependency('glib-2.0', version: '>= 2.86.0', required: true)
+gio_dep  = dependency('gio-2.0',  version: '>= 2.86.0', required: true)
 gtk_dep = dependency('gtk4', version: '>= 4.20.0', required: true)
 curl_dep = dependency('libcurl', version: '>= 8.11.0', required: true)
 threads_dep = dependency('threads', required: true)

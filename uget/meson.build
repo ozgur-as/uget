@@ -13,20 +13,18 @@ uget_sources = files(
   'UgetNode-filter.c',
   'UgetTask.c',
   'UgetHash.c',
-  'UgetSite.c',
   'UgetApp.c',
   'UgetEvent.c',
   'UgetPlugin.c',
   'UgetA2cf.c',
   'UgetCurl.c',
   'UgetAria2.c',
-  'UgetMedia.c',
-  'UgetMedia-youtube.c',
+  'UgetResolver.c',
   'UgetPluginCurl.c',
   'UgetPluginAria2.c',
-  'UgetPluginMedia.c',
   'UgetPluginAgent.c',
   'UgetPluginMega.c',
+  'UgetPluginYtdlp.c',
   'UgetPluginEmpty.c',
 )
 
@@ -40,6 +38,7 @@ uget_inc = include_directories('.')
 uget_deps = [
   uglib_dep,
   glib_dep,
+  gio_dep,
   threads_dep,
 ]
 

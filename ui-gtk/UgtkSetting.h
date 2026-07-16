@@ -228,12 +228,14 @@ struct UgtkSetting
 		char*  uri;
 	} aria2;
 
-	// UgetPluginMedia option
-	struct UgtkPluginMediaSetting {
-		int    match_mode;
-		int    quality;
-		int    type;
-	} media;
+	// External URL resolver (yt-dlp)
+	struct UgtkResolverSetting {
+		int    enable;          // master switch
+		int    max_height;      // 0 = best, otherwise pixel height
+		char*  preferred_ext;   // NULL/"" = best, else "mp4"/"webm"/"mkv"
+		int    auto_pick;       // skip selector, just pick best matching
+		char*  path;            // NULL/"" = look up in PATH
+	} resolver;
 
 	// Completion Auto-Actions
 	struct UgtkCompletionSetting {

@@ -20,6 +20,7 @@ ui_gtk_sources = files(
   'UgtkCategoryForm.c',
   'UgtkNodeDialog.c',
   'UgtkBatchDialog.c',
+  'UgtkFormatPicker.c',
   'UgtkScheduleForm.c',
   'UgtkSettingForm.c',
   'UgtkSettingDialog.c',

@@ -182,20 +182,21 @@ void  ugtk_plugin_form_set (struct UgtkPluginForm* psform, UgtkSetting* setting)
 void  ugtk_plugin_form_get (struct UgtkPluginForm* psform, UgtkSetting* setting);
 
 // ----------------------------------------------------------------------------
-// UgtkMediaWebsiteForm
-struct UgtkMediaWebsiteForm
+// UgtkResolverForm  (external URL extractor settings)
+struct UgtkResolverForm
 {
-	GtkWidget*  self;
-
-	GtkDropDown*        match_mode;
-	GtkDropDown*        quality;
-	GtkDropDown*        type;
+	GtkWidget*       self;
+	GtkCheckButton*  enable;
+	GtkDropDown*     max_height;
+	GtkDropDown*     preferred_ext;
+	GtkCheckButton*  auto_pick;
+	GtkEntry*        path;
+	GtkLabel*        status;  // shows whether the extractor was found
 };
 
-void  ugtk_media_website_form_init (struct UgtkMediaWebsiteForm* mwform);
-void  ugtk_media_website_form_set (struct UgtkMediaWebsiteForm* mwform, UgtkSetting* setting);
-void  ugtk_media_website_form_get (struct UgtkMediaWebsiteForm* mwform, UgtkSetting* setting);
-
+void  ugtk_resolver_form_init (struct UgtkResolverForm* rform);
+void  ugtk_resolver_form_set  (struct UgtkResolverForm* rform, UgtkSetting* setting);
+void  ugtk_resolver_form_get  (struct UgtkResolverForm* rform, UgtkSetting* setting);
 
 #ifdef __cplusplus
 }

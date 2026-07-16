@@ -48,10 +48,13 @@ extern "C" {
 
 typedef struct UgtkDownloadForm    UgtkDownloadForm;
 typedef struct UgtkSetting         UgtkSetting;
+typedef struct UgtkApp             UgtkApp;
 
 struct UgtkDownloadForm
 {
 	GtkWindow*  parent;			// parent window of UgtkDownloadForm.self
+	UgtkApp*    app;			// for accessing runtime settings
+	gboolean    resolve_auto;	// TRUE if current resolve was auto-triggered
 
 	// ----------------------------------------------------
 	// Page 1
@@ -141,7 +144,12 @@ struct UgtkDownloadForm
 	gboolean  completed:1;
 };
 
-void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, GtkWindow* parent);
+void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, GtkWindow* parent, UgtkApp* app);
+
+// Kick off the external resolver on the current URI text (same as clicking
+// the resolve icon). Safe to call even if the resolver is unavailable or
+// the URL is not resolvable — becomes a no-op in those cases.
+void  ugtk_download_form_trigger_resolve (UgtkDownloadForm* dform);
 
 void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* info);
 void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* info, gboolean keep_changed);

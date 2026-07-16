@@ -48,7 +48,6 @@
 #include <UgetA2cf.h>
 #include <UgetCurl.h>
 #include <UgetRss.h>
-#include <UgetMedia.h>
 #include <UgetSequence.h>
 
 // ----------------------------------------------------------------------------
@@ -402,41 +401,6 @@ void test_uget_rss (void)
 }
 
 // ----------------------------------------------------------------------------
-// UgetMedia
-
-void  test_media (void)
-{
-	UgetMedia*     umedia;
-	UgetMediaItem* umitem;
-	int   count;
-	char* uri;
-
-	uri = "https://www.youtube.com/watch?v=y2004Xaz2HU";
-	count = uget_site_get_id (uri);
-	umedia = uget_media_new (uri, UGET_SITE_YOUTUBE);
-	count  = uget_media_grab_items (umedia, NULL);
-	printf ("\nget %d media item\n", count);
-
-	umitem = uget_media_match (umedia,
-			UGET_MEDIA_MATCH_1,
-			UGET_MEDIA_QUALITY_UNKNOWN,
-			UGET_MEDIA_TYPE_MP4);
-
-//	umitem = uget_media_match (umedia,
-//			UGET_MEDIA_MATCH_0,
-//			UGET_MEDIA_QUALITY_UNKNOWN,
-//			UGET_MEDIA_TYPE_MP4);
-
-	for (;  umitem;  umitem = umitem->next) {
-//		printf ("URL %s" "\n", umitem->url);
-		printf ("quality %d, type %d, has_url %d\n",
-		        umitem->quality, umitem->type,
-		        (umitem->url) ? 1 : 0);
-	}
-	uget_media_free (umedia);
-}
-
-// ----------------------------------------------------------------------------
 // UgetSeq
 
 void test_seq (void)
@@ -566,7 +530,6 @@ int main (void)
 //	test_uget_a2cf ();
 //	test_uget_curl ();
 //	test_uget_rss ();
-//	test_media ();
 //	test_seq ();
 	test_files();
 

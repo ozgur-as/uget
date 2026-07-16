@@ -38,7 +38,9 @@
 #include <UgString.h>
 #include <UgtkDownloadForm.h>
 #include <UgetData.h>
+#include <UgetResolver.h>
 #include <UgtkApp.h>		// UGTK_APP_NAME
+#include <UgtkFormatPicker.h>
 
 #include <glib/gi18n.h>
 
@@ -59,8 +61,9 @@ static void on_http_entry_changed (GtkEditable *editable, UgtkDownloadForm* dfor
 static void on_select_folder (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
 static void on_select_cookie (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
 static void on_select_post   (GtkEntry* entry, GtkEntryIconPosition icon_pos, GdkEvent* event, UgtkDownloadForm* dform);
+static void on_uri_resolve_pressed (GtkEntry* entry, GtkEntryIconPosition icon_pos, UgtkDownloadForm* dform);
 
-void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, GtkWindow* parent)
+void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, GtkWindow* parent, UgtkApp* app)
 {
 	dform->changed.enable   = TRUE;
 	dform->changed.uri      = FALSE;
@@ -76,6 +79,7 @@ void  ugtk_download_form_init (UgtkDownloadForm* dform, UgtkProxyForm* proxy, Gt
 	dform->changed.delay    = FALSE;
 	dform->changed.timestamp= FALSE;
 	dform->parent = parent;
+	dform->app = app;
 
 	ugtk_download_form_init_page1 (dform, proxy);
 	ugtk_download_form_init_page2 (dform);
@@ -108,6 +112,18 @@ static void ugtk_download_form_init_page1 (UgtkDownloadForm* dform, UgtkProxyFor
 	gtk_grid_attach (top_grid, widget, 1, 0, 2, 1);
 	g_signal_connect (GTK_EDITABLE (widget), "changed",
 			G_CALLBACK (on_uri_entry_changed), dform);
+	// Secondary icon: resolve media stream formats via external extractor
+	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget),
+			GTK_ENTRY_ICON_SECONDARY, "edit-find-symbolic");
+	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (widget),
+			GTK_ENTRY_ICON_SECONDARY,
+			_("Fetch media stream formats from this URL"));
+	gtk_entry_set_icon_activatable (GTK_ENTRY (widget),
+			GTK_ENTRY_ICON_SECONDARY, TRUE);
+	gtk_entry_set_icon_sensitive (GTK_ENTRY (widget),
+			GTK_ENTRY_ICON_SECONDARY, FALSE);
+	g_signal_connect (widget, "icon-press",
+			G_CALLBACK (on_uri_resolve_pressed), dform);
 	dform->uri_entry = widget;
 	// URL - label
 	widget = gtk_label_new_with_mnemonic (_("_URI:"));
@@ -494,6 +510,14 @@ void  ugtk_download_form_get (UgtkDownloadForm* dform, UgInfo* node_info)
 	// timestamp
 	temp.common->timestamp = gtk_check_button_get_active (GTK_CHECK_BUTTON (dform->timestamp));
 
+	// format id (stashed by the format picker for split streams)
+	{
+		const char* fid = g_object_get_data (G_OBJECT (dform->uri_entry),
+				"uget-format-id");
+		ug_free (temp.common->format_id);
+		temp.common->format_id = (fid && fid[0]) ? ug_strdup (fid) : NULL;
+	}
+
 	// URI
 	if (gtk_widget_is_sensitive (dform->uri_entry) == TRUE) {
 		text = gtk_editable_get_text (GTK_EDITABLE (dform->uri_entry));
@@ -579,6 +603,13 @@ void  ugtk_download_form_set (UgtkDownloadForm* dform, UgInfo* node_info, gboole
 
 	common = ug_info_realloc(node_info, UgetCommonInfo);
 	http   = ug_info_get(node_info, UgetHttpInfo);
+
+	// Restore format id stash (so edit dialogs don't lose the yt-dlp routing).
+	g_object_set_data_full (G_OBJECT (dform->uri_entry),
+			"uget-format-id",
+			(common->format_id && common->format_id[0])
+				? g_strdup (common->format_id) : NULL,
+			g_free);
 
 	// disable changed flags
 	dform->changed.enable = FALSE;
@@ -854,6 +885,346 @@ static void on_uri_entry_changed (GtkEditable* editable, UgtkDownloadForm* dform
 		dform->changed.uri = TRUE;
 		ugtk_download_form_complete_entry (dform);
 	}
+
+	// Enable the resolve icon iff the URL looks like something the
+	// external extractor can handle. Only the URI entry has the icon.
+	if (editable == GTK_EDITABLE (dform->uri_entry) &&
+	    uget_resolver_available () &&
+	    (dform->app == NULL || dform->app->setting.resolver.enable))
+	{
+		const char* text = gtk_editable_get_text (editable);
+		gboolean    resolvable = uget_resolver_should_handle (text);
+		gtk_entry_set_icon_sensitive (GTK_ENTRY (dform->uri_entry),
+				GTK_ENTRY_ICON_SECONDARY, resolvable);
+	}
+}
+
+// ----------------------------------------------------------------------------
+// External URL resolver integration
+//
+// When the user clicks the "find" icon inside the URI entry, we run the
+// configured extractor (yt-dlp by default) on the URL, then either auto-pick
+// the best matching format (if the user has auto-pick enabled) or present
+// the returned formats in the picker dialog. The picked format URL
+// replaces the URI entry contents.
+
+static void dform_restore_resolve_icon (UgtkDownloadForm* dform)
+{
+	const char*  fid;
+	const char*  icon;
+	const char*  tip;
+
+	gtk_entry_set_icon_sensitive (GTK_ENTRY (dform->uri_entry),
+			GTK_ENTRY_ICON_SECONDARY, TRUE);
+
+	// Show a different icon when a non-combined format has been stashed
+	// so the user can see that auto-pick applied a format selector.
+	fid = g_object_get_data (G_OBJECT (dform->uri_entry), "uget-format-id");
+	if (fid && fid[0]) {
+		icon = "emblem-ok-symbolic";
+		tip  = _("Media format selected. Click to choose a different one.");
+	}
+	else {
+		icon = "edit-find-symbolic";
+		tip  = _("Fetch media stream formats from this URL");
+	}
+	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (dform->uri_entry),
+			GTK_ENTRY_ICON_SECONDARY, icon);
+	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (dform->uri_entry),
+			GTK_ENTRY_ICON_SECONDARY, tip);
+}
+
+// Sanitize a string for use as a filename: replace path separators and
+// other characters that commonly cause trouble with underscores.
+static char* sanitize_title (const char* title)
+{
+	char* out;
+	char* p;
+	if (title == NULL)
+		return NULL;
+	out = g_strdup (title);
+	for (p = out; *p; p++) {
+		if (*p == '/' || *p == '\\' || *p == ':' || *p == '*' ||
+		    *p == '?' || *p == '"' || *p == '<' || *p == '>' || *p == '|')
+			*p = '_';
+	}
+	return out;
+}
+
+// Apply a picked format to the download form.
+//
+// For combined streams (has both video and audio) we replace the URL entry
+// with the direct media URL — the HTTP downloader will grab it in one
+// request, which gives us progress and multi-connection support.
+//
+// For split streams (video-only, audio-only, or any stream that would
+// require muxing) we keep the original page URL and stash the format id
+// on the dform for later use; the task layer will route this download to
+// the external-resolver plugin which does the multi-stream download + mux.
+//
+// `title` is the resolver result's page title, used to seed the filename
+// so the download list shows something meaningful before yt-dlp finishes.
+static void dform_apply_format (UgtkDownloadForm* dform,
+                                UgetFormat* picked, const char* title)
+{
+	gboolean combined;
+
+	if (picked == NULL)
+		return;
+
+	combined =
+		(picked->vcodec && strcmp (picked->vcodec, "none") != 0) &&
+		(picked->acodec && strcmp (picked->acodec, "none") != 0);
+
+	// Seed the filename from the title (if any) + expected extension.
+	// The plugin will replace this with the real filename once yt-dlp
+	// has finished writing the file.
+	if (title && title[0]) {
+		char* safe = sanitize_title (title);
+		char* name;
+		if (picked->ext && picked->ext[0])
+			name = g_strdup_printf ("%s.%s", safe,
+					combined ? picked->ext : "mp4");
+		else
+			name = g_strdup (safe);
+		g_free (safe);
+
+		dform->changed.enable = FALSE;
+		gtk_editable_set_text (GTK_EDITABLE (dform->file_entry), name);
+		dform->changed.enable = TRUE;
+		dform->changed.file = TRUE;
+		g_free (name);
+	}
+
+	if (combined && picked->url && picked->url[0]) {
+		// Combined stream → direct URL + curl plugin handles it.
+		dform->changed.enable = FALSE;
+		gtk_editable_set_text (GTK_EDITABLE (dform->uri_entry), picked->url);
+		dform->changed.enable = TRUE;
+		dform->changed.uri = TRUE;
+		ugtk_download_form_complete_entry (dform);
+		// Clear any stale format id from a previous resolve.
+		g_object_set_data_full (G_OBJECT (dform->uri_entry),
+				"uget-format-id", NULL, NULL);
+	}
+	else if (picked->format_id && picked->format_id[0]) {
+		// Split stream → keep page URL, stash format selector on the entry.
+		// For video-only picks we ask the extractor to also fetch the best
+		// audio track and mux it. For audio-only picks we just take the
+		// audio as-is.
+		gboolean has_v = (picked->vcodec && strcmp (picked->vcodec, "none") != 0);
+		gboolean has_a = (picked->acodec && strcmp (picked->acodec, "none") != 0);
+		const char* pref_ext = NULL;
+		if (dform->app)
+			pref_ext = dform->app->setting.resolver.preferred_ext;
+		// No explicit container preference ("Best") → honor the container of
+		// the stream the user actually picked. Otherwise a video-only mp4 pick
+		// gets muxed with the best (often opus/webm) audio and yt-dlp falls
+		// back to mkv — surprising the user who picked an mp4 row.
+		if ((pref_ext == NULL || pref_ext[0] == 0) &&
+		    picked->ext && picked->ext[0])
+			pref_ext = picked->ext;
+		char* selector;
+		if (has_v && !has_a) {
+			// Video + best audio. When the user has a preferred container,
+			// constrain the audio track to a codec that can be muxed into
+			// that container without falling back to mkv:
+			//   mp4  → m4a audio (avc1+mp4a → clean mp4)
+			//   webm → webm audio (vp9+opus → clean webm)
+			//   mkv  → no constraint (mkv holds anything)
+			// We use a cascade so yt-dlp falls back gracefully if the
+			// preferred audio codec isn't available.
+			const char* audio_ext = NULL;
+			if (pref_ext && pref_ext[0]) {
+				if (strcmp (pref_ext, "mp4") == 0)
+					audio_ext = "m4a";
+				else if (strcmp (pref_ext, "webm") == 0)
+					audio_ext = "webm";
+				// mkv / anything else: leave audio_ext NULL (no constraint)
+			}
+			if (audio_ext) {
+				selector = g_strdup_printf (
+						"%s+bestaudio[ext=%s]/%s+bestaudio/best[ext=%s]/best",
+						picked->format_id, audio_ext,
+						picked->format_id, pref_ext);
+			}
+			else {
+				selector = g_strdup_printf ("%s+bestaudio/best", picked->format_id);
+			}
+		}
+		else if (!has_v && has_a)
+			selector = g_strdup (picked->format_id);
+		else
+			selector = g_strdup (picked->format_id);
+		g_object_set_data_full (G_OBJECT (dform->uri_entry),
+				"uget-format-id", selector, g_free);
+		dform->changed.uri = TRUE;
+		ugtk_download_form_complete_entry (dform);
+	}
+}
+
+// Pick the best format matching user preferences. The picker understands
+// three kinds:
+//   - combined: has both video and audio (single direct URL → curl plugin)
+//   - video-only: has only video (needs muxing → resolver plugin)
+//   - audio-only: has only audio (needs muxing → resolver plugin)
+//
+// We prefer the highest-quality video format (combined or video-only) that
+// satisfies the user's height cap. If it is video-only, the resolver plugin
+// will also fetch a matching audio track and mux.
+//
+// If no video stream is available, fall back to the best audio-only.
+// Returns NULL if nothing usable exists.
+static UgetFormat* pick_best_combined (UgetResolverResult* result,
+                                       int max_height,
+                                       const char* preferred_ext)
+{
+	UgetFormat* best_video = NULL;        // best matching video stream
+	UgetFormat* fallback_video = NULL;    // any video under cap
+	UgetFormat* any_video = NULL;         // ignores cap entirely
+	UgetFormat* best_audio = NULL;        // best audio-only
+	UgetFormat* f;
+
+	for (f = (UgetFormat*) result->formats.head; f; f = f->next) {
+		gboolean has_v = (f->vcodec && strcmp (f->vcodec, "none") != 0);
+		gboolean has_a = (f->acodec && strcmp (f->acodec, "none") != 0);
+
+		if (has_v) {
+			if (any_video == NULL || f->height > any_video->height)
+				any_video = f;
+
+			if (max_height > 0 && f->height > max_height)
+				continue;
+
+			if (fallback_video == NULL || f->height > fallback_video->height)
+				fallback_video = f;
+
+			// Match preferred container.
+			if (preferred_ext && preferred_ext[0] && f->ext &&
+			    strcmp (f->ext, preferred_ext) != 0)
+				continue;
+
+			if (best_video == NULL || f->height > best_video->height)
+				best_video = f;
+		}
+		else if (has_a) {
+			if (best_audio == NULL || f->tbr > best_audio->tbr)
+				best_audio = f;
+		}
+	}
+
+	if (best_video) return best_video;
+	if (fallback_video) return fallback_video;
+	if (any_video) return any_video;
+	return best_audio;
+}
+
+static void on_format_picked (UgetFormat* picked, void* user_data)
+{
+	UgtkDownloadForm* dform = user_data;
+	UgetResolverResult* result;
+
+	result = g_object_get_data (G_OBJECT (dform->uri_entry), "uget-resolver-result");
+
+	dform_apply_format (dform, picked, result ? result->title : NULL);
+
+	g_object_set_data (G_OBJECT (dform->uri_entry), "uget-resolver-result", NULL);
+	uget_resolver_result_free (result);
+	dform_restore_resolve_icon (dform);
+}
+
+static void on_resolve_finished (UgetResolverResult* result, void* user_data)
+{
+	UgtkDownloadForm* dform = user_data;
+	GtkWindow*        parent;
+	UgtkSetting*      setting = NULL;
+	gboolean          auto_pick_allowed;
+
+	parent = dform->parent;
+	if (dform->app)
+		setting = &dform->app->setting;
+
+	if (result->error) {
+		GtkAlertDialog* alert = gtk_alert_dialog_new ("%s",
+				_("Could not fetch media formats"));
+		gtk_alert_dialog_set_detail (alert, result->error);
+		gtk_alert_dialog_show (alert, parent);
+		g_object_unref (alert);
+
+		uget_resolver_result_free (result);
+		dform_restore_resolve_icon (dform);
+		return;
+	}
+
+	// Auto-pick only runs on automatic invocations (clipboard / argv),
+	// not when the user manually clicked the resolve icon. A manual click
+	// always shows the picker so the user can override.
+	auto_pick_allowed = (setting && setting->resolver.auto_pick)
+			&& dform->resolve_auto;
+
+	if (auto_pick_allowed) {
+		UgetFormat* picked = pick_best_combined (result,
+				setting->resolver.max_height,
+				setting->resolver.preferred_ext);
+		if (picked) {
+			dform_apply_format (dform, picked, result->title);
+			uget_resolver_result_free (result);
+			dform_restore_resolve_icon (dform);
+			return;
+		}
+		// Fall through to picker if auto-pick found nothing suitable.
+	}
+
+	// Stash result on the entry so the picker callback can free it.
+	g_object_set_data (G_OBJECT (dform->uri_entry), "uget-resolver-result", result);
+	ugtk_format_picker_show (parent, result, on_format_picked, dform);
+}
+
+// Internal: actually kicks off the resolver. auto_mode is TRUE when called
+// from the automatic path (clipboard / argv), FALSE when the user manually
+// pressed the resolve icon. Auto-pick logic only runs when auto_mode is TRUE.
+static void dform_kick_resolver (UgtkDownloadForm* dform, gboolean auto_mode)
+{
+	const char*  url;
+
+	if (dform == NULL || dform->uri_entry == NULL)
+		return;
+	if (!uget_resolver_available ())
+		return;
+	if (dform->app && dform->app->setting.resolver.enable == FALSE)
+		return;
+
+	url = gtk_editable_get_text (GTK_EDITABLE (dform->uri_entry));
+	if (url == NULL || url[0] == 0)
+		return;
+	if (!uget_resolver_should_handle (url))
+		return;
+
+	dform->resolve_auto = auto_mode;
+
+	// Clear any previous format stash — new resolution, fresh slate.
+	g_object_set_data_full (G_OBJECT (dform->uri_entry),
+			"uget-format-id", NULL, NULL);
+
+	// Visual feedback: disable icon and swap to a "busy" indicator.
+	gtk_entry_set_icon_sensitive (GTK_ENTRY (dform->uri_entry),
+			GTK_ENTRY_ICON_SECONDARY, FALSE);
+	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (dform->uri_entry),
+			GTK_ENTRY_ICON_SECONDARY, "content-loading-symbolic");
+
+	uget_resolver_resolve_async (url, on_resolve_finished, dform);
+}
+
+void ugtk_download_form_trigger_resolve (UgtkDownloadForm* dform)
+{
+	dform_kick_resolver (dform, TRUE);
+}
+
+static void on_uri_resolve_pressed (GtkEntry* entry, GtkEntryIconPosition icon_pos, UgtkDownloadForm* dform)
+{
+	if (icon_pos != GTK_ENTRY_ICON_SECONDARY)
+		return;
+	dform_kick_resolver (dform, FALSE);
 }
 
 static void on_http_entry_changed (GtkEditable* editable, UgtkDownloadForm* dform)

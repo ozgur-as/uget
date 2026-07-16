@@ -37,7 +37,6 @@
 #include <UgStdio.h>
 #include <UgString.h>
 #include <UgJsonFile.h>
-#include <UgetMedia.h>
 #include <UgtkSetting.h>
 #include <UgtkNodeView.h>
 
@@ -319,17 +318,21 @@ static const UgEntry  UgtkPluginAria2SettingEntry[] =
 };
 
 // ----------------------------------------------------------------------------
-// PluginMediaSetting
+// UgtkResolverSetting
 
-static const UgEntry  UgtkPluginMediaSettingEntry[] =
+static const UgEntry  UgtkResolverSettingEntry[] =
 {
-	{"match_mode",  offsetof (struct UgtkPluginMediaSetting, match_mode),
-			UG_ENTRY_INT,  NULL,   NULL},
-	{"quality",     offsetof (struct UgtkPluginMediaSetting, quality),
-			UG_ENTRY_INT,  NULL,   NULL},
-	{"type",        offsetof (struct UgtkPluginMediaSetting, type),
-			UG_ENTRY_INT,  NULL,   NULL},
-	{NULL},    // null-terminated
+	{"enable",        offsetof (struct UgtkResolverSetting, enable),
+			UG_ENTRY_BOOL,   NULL, NULL},
+	{"max_height",    offsetof (struct UgtkResolverSetting, max_height),
+			UG_ENTRY_INT,    NULL, NULL},
+	{"preferred_ext", offsetof (struct UgtkResolverSetting, preferred_ext),
+			UG_ENTRY_STRING, NULL, NULL},
+	{"auto_pick",     offsetof (struct UgtkResolverSetting, auto_pick),
+			UG_ENTRY_BOOL,   NULL, NULL},
+	{"path",          offsetof (struct UgtkResolverSetting, path),
+			UG_ENTRY_STRING, NULL, NULL},
+	{NULL},
 };
 
 // ----------------------------------------------------------------------------
@@ -372,8 +375,8 @@ static const UgEntry  UgtkSettingEntry[] =
 			UG_ENTRY_INT,    NULL, NULL},
 	{"PluginAria2",     offsetof (UgtkSetting, aria2),
 			UG_ENTRY_OBJECT, (void*) UgtkPluginAria2SettingEntry, NULL},
-	{"PluginMedia",     offsetof (UgtkSetting, media),
-			UG_ENTRY_OBJECT, (void*) UgtkPluginMediaSettingEntry, NULL},
+	{"Resolver",        offsetof (UgtkSetting, resolver),
+			UG_ENTRY_OBJECT, (void*) UgtkResolverSettingEntry, NULL},
 
 	{"Completion",      offsetof (UgtkSetting, completion),
 			UG_ENTRY_OBJECT, (void*) UgtkCompletionSettingEntry, NULL},
@@ -402,11 +405,14 @@ void  ugtk_setting_init (UgtkSetting* setting)
 	ug_array_init (&setting->scheduler.state, sizeof (int), 7*24);
 	memset (setting->scheduler.state.at, UGTK_SCHEDULE_NORMAL, 7*24);
 
-	// default settings for media (or storage) website
 	setting->clipboard.website = TRUE;
-	setting->media.match_mode = UGET_MEDIA_MATCH_NEAR;
-	setting->media.quality = UGET_MEDIA_QUALITY_360P;
-	setting->media.type = UGET_MEDIA_TYPE_MP4;
+
+	// External URL resolver defaults
+	setting->resolver.enable = TRUE;
+	setting->resolver.max_height = 0;       // 0 = best
+	setting->resolver.preferred_ext = NULL; // NULL = best
+	setting->resolver.auto_pick = FALSE;
+	setting->resolver.path = NULL;          // NULL = look up in PATH
 }
 
 void  ugtk_setting_reset (UgtkSetting* setting)
@@ -511,10 +517,15 @@ void  ugtk_setting_reset (UgtkSetting* setting)
 	setting->aria2.path = ug_strdup (UGTK_ARIA2_PATH);
 	setting->aria2.args = ug_strdup (UGTK_ARIA2_ARGS);
 	setting->aria2.uri  = ug_strdup (UGTK_ARIA2_URI);
-	// media plug-in settings
-	setting->media.match_mode = UGET_MEDIA_MATCH_NEAR;
-	setting->media.quality = UGET_MEDIA_QUALITY_360P;
-	setting->media.type = UGET_MEDIA_TYPE_MP4;
+
+	// External URL resolver
+	setting->resolver.enable = TRUE;
+	setting->resolver.max_height = 0;
+	ug_free (setting->resolver.preferred_ext);
+	setting->resolver.preferred_ext = NULL;
+	setting->resolver.auto_pick = FALSE;
+	ug_free (setting->resolver.path);
+	setting->resolver.path = NULL;
 
 	// Others
 	setting->completion.remember = TRUE;
@@ -681,11 +692,4 @@ void  ugtk_setting_fix_data (UgtkSetting* setting)
 		ug_free (setting->aria2.uri);
 		setting->aria2.uri  = ug_strdup (UGTK_ARIA2_URI);
 	}
-	// media plug-in settings
-	if (setting->media.match_mode < 0 || setting->media.match_mode > UGET_MEDIA_N_MATCH_MODE)
-		setting->media.match_mode = UGET_MEDIA_MATCH_NEAR;
-	if (setting->media.quality <= 1 || setting->media.quality > UGET_MEDIA_N_QUALITY)
-		setting->media.quality = UGET_MEDIA_QUALITY_360P;
-	if (setting->media.type <= 0 || setting->media.type > UGET_MEDIA_N_TYPE)
-		setting->media.type = UGET_MEDIA_TYPE_MP4;
 }

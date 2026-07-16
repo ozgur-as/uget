@@ -74,8 +74,8 @@ void  ugtk_node_dialog_init (UgtkNodeDialog* ndialog,
 	int         sensitive;
 	int         width, height, temp;
 
-	ugtk_node_dialog_init_ui (ndialog, has_category_form);
 	ndialog->app = app;
+	ugtk_node_dialog_init_ui (ndialog, has_category_form);
 
 	// decide width
 	if (app->setting.window.category) {
@@ -361,7 +361,7 @@ static void ugtk_node_dialog_init_ui (UgtkNodeDialog* ndialog,
 	// Download form (Page 1, 2)
 	ugtk_proxy_form_init (&ndialog->proxy);
 	ugtk_download_form_init (&ndialog->download,
-			&ndialog->proxy, (GtkWindow*) ndialog->self);
+			&ndialog->proxy, (GtkWindow*) ndialog->self, ndialog->app);
 
 	if (has_category_form == FALSE) {
 		// UGTK_NODE_DIALOG_DOWNLOAD

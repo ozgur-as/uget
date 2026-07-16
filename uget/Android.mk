@@ -18,20 +18,18 @@ LOCAL_SRC_FILES  := \
 	UgetNode-filter.c   \
 	UgetTask.c    \
 	UgetHash.c    \
-	UgetSite.c    \
 	UgetApp.c     \
 	UgetEvent.c   \
 	UgetPlugin.c  \
 	UgetA2cf.c    \
 	UgetCurl.c    \
 	UgetAria2.c   \
-	UgetMedia.c   \
-	UgetMedia-youtube.c   \
+	UgetResolver.c \
 	UgetPluginCurl.c   \
 	UgetPluginAria2.c  \
-	UgetPluginMedia.c  \
 	UgetPluginAgent.c  \
-	UgetPluginMega.c
+	UgetPluginMega.c   \
+	UgetPluginYtdlp.c
 
 include $(BUILD_STATIC_LIBRARY)
 

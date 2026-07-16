@@ -169,10 +169,10 @@ UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* pare
 	ugtk_setting_dialog_add (dialog, _("Plug-in"), dialog->plugin.self);
 
 	// ------------------------------------------------------------------------
-	// Plugin Media & Media Website settings page
-	ugtk_media_website_form_init (&dialog->media_website);
-	set_margin_all (dialog->media_website.self, 2);
-	ugtk_setting_dialog_add (dialog, _("Media website"), dialog->media_website.self);
+	// Media page
+	ugtk_resolver_form_init (&dialog->resolver);
+	set_margin_all (dialog->resolver.self, 2);
+	ugtk_setting_dialog_add (dialog, _("Media"), dialog->resolver.self);
 
 	// ------------------------------------------------------------------------
 	// Others settings page
@@ -236,7 +236,7 @@ void  ugtk_setting_dialog_set (UgtkSettingDialog* dialog, UgtkSetting* setting)
 	ugtk_auto_save_form_set (&dialog->auto_save, setting);
 	ugtk_commandline_form_set (&dialog->commandline, setting);
 	ugtk_plugin_form_set (&dialog->plugin, setting);
-	ugtk_media_website_form_set (&dialog->media_website, setting);
+	ugtk_resolver_form_set (&dialog->resolver, setting);
 }
 
 void  ugtk_setting_dialog_get (UgtkSettingDialog* dialog, UgtkSetting* setting)
@@ -249,7 +249,7 @@ void  ugtk_setting_dialog_get (UgtkSettingDialog* dialog, UgtkSetting* setting)
 	ugtk_auto_save_form_get (&dialog->auto_save, setting);
 	ugtk_commandline_form_get (&dialog->commandline, setting);
 	ugtk_plugin_form_get (&dialog->plugin, setting);
-	ugtk_media_website_form_get (&dialog->media_website, setting);
+	ugtk_resolver_form_get (&dialog->resolver, setting);
 }
 
 void  ugtk_setting_dialog_add (UgtkSettingDialog* sdialog,

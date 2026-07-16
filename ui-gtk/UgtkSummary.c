@@ -81,7 +81,7 @@ void  ugtk_summary_show (UgtkSummary* summary, UgetNode* node)
 
 	ugtk_summary_clear (summary);
 
-	if (node == NULL)
+	if (node == NULL || node->info == NULL)
 		return;
 
 	temp.common = ug_info_get (node->info, UgetCommonInfo);
