@@ -45,7 +45,7 @@
 #include <UgetEvent.h>
 
 #ifdef HAVE_GLIB
-#include <glib.h>      // g_slice_xxx
+#include <glib.h>      // g_malloc/g_free
 #include <glib/gi18n.h>
 #else
 #define N_(x)   x
@@ -110,7 +110,7 @@ UgetEvent* uget_event_new (UgetEventType type, ...)
 	va_list    arg_list;
 
 #ifdef HAVE_GLIB
-	event = g_slice_alloc0 (sizeof (UgetEvent));
+	event = g_malloc0 (sizeof (UgetEvent));
 #else
 	event = ug_malloc0 (sizeof (UgetEvent));
 #endif
@@ -175,7 +175,7 @@ void uget_event_free (UgetEvent* event)
 {
 	ug_free (event->string);
 #ifdef HAVE_GLIB
-	g_slice_free1 (sizeof (UgetEvent), event);
+	g_free (event);
 #else
 	ug_free (event);
 #endif

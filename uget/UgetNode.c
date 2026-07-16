@@ -43,7 +43,7 @@
 #include <UgetData.h>
 
 #ifdef HAVE_GLIB
-#include <glib.h>    // g_slice_xxx
+#include <glib.h>    // g_malloc/g_free
 #endif
 
 static void  uget_node_call_fake_filter (UgetNode* parent, UgetNode* sibling, UgetNode* child);
@@ -94,7 +94,7 @@ UgetNode*  uget_node_new (UgetNode* node_real)
 	UgetNode*  node;
 
 #ifdef HAVE_GLIB
-	node = g_slice_alloc (sizeof (UgetNode));
+	node = g_malloc (sizeof (UgetNode));
 #else
 	node = ug_malloc (sizeof (UgetNode));
 #endif // HAVE_GLIB
@@ -106,7 +106,7 @@ void  uget_node_free(UgetNode* node)
 {
 	uget_node_final(node);
 #ifdef HAVE_GLIB
-	g_slice_free1(sizeof(UgetNode), node);
+	g_free(node);
 #else
 	ug_free(node);
 #endif // HAVE_GLIB

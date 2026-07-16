@@ -39,7 +39,7 @@
 #endif
 
 #ifdef HAVE_GLIB
-#include <glib.h>    // g_slice_xxx
+#include <glib.h>    // g_malloc/g_free
 #endif // HAVE_GLIB
 
 #include <stdlib.h>
@@ -54,7 +54,7 @@
 UgLink* ug_link_new (void)
 {
 #ifdef HAVE_GLIB
-	return g_slice_alloc0 (sizeof (UgLink));
+	return g_malloc0 (sizeof (UgLink));
 #else
 	return ug_malloc0 (sizeof (UgLink));
 #endif
@@ -63,7 +63,7 @@ UgLink* ug_link_new (void)
 void  ug_link_free (UgLink* link)
 {
 #ifdef HAVE_GLIB
-	g_slice_free1 (sizeof (UgLink), link);
+	g_free (link);
 #else
 	ug_free (link);
 #endif
@@ -89,7 +89,7 @@ void  ug_list_clear (UgList* list, int free_links)
 			next = link->next;
 //			ug_link_free (link);
 #ifdef HAVE_GLIB
-			g_slice_free1 (sizeof (UgLink), link);
+			g_free (link);
 #else
 			ug_free (link);
 #endif // HAVE_GLIB

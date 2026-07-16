@@ -39,7 +39,7 @@
 #endif
 
 #ifdef HAVE_GLIB
-#include <glib.h>    // g_slice_xxx
+#include <glib.h>    // g_malloc/g_free
 #endif // HAVE_GLIB
 
 #include <stdlib.h>
@@ -49,7 +49,7 @@
 UgNode* ug_node_new  (void)
 {
 #ifdef HAVE_GLIB
-	return g_slice_alloc0 (sizeof (UgNode));
+	return g_malloc0 (sizeof (UgNode));
 #else
 	return ug_malloc0 (sizeof (UgNode));
 #endif
@@ -58,7 +58,7 @@ UgNode* ug_node_new  (void)
 void ug_node_free (UgNode* link)
 {
 #ifdef HAVE_GLIB
-	g_slice_free1 (sizeof (UgNode), link);
+	g_free (link);
 #else
 	ug_free (link);
 #endif // HAVE_GLIB

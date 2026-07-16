@@ -39,7 +39,7 @@
 #endif
 
 #ifdef HAVE_GLIB
-#include <glib.h>    // g_slice_xxx
+#include <glib.h>    // g_malloc/g_free
 #endif
 
 #include <stdlib.h>
@@ -57,7 +57,7 @@ void* ug_type_new(const void* typeinfo)
 	UgType*     type;
 
 #ifdef HAVE_GLIB
-	type = g_slice_alloc0(((UgTypeInfo*)typeinfo)->size);
+	type = g_malloc0(((UgTypeInfo*)typeinfo)->size);
 #else
 	type = ug_malloc0(((UgTypeInfo*)typeinfo)->size);
 #endif // HAVE_GLIB
@@ -78,7 +78,7 @@ void  ug_type_free(void* type)
 		final(type);
 
 #ifdef HAVE_GLIB
-	g_slice_free1(((UgType*)type)->info->size, type);
+	g_free(type);
 #else
 	ug_free(type);
 #endif // HAVE_GLIB
@@ -119,7 +119,7 @@ void* ug_data_copy(void* data)
 		assign = info->assign;
 		if (assign) {
 #ifdef HAVE_GLIB
-			newone = g_slice_alloc0(info->size);
+			newone = g_malloc0(info->size);
 #else
 			newone = ug_malloc0(info->size);
 #endif

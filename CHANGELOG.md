@@ -4,8 +4,13 @@
 
 - Migrated entire UI from GTK3 to GTK4
 - Migrated build system from Autotools to Meson
+- Media: replaced the ~2500-line in-tree URL parser with an external
+  extractor integration — async resolution via `UgetResolver`, a
+  format picker, and a `UgetPluginYtdlp` downloader for streams needing
+  video+audio muxing
 - System tray: replaced AppIndicator3 with StatusNotifierItem (GDBus + libdbusmenu-glib)
 - Crypto: migrated from deprecated AES_* to EVP_* (modern OpenSSL API)
+- Replaced deprecated GLib slice allocator (g_slice_*) with g_malloc/g_free
 - libcurl: replaced deprecated CURLOPT/CURLINFO with modern variants
 - Full Wayland support (proper app-id, icon theme, no X11 forcing)
 - GtkTreeView/GtkListStore replaced with GtkColumnView/GListModel

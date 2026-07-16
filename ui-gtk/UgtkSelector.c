@@ -597,7 +597,7 @@ int  ugtk_selector_page_add_uris (UgtkSelectorPage* page, GList* uris)
 		if (uris->data == NULL)
 			continue;
 		counts++;
-		item = g_slice_alloc (sizeof (UgtkSelectorItem));
+		item = g_malloc (sizeof (UgtkSelectorItem));
 		item->mark = TRUE;
 		item->uri  = uris->data;
 		item->data = NULL;
@@ -617,7 +617,7 @@ static void ugtk_selector_page_add_filter (UgtkSelectorPage* page, GPtrArray* fi
 	if (g_hash_table_lookup_extended (page->filter.hash, key,
 			(gpointer*) &orig_key, (gpointer*) &filter_list) == FALSE)
 	{
-		filter_item = g_slice_alloc (sizeof (UgtkSelectorItem));
+		filter_item = g_malloc (sizeof (UgtkSelectorItem));
 		filter_item->uri  = key;
 		filter_item->mark = TRUE;
 		filter_item->data = NULL;
@@ -644,7 +644,7 @@ void  ugtk_selector_page_make_filter (UgtkSelectorPage* page)
 	if (g_hash_table_size (page->filter.hash))
 		return;
 
-	upart = g_slice_alloc (sizeof (UgUri));
+	upart = g_malloc (sizeof (UgUri));
 	for (i = 0; i < page->items->len; i++) {
 		item = g_ptr_array_index (page->items, i);
 		// create filter by host
@@ -662,7 +662,7 @@ void  ugtk_selector_page_make_filter (UgtkSelectorPage* page)
 			key = g_strdup (".(none)");
 		ugtk_selector_page_add_filter (page, page->filter.ext, key, item);
 	}
-	g_slice_free1 (sizeof (UgUri), upart);
+	g_free (upart);
 }
 
 static void ugtk_selector_page_mark_by_filter (UgtkSelectorPage* page, GPtrArray* filter_items)
@@ -736,7 +736,7 @@ static void ugtk_selector_items_clear (GPtrArray* items)
 	for (i = 0; i < items->len; i++) {
 		UgtkSelectorItem* item = g_ptr_array_index (items, i);
 		g_free (item->uri);
-		g_slice_free1 (sizeof (UgtkSelectorItem), item);
+		g_free (item);
 	}
 	g_ptr_array_set_size (items, 0);
 }

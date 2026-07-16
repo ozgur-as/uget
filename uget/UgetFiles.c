@@ -39,7 +39,7 @@
 #endif
 
 #ifdef HAVE_GLIB
-#include <glib.h>    // g_slice_xxx
+#include <glib.h>    // g_malloc/g_free
 #endif // HAVE_GLIB
 
 #include <stdlib.h>
@@ -54,7 +54,7 @@
 UgetFile*  uget_file_new(void)
 {
 #ifdef HAVE_GLIB
-	return g_slice_alloc0(sizeof(UgetFile));
+	return g_malloc0(sizeof(UgetFile));
 #else
 	return ug_malloc0(sizeof(UgetFile));
 #endif // HAVE_GLIB
@@ -63,7 +63,7 @@ UgetFile*  uget_file_new(void)
 void  uget_file_free(UgetFile* file)
 {
 #ifdef HAVE_GLIB
-	g_slice_free1(sizeof(UgetFile), file);
+	g_free(file);
 #else
 	ug_free(file);
 #endif

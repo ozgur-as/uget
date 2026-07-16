@@ -61,7 +61,7 @@ UgInfo* ug_info_new(int allocated_length, int cache_length)
 	UgInfo*  info;
 
 #ifdef HAVE_GLIB
-	info = g_slice_alloc(sizeof(UgInfo));
+	info = g_malloc(sizeof(UgInfo));
 #else
 	info = ug_malloc(sizeof(UgInfo));
 #endif // HAVE_GLIB
@@ -79,7 +79,7 @@ void    ug_info_unref(UgInfo* info)
 	if (--info->ref_count == 0) {
 		ug_info_final(info);
 #ifdef HAVE_GLIB
-		g_slice_free1(sizeof(UgInfo), info);
+		g_free(info);
 #else
 		ug_free(info);
 #endif // HAVE_GLIB
