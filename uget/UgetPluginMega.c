@@ -110,18 +110,18 @@ static const char* hosts[]   = {"mega.co.nz", "mega.nz",
 
 static const UgetPluginInfo UgetPluginMegaInfoStatic =
 {
-	"mega",
-	sizeof(UgetPluginMega),
-	(UgInitFunc)   plugin_init,
-	(UgFinalFunc)  plugin_final,
-	(UgetPluginSyncFunc) plugin_accept,
-	(UgetPluginSyncFunc) plugin_sync,
-	(UgetPluginCtrlFunc) plugin_ctrl,
-	hosts,
-	schemes,
-	NULL,
-	(UgetPluginGlobalFunc) uget_plugin_agent_global_set,
-	(UgetPluginGlobalFunc) uget_plugin_agent_global_get
+	.name       = "mega",
+	.size       = sizeof(UgetPluginMega),
+	.init       = (UgInitFunc)   plugin_init,
+	.final      = (UgFinalFunc)  plugin_final,
+	.accept     = (UgetPluginSyncFunc) plugin_accept,
+	.sync       = (UgetPluginSyncFunc) plugin_sync,
+	.ctrl       = (UgetPluginCtrlFunc) plugin_ctrl,
+	.hosts      = hosts,
+	.schemes    = schemes,
+	.file_exts  = NULL,
+	.global_set = (UgetPluginGlobalFunc) uget_plugin_agent_global_set,
+	.global_get = (UgetPluginGlobalFunc) uget_plugin_agent_global_get,
 };
 // extern
 const UgetPluginInfo* UgetPluginMegaInfo = &UgetPluginMegaInfoStatic;

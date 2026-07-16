@@ -11,6 +11,9 @@
 - System tray: replaced AppIndicator3 with StatusNotifierItem (GDBus + libdbusmenu-glib)
 - Crypto: migrated from deprecated AES_* to EVP_* (modern OpenSSL API)
 - Replaced deprecated GLib slice allocator (g_slice_*) with g_malloc/g_free
+- Bumped C standard from C11 to C17; adopted designated initializers for
+  plugin/data descriptor structs and static_assert guards for binary-format
+  type-punning unions
 - libcurl: replaced deprecated CURLOPT/CURLINFO with modern variants
 - Full Wayland support (proper app-id, icon theme, no X11 forcing)
 - GtkTreeView/GtkListStore replaced with GtkColumnView/GListModel

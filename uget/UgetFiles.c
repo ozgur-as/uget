@@ -94,12 +94,12 @@ static const UgEntry  UgetFilesEntry[] =
 
 static const UgDataInfo  UgetFilesInfoStatic =
 {
-	"files",               // name
-	sizeof(UgetFiles),     // size
-	(UgInitFunc)   uget_files_init,
-	(UgFinalFunc)  uget_files_final,
-	(UgAssignFunc) uget_files_assign,
-	UgetFilesEntry,
+	.name   = "files",
+	.size   = sizeof(UgetFiles),
+	.init   = (UgInitFunc)   uget_files_init,
+	.final  = (UgFinalFunc)  uget_files_final,
+	.assign = (UgAssignFunc) uget_files_assign,
+	.entry  = UgetFilesEntry,
 };
 // extern
 const UgDataInfo*  UgetFilesInfo = &UgetFilesInfoStatic;

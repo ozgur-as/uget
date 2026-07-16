@@ -55,18 +55,18 @@ static const char* types[]   = {"torrent", NULL};
 
 static const UgetPluginInfo UgetPluginEmptyInfoStatic =
 {
-	"empty",
-	sizeof(UgetPluginEmpty),
-	(UgInitFunc)   plugin_init,
-	(UgFinalFunc)  plugin_final,
-	(UgetPluginSyncFunc) plugin_accept,
-	(UgetPluginSyncFunc) plugin_sync,
-	(UgetPluginCtrlFunc) plugin_ctrl,
-	NULL,
-	schemes,
-	types,
-	(UgetPluginGlobalFunc) global_set,
-	(UgetPluginGlobalFunc) global_get
+	.name       = "empty",
+	.size       = sizeof(UgetPluginEmpty),
+	.init       = (UgInitFunc)   plugin_init,
+	.final      = (UgFinalFunc)  plugin_final,
+	.accept     = (UgetPluginSyncFunc) plugin_accept,
+	.sync       = (UgetPluginSyncFunc) plugin_sync,
+	.ctrl       = (UgetPluginCtrlFunc) plugin_ctrl,
+	.hosts      = NULL,
+	.schemes    = schemes,
+	.file_exts  = types,
+	.global_set = (UgetPluginGlobalFunc) global_set,
+	.global_get = (UgetPluginGlobalFunc) global_get,
 };
 // extern
 const UgetPluginInfo* UgetPluginEmptyInfo = &UgetPluginEmptyInfoStatic;

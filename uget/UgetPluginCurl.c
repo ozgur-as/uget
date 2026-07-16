@@ -104,18 +104,18 @@ static const char* schemes[] = {"http", "https", "ftp", "ftps", NULL};
 
 static const UgetPluginInfo UgetPluginCurlInfoStatic =
 {
-	"curl",
-	sizeof(UgetPluginCurl),
-	(UgInitFunc)   plugin_init,
-	(UgFinalFunc)  plugin_final,
-	(UgetPluginSyncFunc) plugin_accept,
-	(UgetPluginSyncFunc) plugin_sync,
-	(UgetPluginCtrlFunc) plugin_ctrl,
-	NULL,
-	schemes,
-	NULL,
-	(UgetPluginGlobalFunc) global_set,
-	(UgetPluginGlobalFunc) global_get
+	.name       = "curl",
+	.size       = sizeof(UgetPluginCurl),
+	.init       = (UgInitFunc)   plugin_init,
+	.final      = (UgFinalFunc)  plugin_final,
+	.accept     = (UgetPluginSyncFunc) plugin_accept,
+	.sync       = (UgetPluginSyncFunc) plugin_sync,
+	.ctrl       = (UgetPluginCtrlFunc) plugin_ctrl,
+	.hosts      = NULL,
+	.schemes    = schemes,
+	.file_exts  = NULL,
+	.global_set = (UgetPluginGlobalFunc) global_set,
+	.global_get = (UgetPluginGlobalFunc) global_get,
 };
 // extern
 const UgetPluginInfo* UgetPluginCurlInfo = &UgetPluginCurlInfoStatic;

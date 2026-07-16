@@ -58,18 +58,17 @@ static UgJsonError  ug_json_parse_name2data (UgJson* json,
 
 struct UgetNodeNotifier  uget_node_default_notifier =
 {
-	NULL,   // UgetNodeFunc    inserted;
-	NULL,   // UgetNodeFunc    removed;
-	NULL,   // UgNotifyFunc    updated;
-	NULL,   // void*           data;      // extra data for user
+	.inserted = NULL,
+	.removed  = NULL,
+	.updated  = NULL,
+	.data     = NULL,   // extra data for user
 };
 
 struct UgetNodeControl   uget_node_default_control =
 {
-//	NULL,                           // struct UgetNodeControl*  children;
-	&uget_node_default_notifier,    // struct UgetNodeNotifier* notifier;
-	{NULL, FALSE},                  // struct UgetNodeSort      sort;
-	NULL,                           // UgetNodeFunc             filter;
+	.notifier = &uget_node_default_notifier,
+	.sort     = { .compare = NULL, .reverse = FALSE },
+	.filter   = NULL,
 };
 
 const UgEntry  UgetNodeEntry[] =

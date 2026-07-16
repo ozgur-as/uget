@@ -34,6 +34,7 @@
  *
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <UgDefine.h>
@@ -65,6 +66,12 @@ union un_int64
 	uint64_t  integer;
 	uint8_t   bytes[8];
 };
+
+// The byte-swap routines type-pun each union as raw bytes, so the integer
+// and byte-array views must occupy exactly the same width with no padding.
+static_assert(sizeof(union un_int16) == 2, "un_int16 must be exactly 2 bytes");
+static_assert(sizeof(union un_int32) == 4, "un_int32 must be exactly 4 bytes");
+static_assert(sizeof(union un_int64) == 8, "un_int64 must be exactly 8 bytes");
 
 static int  endian_type = ENDIAN_UNKNOWN;
 

@@ -44,18 +44,18 @@ static UgetResult  global_get(int code, void* parameter);
 
 static const UgetPluginInfo UgetPluginYtdlpInfoStatic =
 {
-	"ytdlp",
-	sizeof(UgetPluginYtdlp),
-	(UgInitFunc)         plugin_init,
-	(UgFinalFunc)        plugin_final,
-	(UgetPluginSyncFunc) plugin_accept,
-	(UgetPluginSyncFunc) plugin_sync,
-	(UgetPluginCtrlFunc) plugin_ctrl,
-	NULL,      // hosts
-	NULL,      // schemes
-	NULL,      // file_exts
-	(UgetPluginGlobalFunc) global_set,
-	(UgetPluginGlobalFunc) global_get,
+	.name       = "ytdlp",
+	.size       = sizeof(UgetPluginYtdlp),
+	.init       = (UgInitFunc)         plugin_init,
+	.final      = (UgFinalFunc)        plugin_final,
+	.accept     = (UgetPluginSyncFunc) plugin_accept,
+	.sync       = (UgetPluginSyncFunc) plugin_sync,
+	.ctrl       = (UgetPluginCtrlFunc) plugin_ctrl,
+	.hosts      = NULL,
+	.schemes    = NULL,
+	.file_exts  = NULL,
+	.global_set = (UgetPluginGlobalFunc) global_set,
+	.global_get = (UgetPluginGlobalFunc) global_get,
 };
 const UgetPluginInfo* UgetPluginYtdlpInfo = &UgetPluginYtdlpInfoStatic;
 

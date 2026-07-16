@@ -6,7 +6,7 @@ project('uget', 'c',
   license: 'LGPL-2.1-or-later',
   meson_version: '>= 1.1.0',
   default_options: [
-    'c_std=c11',
+    'c_std=c17',
     'warning_level=1',
     'buildtype=debugoptimized',
   ]
