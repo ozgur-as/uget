@@ -159,6 +159,41 @@ static void ugtk_app_init_ui_win32 (UgtkApp* app, int screen_width)
 // ----------------------------------------------------------------------------
 // UgtkWindow
 
+// Install app-wide CSS:
+//  - sidebar section titles ("Status"/"Category") use the toolbar/chrome
+//    background so they read as headers
+//  - sidebar nav lists keep the accent selection color even when unfocused,
+//    instead of the theme's gray backdrop selection
+//  - the top toolbar gets a bottom border to match its top edge
+static void ugtk_install_app_css (void)
+{
+	static gboolean installed = FALSE;
+	if (installed)
+		return;
+	installed = TRUE;
+
+	GtkCssProvider* css = gtk_css_provider_new ();
+	gtk_css_provider_load_from_string (css,
+		".uget-sidebar-title { "
+		"  background-color: @theme_bg_color; "
+		"  padding: 4px 6px; "
+		"} "
+		".uget-sidebar-nav row:selected, "
+		".uget-download-list row:selected { "
+		"  background-color: @theme_selected_bg_color; "
+		"  color: @theme_selected_fg_color; "
+		"} "
+		".uget-toolbar { "
+		"  border-bottom: 1px solid @borders; "
+		"} "
+	);
+	gtk_style_context_add_provider_for_display (
+		gdk_display_get_default (),
+		GTK_STYLE_PROVIDER (css),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	g_object_unref (css);
+}
+
 static void ugtk_window_init_ui (struct UgtkWindow* window, UgtkApp* app)
 {
 	GtkBox*  vbox;
@@ -189,9 +224,22 @@ static void ugtk_window_init_ui (struct UgtkWindow* window, UgtkApp* app)
 	gtk_paned_set_start_child (window->hpaned, GTK_WIDGET (lbox));
 	gtk_paned_set_end_child (window->hpaned, GTK_WIDGET (rbox));
 
-	gtk_box_append (lbox, gtk_label_new (_("Status")));
+	ugtk_install_app_css ();
+
+	GtkWidget*  status_title   = gtk_label_new (_("Status"));
+	GtkWidget*  category_title = gtk_label_new (_("Category"));
+	gtk_widget_add_css_class (status_title,   "uget-sidebar-title");
+	gtk_widget_add_css_class (category_title, "uget-sidebar-title");
+	gtk_widget_set_halign (status_title,   GTK_ALIGN_FILL);
+	gtk_widget_set_halign (category_title, GTK_ALIGN_FILL);
+	gtk_label_set_xalign (GTK_LABEL (status_title),   0.5f);
+	gtk_label_set_xalign (GTK_LABEL (category_title), 0.5f);
+	gtk_widget_add_css_class (app->traveler.state.self,    "uget-sidebar-nav");
+	gtk_widget_add_css_class (app->traveler.category.self, "uget-sidebar-nav");
+
+	gtk_box_append (lbox, status_title);
 	gtk_box_append (lbox, app->traveler.state.self);
-	gtk_box_append (lbox, gtk_label_new (_("Category")));
+	gtk_box_append (lbox, category_title);
 	gtk_widget_set_hexpand (app->traveler.category.self, TRUE);
 	gtk_widget_set_vexpand (app->traveler.category.self, TRUE);
 	gtk_box_append (lbox, app->traveler.category.self);
@@ -272,6 +320,7 @@ static void ugtk_toolbar_init_ui (struct UgtkToolbar* ugt, gpointer accel_group)
 	// toolbar
 	ugt->toolbar = (GtkWidget*) gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_add_css_class (ugt->toolbar, "toolbar");
+	gtk_widget_add_css_class (ugt->toolbar, "uget-toolbar");
 	ugt->self = (GtkWidget*) ugt->toolbar;
 	gtk_widget_set_visible (ugt->self, TRUE);
 

@@ -123,6 +123,7 @@ void  ugtk_traveler_init (UgtkTraveler* traveler, UgtkApp* app)
 	traveler->download.self = gtk_scrolled_window_new ();
 	GtkWidget* dl_view_widget = ugtk_node_view_new_for_download ();
 	traveler->download.view = GTK_COLUMN_VIEW (dl_view_widget);
+	gtk_widget_add_css_class (dl_view_widget, "uget-download-list");
 	gtk_column_view_set_model (traveler->download.view,
 			GTK_SELECTION_MODEL (traveler->download.selection));
 	scroll = GTK_SCROLLED_WINDOW (traveler->download.self);

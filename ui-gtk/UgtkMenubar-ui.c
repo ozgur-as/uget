@@ -1196,6 +1196,19 @@ static void ensure_hover_css_installed (void)
         "popover.menu .uget-hover { "
         "  background-image: none; "
         "  background-color: alpha(@theme_fg_color, 0.1); "
+        "} "
+        // Kill the first-item flash when a menu opens. The menubar marks the
+        // first item selected/focused before the pointer is over it, briefly
+        // showing the selection highlight (background AND white text). Reset
+        // that highlight only while the item is NOT hovered, so real hover
+        // styling stays fully intact.
+        "popover.menu modelbutton:selected:not(:hover), "
+        "popover.menu modelbutton:focus:not(:hover), "
+        "popover.menu button.model:selected:not(:hover), "
+        "popover.menu button.model:focus:not(:hover) { "
+        "  background-color: transparent; "
+        "  background-image: none; "
+        "  color: @theme_fg_color; "
         "}"
     );
 #endif
