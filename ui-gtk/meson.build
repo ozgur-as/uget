@@ -40,8 +40,23 @@ ui_gtk_inc = include_directories('.')
 # Windows resource file (icon + version info)
 if host_system == 'windows'
   windows = import('windows')
+
+  # Derive the Windows version fields from meson.project_version() so they
+  # never drift from the project version. e.g. "2.3.0" -> string "2.3.0" and
+  # numeric "2,3,0,0". Any -rcN suffix is stripped for the numeric field.
+  ver_padded = (meson.project_version().split('-')[0] + '.0.0.0').split('.')
+  rc_conf = configuration_data()
+  rc_conf.set('VERSION', meson.project_version())
+  rc_conf.set('VER_COMMA', '@0@,@1@,@2@,@3@'.format(
+    ver_padded[0], ver_padded[1], ver_padded[2], ver_padded[3]))
+  uget_rc = configure_file(
+    input: '../packaging/windows/uget.rc.in',
+    output: 'uget.rc',
+    configuration: rc_conf,
+  )
+
   ui_gtk_res = windows.compile_resources(
-    '../packaging/windows/uget.rc',
+    uget_rc,
     include_directories: include_directories('../packaging/windows'),
   )
 else
