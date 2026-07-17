@@ -6,10 +6,18 @@
 
 ### Dependencies
 
+> **Distro note:** GTK4 >= 4.20 and GLib >= 2.86 ship with GNOME 49
+> (September 2025). Older stable releases are too old to build — notably
+> Ubuntu 24.04 LTS (GTK 4.14, libcurl 8.5) and Debian 13 "Trixie"
+> (GTK 4.18). Use Fedora 43+, Ubuntu 25.10+, Arch Linux, or openSUSE
+> Tumbleweed.
+
 **Required:**
+- A C17-capable compiler (GCC 8+ or Clang 6+)
 - GLib >= 2.86.0
 - GTK4 >= 4.20.0
 - libcurl >= 8.11.0
+- OpenSSL (crypto for the MEGA plugin; required unless disabled with `-Dopenssl=false`)
 - gettext
 - Meson >= 1.1.0
 - Ninja
@@ -18,7 +26,11 @@
 - libnotify (desktop notifications)
 - GStreamer 1.0 (notification sounds)
 - libdbusmenu-glib (system tray icon)
-- OpenSSL or GnuTLS (crypto support)
+- GnuTLS / libgcrypt (alternative crypto backend; build with `-Dgnutls=true -Dopenssl=false`)
+
+**Runtime only (not needed to build):**
+- yt-dlp — external extractor for media-site downloads (used by `UgetResolver` and the ytdlp plugin)
+- aria2 — optional alternative download backend (aria2 plugin)
 
 #### Debian / Ubuntu
 
@@ -74,7 +86,7 @@ meson setup build --prefix=/usr
 |--------|------|---------|-------------|
 | `notify` | feature | auto | Desktop notifications |
 | `gstreamer` | feature | auto | Notification sounds |
-| `appindicator` | feature | auto | System tray icon (Linux only) |
+| `appindicator` | feature | auto | System tray icon (Unix only) |
 | `pwmd` | feature | disabled | Password manager daemon |
 | `openssl` | boolean | true | Use OpenSSL for crypto |
 | `gnutls` | boolean | false | Use GnuTLS instead of OpenSSL |

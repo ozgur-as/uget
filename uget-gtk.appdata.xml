@@ -6,7 +6,7 @@
   <name>uGet</name>
   <summary>Download manager</summary>
   <description>
-    <p>uGet is a lightweight yet powerful open source download manager.</p>
+    <p>uGet is a lightweight yet powerful open source download manager for Linux. It handles single files and large batches alike, using multi-connection downloads, a category-based queue, and pause and resume support.</p>
     <p>Some highlights of uGet:</p>
     <ul>
       <li>Multi-connection downloads</li>
@@ -25,22 +25,20 @@
       <li>Folder auto-creation</li>
     </ul>
   </description>
-  <developer_name>Ozgur As</developer_name>
+  <developer id="io.github.ozgur-as">
+    <name>Ozgur As</name>
+  </developer>
   <url type="bugtracker">https://github.com/ozgur-as/uget/issues</url>
   <url type="homepage">https://github.com/ozgur-as/uget</url>
   <url type="vcs-browser">https://github.com/ozgur-as/uget</url>
-  <kudos>
-    <kudo>ModernToolkit</kudo>
-    <kudo>HiDpiIcon</kudo>
-    <kudo>HighContrast</kudo>
-  </kudos>
   <provides>
     <binary>uget-gtk</binary>
   </provides>
   <launchable type="desktop-id">uget-gtk.desktop</launchable>
   <content_rating type="oars-1.1" />
   <releases>
-    <release version="2.3.0" date="2026-03-02">
+    <!-- 2.3.0 is unreleased. At release, set type="stable" and the real release date. -->
+    <release version="2.3.0" type="development" date="2026-07-17">
       <description>
         <ul>
           <li>Migrated entire UI from GTK3 to GTK4</li>

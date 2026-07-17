@@ -76,7 +76,7 @@ struct UgtkSettingDialog
 	struct UgtkResolverForm       resolver;
 };
 
-UgtkSettingDialog*  ugtk_setting_dialog_new ();
+UgtkSettingDialog*  ugtk_setting_dialog_new (const gchar* title, GtkWindow* parent);
 void                ugtk_setting_dialog_free (UgtkSettingDialog* sdialog);
 
 void  ugtk_setting_dialog_run (UgtkSettingDialog* dialog, UgtkApp* app);

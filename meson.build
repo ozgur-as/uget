@@ -1,8 +1,7 @@
 # uGet Download Manager - Meson Build System
-# Migrated from Autotools (configure.ac)
 
 project('uget', 'c',
-  version: '2.3.0-rc1',
+  version: '2.3.0',
   license: 'LGPL-2.1-or-later',
   meson_version: '>= 1.1.0',
   default_options: [

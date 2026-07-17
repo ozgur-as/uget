@@ -16,9 +16,6 @@ Add definition NO_RETRY_IF_CONNECT_FAILED to disable retry if connection failed.
 Add definition NO_URI_HASH to disable URI Hash Table (UgetHash).
 
 ui-gtk (LGPL)
-This is GTK+ user interface for uget.
+This is the GTK user interface for uget.
 Some platform (or library) dependent code place here.
-
-ui-gtk-1to2 (LGPL)
-It can convert uGet for GTK+ data file from 1.10.x to 2.x
 

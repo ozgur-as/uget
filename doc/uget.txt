@@ -66,13 +66,13 @@ Category-Home.json
                "file": "download-file1.torrent"
             },
             "files": {
-               "collection" : [
+               "list" : [
                   {
                      "name": "download-file1.zip",
                      "type": 0
                   }
                ]
-            }
+            },
             "proxy": {},
             "http": {},
             "ftp": {}
