@@ -1,5 +1,7 @@
 /*
  *
+ *   Copyright (C) 2026 by Ozgur As
+ *
  *   Copyright (C) 2005-2020 by C.H. Huang
  *   plushuang.tw@gmail.com
  *

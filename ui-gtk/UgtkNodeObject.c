@@ -1,7 +1,6 @@
 /*
  *
- *   Copyright (C) 2012-2020 by C.H. Huang
- *   plushuang.tw@gmail.com
+ *   Copyright (C) 2026 by Ozgur As
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
