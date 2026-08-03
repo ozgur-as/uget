@@ -34,6 +34,7 @@
  *
  */
 
+#include <stdint.h>
 #include <strings.h>
 #include <UgString.h>
 #include <UgUri.h>
@@ -584,7 +585,9 @@ int  uget_aria2_launch (UgetAria2* uaria2)
 {
 	uint16_t*  path_utf16;
 	uint16_t*  args_utf16;
-	int        result;
+	// ShellExecuteW() returns an HINSTANCE; go through intptr_t so the
+	// value is not truncated on 64-bit Windows.
+	intptr_t   result;
 
 	if (uaria2->launched == TRUE)
 		return TRUE;
@@ -596,8 +599,8 @@ int  uget_aria2_launch (UgetAria2* uaria2)
 	args_utf16 = ug_utf8_to_utf16 (uaria2->args, -1, NULL);
 //	ug_mutex_unlock (&uaria2->mutex);
 
-	result = (int)ShellExecuteW (NULL, L"open", path_utf16, args_utf16,
-	                             NULL, SW_HIDE);
+	result = (intptr_t)ShellExecuteW (NULL, L"open", path_utf16, args_utf16,
+	                                  NULL, SW_HIDE);
 	ug_free (args_utf16);
 	ug_free (path_utf16);
 

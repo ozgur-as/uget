@@ -52,8 +52,11 @@
 #ifndef	_WIN32_IE
 #define	_WIN32_IE	0x0600
 #endif // _WIN32_IE
+// winsock2.h must precede windows.h: UgtkApp.h reaches UgSocket.h (and so
+// ws2tcpip.h) further down, and windows.h would otherwise pull in winsock v1.
+#include <winsock2.h>
 #include <windows.h>
-#include <mmsystem.h>
+#include <mmsystem.h>   // PlaySoundW()
 #endif // _WIN32 || _WIN64
 
 #include <UgUtil.h>
@@ -720,42 +723,13 @@ static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* body
 	notify_notification_show (notification, NULL);
 }
 #elif defined _WIN32 || defined _WIN64
+// A balloon on uGet's own tray icon. This used to hang off the icon that
+// GTK3's GtkStatusIcon registered, found via FindWindowA("gtkstatusicon-
+// observer"); GTK4 removed GtkStatusIcon, so uGet now owns the icon itself.
+// See UgtkTrayIcon-win32.c.
 static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* body)
 {
-	static	NOTIFYICONDATAW*	pNotifyData = NULL;
-	gchar*		string;
-	gunichar2*	string_wcs;
-
-	if (pNotifyData == NULL) {
-		pNotifyData = g_malloc0 (sizeof (NOTIFYICONDATAW));
-		pNotifyData->cbSize = sizeof (NOTIFYICONDATAW);
-		pNotifyData->uFlags = NIF_INFO;			// Use a balloon ToolTip instead of a standard ToolTip.
-		pNotifyData->uTimeout = 7000;			// milliseconds, This member is deprecated as of Windows Vista.
-		pNotifyData->dwInfoFlags = NIIF_INFO | NIIF_NOSOUND;	// Add an information icon to balloon ToolTip.
-		// gtkstatusicon.c
-		// (create_tray_observer): WNDCLASS.lpszClassName = "gtkstatusicon-observer"
-		pNotifyData->hWnd = FindWindowA ("gtkstatusicon-observer", NULL);
-	}
-
-    /*
-	if (pNotifyData->hWnd == NULL)
-		return;
-	// gtkstatusicon.c
-	// (gtk_status_icon_init): priv->nid.uID = GPOINTER_TO_UINT (status_icon);
-	// pNotifyData->uID = GPOINTER_TO_UINT (app->trayicon.self);
-	// title
-	string = g_strconcat (UGTK_APP_NAME " - ", title, NULL);
-	string_wcs = g_utf8_to_utf16 (string,  -1, NULL, NULL, NULL);
-	wcsncpy (pNotifyData->szInfoTitle, string_wcs, 64 -1);	// null-terminated
-	g_free (string);
-	g_free (string_wcs);
-	// body
-	string_wcs = g_utf8_to_utf16 (body, -1, NULL, NULL, NULL);
-	wcsncpy (pNotifyData->szInfo, string_wcs, 256 -1);	// null-terminated
-	g_free (string_wcs);
-
-	Shell_NotifyIconW (NIM_MODIFY, pNotifyData);
-    */
+	ugtk_tray_icon_notify (&app->trayicon, title, body);
 }
 #else
 static void ugtk_app_notify (UgtkApp* app, const gchar* title, const gchar* info)

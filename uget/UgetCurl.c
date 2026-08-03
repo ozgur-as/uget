@@ -475,7 +475,7 @@ int   uget_curl_set_http (UgetCurl* ugcurl, UgetHttp* http)
 		if (http->post_data) {
 			curl_easy_setopt (curl, CURLOPT_POST, 1L);
 			curl_easy_setopt (curl, CURLOPT_POSTFIELDS, http->post_data);
-			curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (http->post_data));
+			curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (long) strlen (http->post_data));
 		}
 		else if (http->post_file) {
 			ugcurl->file.post = ug_fopen (http->post_file, "r");

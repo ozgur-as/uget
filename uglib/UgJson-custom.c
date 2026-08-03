@@ -42,6 +42,7 @@
 
 #include <time.h>    // time_t
 #include <limits.h>  // INT_MIN, INT_MAX, UINT_MAX
+#include <inttypes.h>  // PRId64, PRIu64
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -142,15 +143,9 @@ void	ug_json_write_int64_string(UgJson* json, int64_t* value)
 	int    len;
 	char*  buf;
 
-#if defined (_MSC_VER) || defined (__MINGW32__)
-	len = snprintf(NULL, 0, "%I64d", *value) + 1;
+	len = snprintf(NULL, 0, "%" PRId64, *value) + 1;
 	buf = ug_malloc(len);
-	snprintf(buf, len, "%I64d", *value);
-#else
-	len = snprintf(NULL, 0, "%lld", (long long) *value) + 1;
-	buf = ug_malloc(len);
-	snprintf(buf, len, "%lld", (long long) *value);
-#endif
+	snprintf(buf, len, "%" PRId64, *value);
 	ug_json_write_string(json, buf);
 	ug_free(buf);
 }
@@ -439,21 +434,13 @@ void  ug_json_parse_by_value(UgJson* json, UgValue* value)
 
 	case UG_VALUE_INT64:
 		json->type = UG_JSON_NUMBER;
-#if defined (_MSC_VER) || defined (__MINGW32__)
-		snprintf(json->buf.at, json->buf.allocated, "%I64d", value->c.integer64);
-#else
-		snprintf(json->buf.at, json->buf.allocated, "%lld", (long long int) value->c.integer64);
-#endif
+		snprintf(json->buf.at, json->buf.allocated, "%" PRId64, value->c.integer64);
 		ug_json_call_parser_value(json, value, json->buf.at);
 		break;
 
 	case UG_VALUE_UINT64:
 		json->type = UG_JSON_NUMBER;
-#if defined (_MSC_VER) || defined (__MINGW32__)
-		snprintf(json->buf.at, json->buf.allocated, "%I64u", value->c.uinteger64);
-#else
-		snprintf(json->buf.at, json->buf.allocated, "%llu", (long long int) value->c.uinteger64 );
-#endif
+		snprintf(json->buf.at, json->buf.allocated, "%" PRIu64, value->c.uinteger64);
 		ug_json_call_parser_value(json, value, json->buf.at);
 		break;
 

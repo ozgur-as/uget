@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string.h>
 #include <time.h>
 
@@ -30,6 +31,22 @@
 #include <UgetEvent.h>
 #include <UgetResolver.h>
 #include <UgetPluginYtdlp.h>
+
+// ----------------------------------------------------------------------------
+// Stopping the external extractor
+//
+// g_subprocess_send_signal() is a Unix-only GIO entry point. Windows has no
+// signal to deliver, so terminate the child outright; yt-dlp keeps no state
+// that a graceful SIGTERM would flush.
+
+static void ytdlp_terminate(GSubprocess* proc)
+{
+#ifdef _WIN32
+	g_subprocess_force_exit(proc);
+#else
+	g_subprocess_send_signal(proc, SIGTERM);
+#endif
+}
 
 // ----------------------------------------------------------------------------
 // UgetPluginInfo
@@ -397,7 +414,7 @@ static UgThreadResult plugin_thread(UgetPluginYtdlp* plugin)
 		int stop = plugin->stop_requested;
 		uget_plugin_unlock(plugin);
 		if (stop) {
-			g_subprocess_send_signal(proc, 15 /* SIGTERM */);
+			ytdlp_terminate(proc);
 			break;
 		}
 	}
@@ -465,7 +482,7 @@ static int plugin_ctrl(UgetPluginYtdlp* plugin, int code, void* data)
 		uget_plugin_lock(plugin);
 		plugin->stop_requested = TRUE;
 		if (plugin->proc)
-			g_subprocess_send_signal((GSubprocess*) plugin->proc, 15);
+			ytdlp_terminate((GSubprocess*) plugin->proc);
 		uget_plugin_unlock(plugin);
 		return TRUE;
 

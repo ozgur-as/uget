@@ -595,7 +595,7 @@ static int  mega_request_info(UgetPluginMega* plugin, const char* id)
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 	curl_easy_setopt(curl, CURLOPT_POST, 1L);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, string);
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(string));
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long) strlen(string));
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_output_mega_result);

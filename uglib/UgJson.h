@@ -38,6 +38,7 @@
 #define UG_JSON_H
 
 #include <stdint.h>     // int64_t
+#include <inttypes.h>   // PRId64, PRIu64
 #include <UgBuffer.h>
 
 #ifdef __cplusplus
@@ -191,13 +192,10 @@ void    ug_json_write_string (UgJson* json, const char* Cstring);
 #define ug_json_write_int(json, value)      ug_json_write_number (json, "%d", value)
 #define ug_json_write_uint(json, value)     ug_json_write_number (json, "%u", value)
 #define ug_json_write_double(json, value)   ug_json_write_number (json, "%f", value)
-#if defined (_MSC_VER) || defined (__MINGW32__)
-#define ug_json_write_int64(json, value)    ug_json_write_number (json, "%I64d", value)
-#define ug_json_write_uint64(json, value)   ug_json_write_number (json, "%I64u", value)
-#else
-#define ug_json_write_int64(json, value)    ug_json_write_number (json, "%lld", (long long) (value))
-#define ug_json_write_uint64(json, value)   ug_json_write_number (json, "%llu", (unsigned long long) (value))
-#endif
+// PRId64/PRIu64 rather than the MSVC-only "%I64d": MinGW's ANSI stdio does
+// not understand the %I64 prefix, so it would serialize int64 values wrongly.
+#define ug_json_write_int64(json, value)    ug_json_write_number (json, "%" PRId64, (int64_t) (value))
+#define ug_json_write_uint64(json, value)   ug_json_write_number (json, "%" PRIu64, (uint64_t) (value))
 
 #ifdef __cplusplus
 }

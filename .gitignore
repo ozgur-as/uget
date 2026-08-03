@@ -1,7 +1,13 @@
-# Meson build directories
+# Meson build directories (native and cross, e.g. build-mingw/)
 build/
 builddir/
 _build/
+build-*/
+
+# Packaging output (packaging/windows/make-dist.sh).
+# The installer itself is covered by the *.exe rule below.
+dist/
+*.zip
 
 # Compiled objects and libraries
 *.o
@@ -66,3 +72,7 @@ Makefile.in
 # Core dumps
 core
 core.*
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/worktrees/

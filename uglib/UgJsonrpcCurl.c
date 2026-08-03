@@ -119,7 +119,7 @@ int   ug_jsonrpc_curl_send (UgJsonrpcCurl* jrcurl)
 	send_size = jrcurl->buffer.cur - jrcurl->buffer.beg;
 	curl_easy_setopt (jrcurl->curl, CURLOPT_POST, TRUE);
 	curl_easy_setopt (jrcurl->curl, CURLOPT_POSTFIELDS, jrcurl->buffer.beg);
-	curl_easy_setopt (jrcurl->curl, CURLOPT_POSTFIELDSIZE, send_size);
+	curl_easy_setopt (jrcurl->curl, CURLOPT_POSTFIELDSIZE, (long) send_size);
 	curl_easy_setopt (jrcurl->curl, CURLOPT_HTTPHEADER, jrcurl->slist);
 	curl_easy_setopt (jrcurl->curl, CURLOPT_WRITEFUNCTION,
 			(curl_write_callback) ug_jsonrpc_curl_write);

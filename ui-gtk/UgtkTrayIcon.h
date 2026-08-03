@@ -102,6 +102,13 @@ void  ugtk_tray_icon_sync_menu (UgtkTrayIcon* trayicon, UgtkApp* app);
 // Set sensitivity of torrent/metalink menu items
 void  ugtk_tray_icon_set_plugin_sensitive (UgtkTrayIcon* trayicon, gboolean sensitive);
 
+#if defined _WIN32 || defined _WIN64
+// Show a balloon notification. Windows-only: a balloon is a property of the
+// tray icon itself, so it belongs to the tray implementation rather than to
+// the libnotify path used on Unix. No-op while the icon is hidden.
+void  ugtk_tray_icon_notify (UgtkTrayIcon* trayicon, const gchar* title, const gchar* body);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

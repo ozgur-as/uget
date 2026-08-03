@@ -1,5 +1,11 @@
 MAINICON ICON DISCARDABLE "uget-icon.ico"
 
+// Tray icon states, mirroring the uget-tray-* icon names used on Unix.
+// Embedded as resources so the tray has no runtime file dependency.
+TRAYDEFAULT     ICON DISCARDABLE "uget-tray-default.ico"
+TRAYDOWNLOADING ICON DISCARDABLE "uget-tray-downloading.ico"
+TRAYERROR       ICON DISCARDABLE "uget-tray-error.ico"
+
 1 VERSIONINFO
 FILEVERSION     @VER_COMMA@
 PRODUCTVERSION  @VER_COMMA@

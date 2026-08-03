@@ -1180,17 +1180,20 @@ static void ensure_hover_css_installed (void)
         "} "
         
         // HOVER STATE - Use native :hover pseudo-class (maps to GTK_STATE_FLAG_PRELIGHT)
+        // No "!important": GTK4's CSS parser rejects it (it was a GTK3
+        // feature). This provider is installed above the theme anyway, at
+        // GTK_STYLE_PROVIDER_PRIORITY_APPLICATION + 100.
         "modelbutton:hover, "
         "button.model:hover { "
-        "  background-color: #3584e4 !important; "
-        "  color: #ffffff !important; "
-        "  background-image: none !important; "
+        "  background-color: #3584e4; "
+        "  color: #ffffff; "
+        "  background-image: none; "
         "} "
-        
+
         // Force ALL children (labels, images) to be white on hover
         "modelbutton:hover *, "
         "button.model:hover * { "
-        "  color: #ffffff !important; "
+        "  color: #ffffff; "
         "} "
     );
 #else
@@ -1234,35 +1237,31 @@ static void popover_walk_widgets (GtkWidget *w, GFunc fn, gpointer user_data)
     }
 }
 
-// Key for storing the hover CSS provider on the widget
-#define HOVER_CSS_KEY "uget-hover-css-provider"
-
 #if defined _WIN32 || defined _WIN64
-// Shared CSS providers (created once)
+// Shared CSS provider (created once)
 static GtkCssProvider *hover_bg_css = NULL;   // For button background
-static GtkCssProvider *hover_text_css = NULL; // For label text color
+
+// CSS class toggled on a row to select the hover style below
+#define HOVER_ROW_CLASS "uget-hover-row"
 
 static void ensure_hover_providers (void)
 {
     if (!hover_bg_css) {
+        // GTK4 has no per-widget style provider: register once for the
+        // display and scope the rule to a class we add and remove per row.
         hover_bg_css = gtk_css_provider_new ();
         gtk_css_provider_load_from_string (hover_bg_css,
-            "* { "
+            "." HOVER_ROW_CLASS " { "
             "  background-color: #3584e4; "
             "  background-image: none; "
             "}"
         );
+        gtk_style_context_add_provider_for_display (gdk_display_get_default (),
+            GTK_STYLE_PROVIDER (hover_bg_css),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
-    if (!hover_text_css) {
-        hover_text_css = gtk_css_provider_new ();
-        // Use wildcard and !important to force white text
-        gtk_css_provider_load_from_string (hover_text_css,
-            "* { "
-            "  color: #ffffff !important; "
-            "  -gtk-icon-palette: success #ffffff, warning #ffffff, error #ffffff; "
-            "}"
-        );
-    }
+    // Label text colour is handled with Pango markup in apply_hover_to_row(),
+    // not CSS -- see the comment there.
 }
 
 // Key for storing original label text
@@ -1284,19 +1283,17 @@ static GtkLabel* find_label_child (GtkWidget *parent)
 }
 
 // Apply hover styling to a single button row
-// Uses per-widget CSS for background + Pango markup for text color
+// Uses a display-wide CSS class for background + Pango markup for text color
 static void apply_hover_to_row (GtkWidget *row, gboolean add)
 {
     ensure_hover_providers ();
-    
-    // Apply background CSS to the row itself via per-widget provider
-    GtkStyleContext *ctx = gtk_widget_get_style_context (row);
+
     if (add) {
-        gtk_style_context_add_provider (ctx, GTK_STYLE_PROVIDER (hover_bg_css), G_MAXUINT);
+        gtk_widget_add_css_class (row, HOVER_ROW_CLASS);
     } else {
-        gtk_style_context_remove_provider (ctx, GTK_STYLE_PROVIDER (hover_bg_css));
+        gtk_widget_remove_css_class (row, HOVER_ROW_CLASS);
     }
-    
+
     // Find the label and apply Pango markup for text color
     // (CSS color doesn't work on labels in GTK4!)
     GtkLabel *label = find_label_child (row);

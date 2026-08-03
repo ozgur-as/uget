@@ -37,6 +37,9 @@
  */
 
 #if defined _WIN32 || defined _WIN64
+// winsock2.h must precede windows.h: UgtkApp.h reaches UgSocket.h (and so
+// ws2tcpip.h) further down, and windows.h would otherwise pull in winsock v1.
+#include <winsock2.h>
 #include <windows.h>
 #include <shellapi.h>  // ShellExecuteW()
 #endif

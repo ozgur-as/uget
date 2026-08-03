@@ -46,7 +46,9 @@
 #  define _WIN32_WINNT    0x0501   // WinXP
 #endif
 //#include <winsock2.h>
-#include <Ws2tcpip.h>
+// Lowercase: MinGW-w64 ships ws2tcpip.h, and cross-compiling from a
+// case-sensitive filesystem will not find <Ws2tcpip.h>.
+#include <ws2tcpip.h>
 #else
 #include <sys/types.h>
 #include <sys/select.h>

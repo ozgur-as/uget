@@ -46,6 +46,9 @@
 #endif
 
 #include <stdio.h>
+// winsock2.h must precede windows.h: UgtkApp.h reaches UgSocket.h (and so
+// ws2tcpip.h) further down, and windows.h would otherwise pull in winsock v1.
+#include <winsock2.h>
 #include <windows.h>
 
 #if defined _WINDOWS
@@ -244,6 +247,20 @@ static void sys_set_sigaction ()
 int  main (int argc, char** argv)
 {
 	UgetRpc*  rpc;
+
+#if defined _WIN32 || defined _WIN64
+	// GLib does not reliably resolve its system data directories relative to
+	// the executable on Windows, so a relocatable install (the portable zip,
+	// or any non-default install path) would not find the bundled GSettings
+	// schemas. Point it at them before anything touches GSettings. Set only
+	// when unset, so an explicit override from the environment still wins.
+	{
+		gchar* schema_dir = g_build_filename (ugtk_get_data_dir (),
+		                                      "glib-2.0", "schemas", NULL);
+		g_setenv ("GSETTINGS_SCHEMA_DIR", schema_dir, FALSE);
+		g_free (schema_dir);
+	}
+#endif
 
 	// I18N
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);

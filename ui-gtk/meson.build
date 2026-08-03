@@ -11,7 +11,6 @@ ui_gtk_sources = files(
   'UgtkNodeView.c',
   'UgtkTraveler.c',
   'UgtkSummary.c',
-  'UgtkTrayIcon.c',
   'UgtkBanner.c',
   'UgtkSequence.c',
   'UgtkSelector.c',
@@ -34,6 +33,14 @@ ui_gtk_sources = files(
   'UgtkApp-timeout.c',
   'UgtkApp-main.c',
 )
+
+# Tray icon: two backends providing the same API, exactly one is compiled.
+# Windows uses Shell_NotifyIcon; everything else uses StatusNotifierItem.
+if host_system == 'windows'
+  ui_gtk_sources += files('UgtkTrayIcon-win32.c')
+else
+  ui_gtk_sources += files('UgtkTrayIcon.c')
+endif
 
 ui_gtk_inc = include_directories('.')
 
@@ -99,8 +106,10 @@ endif
 
 # Windows-specific libraries
 if host_system == 'windows'
-  ws2_32_dep = meson.get_compiler('c').find_library('ws2_32')
-  ui_gtk_deps += ws2_32_dep
+  win_cc = meson.get_compiler('c')
+  ui_gtk_deps += win_cc.find_library('ws2_32')
+  # winmm: PlaySoundW(), the Windows backend of ugtk_play_sound()
+  ui_gtk_deps += win_cc.find_library('winmm')
 endif
 
 uget_gtk = executable('uget-gtk',

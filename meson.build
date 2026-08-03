@@ -18,10 +18,17 @@ host_system = host_machine.system()
 # Required Dependencies
 # ============================================================================
 
-glib_dep = dependency('glib-2.0', version: '>= 2.86.0', required: true)
-gio_dep  = dependency('gio-2.0',  version: '>= 2.86.0', required: true)
-gtk_dep = dependency('gtk4', version: '>= 4.20.0', required: true)
-curl_dep = dependency('libcurl', version: '>= 8.11.0', required: true)
+# Version floors are derived from the newest API actually called, not from the
+# maintainer's dev machine. Raising one is fine; do it deliberately.
+#   gtk4    4.14 - gtk_spin_button_set_activates_default()
+#                  (next-newest: gtk_css_provider_load_from_string(), 4.12)
+#   glib    2.76 - conservative; nothing newer than 2.76 is referenced
+#   libcurl 7.55 - CURLINFO_CONTENT_LENGTH_DOWNLOAD_T and friends
+# 4.14 also matches Fedora's mingw64-gtk4, which the Windows cross-build needs.
+glib_dep = dependency('glib-2.0', version: '>= 2.76.0', required: true)
+gio_dep  = dependency('gio-2.0',  version: '>= 2.76.0', required: true)
+gtk_dep = dependency('gtk4', version: '>= 4.14.0', required: true)
+curl_dep = dependency('libcurl', version: '>= 7.55.0', required: true)
 threads_dep = dependency('threads', required: true)
 
 # ============================================================================
@@ -158,10 +165,10 @@ subdir('uget')
 subdir('ui-gtk')
 subdir('tests')
 
-# Translations (Unix only — Windows uses embedded resources)
-if host_system != 'windows'
-  subdir('po')
-endif
+# Translations. Built on Windows too: UgtkConfig.h redefines LOCALEDIR there
+# to ugtk_get_locale_dir(), which resolves to <exe>/../share/locale, and
+# packaging/windows/make-dist.sh stages the catalogs at that path.
+subdir('po')
 
 # Install data files
 install_data('uget-gtk.desktop',

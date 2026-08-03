@@ -22,4 +22,5 @@ ui-gtk/UgtkSequence.c
 ui-gtk/UgtkSettingDialog.c
 ui-gtk/UgtkSettingForm.c
 ui-gtk/UgtkSummary.c
+ui-gtk/UgtkTrayIcon-win32.c
 ui-gtk/UgtkTrayIcon.c

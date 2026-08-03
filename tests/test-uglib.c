@@ -56,15 +56,17 @@ void  test_launch (void)
 {
 	uint16_t*  pathutf16;
 	uint16_t*  parmutf16;
-	int        result;
+	// ShellExecuteW() returns an HINSTANCE; go through intptr_t so the
+	// value is not truncated on 64-bit Windows.
+	intptr_t   result;
 
 	pathutf16 = ug_utf8_to_utf16 ("C:\\Program Files\\uGet\\bin\\aria2c", -1, NULL);
 	parmutf16 = ug_utf8_to_utf16 ("--enable-rpc=true", -1, NULL);
 
 	wprintf (L"%s %s", pathutf16, parmutf16);
 
-	result = (int)ShellExecuteW (NULL, L"open", pathutf16, parmutf16,
-	                             NULL, SW_HIDE);
+	result = (intptr_t)ShellExecuteW (NULL, L"open", pathutf16, parmutf16,
+	                                  NULL, SW_HIDE);
 	if (result > 32)
 		puts ("ShellExecuteW - OK");
 	free (parmutf16);

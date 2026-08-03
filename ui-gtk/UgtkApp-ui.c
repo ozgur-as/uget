@@ -137,8 +137,13 @@ static void ugtk_app_init_size (UgtkApp* app)
 #if defined _WIN32 || defined _WIN64
 static void ugtk_app_init_ui_win32 (UgtkApp* app, int screen_width)
 {
-	GSettings*  gset;
-	gint        sidebar_width;
+	// GTK4's file chooser schema. GTK3 called this "org.gtk.Settings.
+	// FileChooser"; under GTK4 the id gained a "gtk4" component.
+	static const gchar*     schema_id = "org.gtk.gtk4.Settings.FileChooser";
+	GSettingsSchemaSource*  source;
+	GSettingsSchema*        schema;
+	GSettings*              gset;
+	gint                    sidebar_width;
 
 	// Icon theme search path is now set in ugtk_app_init_ui() for all platforms.
 
@@ -149,12 +154,26 @@ static void ugtk_app_init_ui_win32 (UgtkApp* app, int screen_width)
 	else
 		sidebar_width = 220;
 
-	gset = g_settings_new ("org.gtk.Settings.FileChooser");
+	// g_settings_new() aborts the process when the schema is missing, which
+	// on Windows means an installation that shipped no schemas takes the
+	// whole application down. Tuning the file chooser is not worth that.
+	source = g_settings_schema_source_get_default ();
+	schema = (source) ? g_settings_schema_source_lookup (source, schema_id, TRUE) : NULL;
+	if (schema == NULL) {
+		g_warning ("GSettings schema '%s' not installed; "
+		           "skipping file chooser defaults", schema_id);
+		return;
+	}
+	g_settings_schema_unref (schema);
+
+	gset = g_settings_new (schema_id);
 	g_settings_set_boolean (gset, "sort-directories-first", TRUE);
 
 	// default of "sidebar-width" == 148
 	if (sidebar_width > 0 && g_settings_get_int(gset, "sidebar-width") == 148)
 		g_settings_set_int (gset, "sidebar-width", sidebar_width);
+
+	g_object_unref (gset);
 }
 #endif  // _WIN32 || _WIN64
 

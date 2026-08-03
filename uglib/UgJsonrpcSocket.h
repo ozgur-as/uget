@@ -37,6 +37,7 @@
 #ifndef UG_JSONRPC_SOCKET_H
 #define UG_JSONRPC_SOCKET_H
 
+#include <UgSocket.h>    // SOCKET, INVALID_SOCKET
 #include <UgJsonrpc.h>
 
 #ifdef __cplusplus
@@ -55,11 +56,14 @@ typedef struct UgSocketServer    UgSocketServer;
 //           |                             |    UgJsonrpcObject
 //           +-----------------------------+
 
+// 'socket' is a SOCKET, not an int: on 64-bit Windows SOCKET is a 64-bit
+// UINT_PTR and an int would truncate the handle (and mangle INVALID_SOCKET,
+// which is (SOCKET)~0). On Unix UgSocket.h defines SOCKET as int.
 #define UG_JSONRPC_SOCKET_MEMBERS  \
 	UgJson           json;         \
 	UgJsonrpc        rpc;          \
 	UgBuffer         buffer;       \
-	int              socket
+	SOCKET           socket
 
 struct  UgJsonrpcSocket
 {
@@ -68,7 +72,7 @@ struct  UgJsonrpcSocket
 	UgJson           json;
 	UgJsonrpc        rpc;
 	UgBuffer         buffer;
-	int              socket;
+	SOCKET           socket;
  */
 };
 

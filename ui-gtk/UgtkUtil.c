@@ -34,6 +34,7 @@
  *
  */
 
+#include <stdint.h>
 #include <string.h>
 #include <UgStdio.h>
 #include <UgtkUtil.h>
@@ -48,9 +49,11 @@
 
 gboolean  ugtk_launch_uri (const gchar* uri)
 {
-	int  result;
+	// ShellExecuteA() returns an HINSTANCE; go through intptr_t so the
+	// value is not truncated on 64-bit Windows.
+	intptr_t  result;
 
-	result = (int) ShellExecuteA(NULL, "open", uri, NULL, NULL, SW_SHOWNORMAL);
+	result = (intptr_t) ShellExecuteA(NULL, "open", uri, NULL, NULL, SW_SHOWNORMAL);
 	if (result > 32)
 		return TRUE;
 	return FALSE;
