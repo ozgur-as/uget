@@ -14,1707 +14,1567 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: uGet\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-03 03:10+0800\n"
+"Report-Msgid-Bugs-To: https://github.com/ozgur-as/uget/issues\n"
+"POT-Creation-Date: 2026-08-03 17:58+0300\n"
 "PO-Revision-Date: 2016-11-09 16:16+0000\n"
 "Last-Translator: Sony 2TH <sony2th@kajoetangan.co.id>\n"
 "Language-Team: Indonesian (http://www.transifex.com/uget/uget/language/id/)\n"
+"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: id\n"
+"X-Generator: tools/po-deepl-fill.py (DeepL) for entries added after 2.2\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../../po/../uget/pwmd.c:32
-#, c-format
-msgid ""
-"Password Manager Daemon: uget\n"
-"\n"
-"While attempting an SSH connection to %s there was a problem verifying it's hostkey against the known and trusted hosts file because it's hostkey was not found.\n"
-"\n"
-"Would you like to treat this connection as trusted for this and future connections by adding %s's hostkey to the known hosts file?"
-msgstr ""
-
-#: ../../po/../uget/UgetApp.c:103
+#: uget/UgetApp.c:135
 msgid "All Category"
 msgstr "Semua Kategori"
 
 #. UGET_EVENT_NORMAL_CUSTOM
-#: ../../po/../uget/UgetEvent.c:58
+#: uget/UgetEvent.c:58
 msgid "Connecting..."
 msgstr "Menghubungkan"
 
 #. UGET_EVENT_NORMAL_CONNECT
-#: ../../po/../uget/UgetEvent.c:59
+#: uget/UgetEvent.c:59
 msgid "Transmitting..."
 msgstr "Sedang mengirim"
 
 #. UGET_EVENT_NORMAL_TRANSMIT,
-#: ../../po/../uget/UgetEvent.c:60 ../../po/../ui-gtk/UgtkNodeView.c:917
+#: uget/UgetEvent.c:60 ui-gtk/UgtkMenubar-ui.c:199 ui-gtk/UgtkNodeView.c:675
 msgid "Retry"
 msgstr "Ulangi"
 
 #. UGET_EVENT_NORMAL_RETRY,
-#: ../../po/../uget/UgetEvent.c:61
+#: uget/UgetEvent.c:61
 msgid "Download completed"
 msgstr "Download selesai"
 
 #. UGET_EVENT_NORMAL_COMPLETE,
-#: ../../po/../uget/UgetEvent.c:62 ../../po/../ui-gtk/UgtkNodeView.c:644
+#: uget/UgetEvent.c:62 ui-gtk/UgtkNodeView.c:456
 msgid "Finished"
 msgstr "Selesai"
 
 #. UGET_EVENT_NORMAL_FINISH,
 #. resumable
-#: ../../po/../uget/UgetEvent.c:64
+#: uget/UgetEvent.c:64
 msgid "Resumable"
 msgstr "Dapat dilanjutkan"
 
 #. UGET_EVENT_NORMAL_RESUMABLE,
-#: ../../po/../uget/UgetEvent.c:65 ../../po/../uget/UgetPluginAria2.c:287
+#: uget/UgetEvent.c:65 uget/UgetPluginAria2.c:285
 msgid "Not Resumable"
 msgstr "Tidak dapat dilanjutkan"
 
 #. UGET_EVENT_WARNING_CUSTOM
-#: ../../po/../uget/UgetEvent.c:73 ../../po/../uget/UgetPluginAria2.c:294
+#: uget/UgetEvent.c:73 uget/UgetPluginAria2.c:292
 msgid "Output file can't be renamed."
 msgstr "Tidak dapat mengubah nama file"
 
 #. UGET_EVENT_ERROR_CUSTOM
-#: ../../po/../uget/UgetEvent.c:81
+#: uget/UgetEvent.c:81
 msgid "couldn't connect to host."
 msgstr "Tidak dapat menyambung ke host"
 
 #. UGET_EVENT_ERROR_CONNECT_FAILED
-#: ../../po/../uget/UgetEvent.c:82 ../../po/../uget/UgetPluginAria2.c:298
+#: uget/UgetEvent.c:82 uget/UgetPluginAria2.c:296
 msgid "Folder can't be created."
 msgstr "Map tidak bisa dibuat "
 
 #. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
-#: ../../po/../uget/UgetEvent.c:83
+#: uget/UgetEvent.c:83
 msgid "File can't be created (bad filename or file exist)."
 msgstr "Berkas tidak dapat dibuat (kesalahan penamaan atau berkas sudah ada)"
 
 #. UGET_EVENT_ERROR_FILE_CREATE_FAILED
-#: ../../po/../uget/UgetEvent.c:84
+#: uget/UgetEvent.c:84
 msgid "File can't be opened."
 msgstr "Berkas tidak dapat dibuka"
 
 #. UGET_EVENT_ERROR_FILE_OPEN_FAILED
-#: ../../po/../uget/UgetEvent.c:85
+#: uget/UgetEvent.c:85
 msgid "Unable to create thread."
 msgstr "Tidak dapat membuat thread."
 
 #. UGET_EVENT_ERROR_THREAD_CREATE_FAILED,
-#: ../../po/../uget/UgetEvent.c:86
+#: uget/UgetEvent.c:86
 msgid "Incorrect source (different file size)."
 msgstr "Sumber tidak benar (ukuran file berbeda)."
 
 #. UGET_EVENT_ERROR_INCORRECT_SOURCE,
-#: ../../po/../uget/UgetEvent.c:87
+#: uget/UgetEvent.c:87
 msgid "Out of resource (disk full or run out of memory)."
 msgstr "Melebihi kapasitas (penyimpanan penuh atau melebihi kapasitas memori)"
 
 #. UGET_EVENT_ERROR_OUT_OF_RESOURCE
-#: ../../po/../uget/UgetEvent.c:88
+#: uget/UgetEvent.c:88
 msgid "No output file."
 msgstr "Berkas keluaran tidak ada"
 
 #. UGET_EVENT_ERROR_NO_OUTPUT_FILE
-#: ../../po/../uget/UgetEvent.c:89
+#: uget/UgetEvent.c:89
 msgid "No output setting."
 msgstr "Tidak ada pengaturan keluaran"
 
 #. UGET_EVENT_ERROR_NO_OUTPUT_SETTING
-#: ../../po/../uget/UgetEvent.c:90
+#: uget/UgetEvent.c:90
 msgid "Too many retries."
 msgstr "Terlalu banyak mengulang"
 
 #. UGET_EVENT_ERROR_TOO_MANY_RETRIES
-#: ../../po/../uget/UgetEvent.c:91
+#: uget/UgetEvent.c:91
 msgid "Unsupported scheme (protocol)."
 msgstr "Skema tidak di dukung (protokol)"
 
 #. UGET_EVENT_ERROR_UNSUPPORTED_SCHEME
-#: ../../po/../uget/UgetEvent.c:92
+#: uget/UgetEvent.c:92
 msgid "Unsupported file."
 msgstr "Berkas tidak didukung"
 
 #. UGET_EVENT_ERROR_UNSUPPORTED_FILE
-#: ../../po/../uget/UgetEvent.c:93
+#: uget/UgetEvent.c:93
 msgid "post file not found."
 msgstr "catatan berkas tidak ditemukan."
 
 #. UGET_EVENT_ERROR_POST_FILE_NOT_FOUND
-#: ../../po/../uget/UgetEvent.c:94
+#: uget/UgetEvent.c:94
 msgid "cookie file not found."
 msgstr "cookie berkas tidak ditemukan."
 
-#: ../../po/../uget/UgetMedia-youtube.c:275
-msgid "This video has been removed."
-msgstr "Video ini telah dihapus."
-
-#: ../../po/../uget/UgetMedia-youtube.c:288
-msgid "Error occurred during getting video info."
-msgstr "Kesalahan terjadi selama mendapatkan info video."
-
-#: ../../po/../uget/UgetMedia-youtube.c:534
-msgid "Error occurred during getting video web page."
-msgstr "Kesalahan terjadi selama mendapatkan halaman web video."
-
-#: ../../po/../uget/UgetMedia-youtube.c:606
-msgid "No video_id found in URL of YouTube."
-msgstr "Tidak ada video_id ditemukan di URL Youtube ini."
-
 #. 1 - 10
-#: ../../po/../uget/UgetPluginAria2.c:280
+#: uget/UgetPluginAria2.c:278
 msgid "aria2: an unknown error occurred."
 msgstr "aria2: sebuah galat yang tidak diketahui terjadi."
 
-#: ../../po/../uget/UgetPluginAria2.c:281
+#: uget/UgetPluginAria2.c:279
 msgid "aria2: time out occurred."
 msgstr "aria2: kehabisan waktu terjadi."
 
-#: ../../po/../uget/UgetPluginAria2.c:282
+#: uget/UgetPluginAria2.c:280
 msgid "aria2: resource was not found."
 msgstr "aria2: sumber daya tidak ditemukan."
 
-#: ../../po/../uget/UgetPluginAria2.c:283
+#: uget/UgetPluginAria2.c:281
 msgid ""
-"aria2 saw the specfied number of 'resource not found' error. See --max-file-"
+"aria2 saw the specified number of 'resource not found' error. See --max-file-"
 "not-found option"
-msgstr "aria2 melihat angka spesifik dari galat 'sumber daya tidak ditemukan'. Lihat opsi --max-file-not-found"
+msgstr "aria2 mendeteksi jumlah kesalahan 'sumber daya tidak ditemukan' yang ditentukan. Lihat opsi --max-file-not-found"
 
-#: ../../po/../uget/UgetPluginAria2.c:284
+#: uget/UgetPluginAria2.c:282
 msgid "aria2: speed was too slow."
 msgstr "aria2: kecepatan terlalu lambat."
 
-#: ../../po/../uget/UgetPluginAria2.c:285
+#: uget/UgetPluginAria2.c:283
 msgid "aria2: network problem occurred."
 msgstr "aria2: masalah jaringan terjadi."
 
-#: ../../po/../uget/UgetPluginAria2.c:286
+#: uget/UgetPluginAria2.c:284
 msgid "aria2: unfinished downloads."
 msgstr "aria2: Unduhan yang belum selesai."
 
 #. _("Not Resumable"),
-#: ../../po/../uget/UgetPluginAria2.c:288
+#: uget/UgetPluginAria2.c:286
 msgid "Out of resource"
 msgstr "Keluar dari sumber daya"
 
 #. _(),
-#: ../../po/../uget/UgetPluginAria2.c:289
+#: uget/UgetPluginAria2.c:287
 msgid "aria2: piece length was different from one in .aria2 control file."
 msgstr "aria2: panjang bagian berbeda dari satunya di berkas kendali .aria2."
 
 #. 11 - 20
-#: ../../po/../uget/UgetPluginAria2.c:291
+#: uget/UgetPluginAria2.c:289
 msgid "aria2 was downloading same file."
 msgstr "aria2 telah mengunduh berkas yang sama."
 
-#: ../../po/../uget/UgetPluginAria2.c:292
+#: uget/UgetPluginAria2.c:290
 msgid "aria2 was downloading same info hash torrent."
 msgstr "aria2 telah mengunduh informasi hash torrent."
 
-#: ../../po/../uget/UgetPluginAria2.c:293
+#: uget/UgetPluginAria2.c:291
 msgid "aria2: file already existed. See --allow-overwrite option."
 msgstr "aria2: berkas sudah ada. Lihat opsi --boleh-timpa."
 
 #. _("Output file can't be renamed."),
-#: ../../po/../uget/UgetPluginAria2.c:295
+#: uget/UgetPluginAria2.c:293
 msgid "aria2: could not open existing file."
 msgstr "aria2: tidak bisa membuka berkas yang ada."
 
-#: ../../po/../uget/UgetPluginAria2.c:296
+#: uget/UgetPluginAria2.c:294
 msgid "aria2: could not create new file or truncate existing file."
 msgstr "aria2: tidak bisa membuat berkas baru atau memotong berkas yang ada."
 
-#: ../../po/../uget/UgetPluginAria2.c:297
+#: uget/UgetPluginAria2.c:295
 msgid "aria2: file I/O error occurred."
 msgstr "aria2: galat I/O berkas terjadi."
 
 #. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
-#: ../../po/../uget/UgetPluginAria2.c:299
+#: uget/UgetPluginAria2.c:297
 msgid "aria2: name resolution failed."
 msgstr "aria2: resolusi nama gagal."
 
-#: ../../po/../uget/UgetPluginAria2.c:300
+#: uget/UgetPluginAria2.c:298
 msgid "aria2: could not parse Metalink document."
 msgstr "aria2: tidak bisa mengurai dokumen Metalink."
 
 #. 21 - 30
-#: ../../po/../uget/UgetPluginAria2.c:302
+#: uget/UgetPluginAria2.c:300
 msgid "aria2: FTP command failed."
 msgstr "aria2: perintah FTP gagal."
 
-#: ../../po/../uget/UgetPluginAria2.c:303
+#: uget/UgetPluginAria2.c:301
 msgid "aria2: HTTP response header was bad or unexpected."
 msgstr "aria2: kepala respon HTTP buruk atau tak terduga."
 
-#: ../../po/../uget/UgetPluginAria2.c:304
+#: uget/UgetPluginAria2.c:302
 msgid "Too many redirections."
 msgstr "Terlalu banyak pengalihan"
 
-#: ../../po/../uget/UgetPluginAria2.c:305
+#: uget/UgetPluginAria2.c:303
 msgid "aria2: HTTP authorization failed."
 msgstr "aria2: autorisasi HTTP gagal."
 
-#: ../../po/../uget/UgetPluginAria2.c:306
+#: uget/UgetPluginAria2.c:304
 msgid "aria2: could not parse bencoded file(usually .torrent file)."
 msgstr "aria2: tidak bisa mengurai berkas bencoded(biasanya berkas .torrent)."
 
-#: ../../po/../uget/UgetPluginAria2.c:307
+#: uget/UgetPluginAria2.c:305
 msgid "aria2: torrent file was corrupted or missing information."
 msgstr "aria2: berkas torrent rusak atau kehilangan informasi."
 
-#: ../../po/../uget/UgetPluginAria2.c:308
+#: uget/UgetPluginAria2.c:306
 msgid "aria2: Magnet URI was bad."
 msgstr "aria2: Magnet URI buruk."
 
-#: ../../po/../uget/UgetPluginAria2.c:309
+#: uget/UgetPluginAria2.c:307
 msgid ""
 "aria2: bad/unrecognized option was given or unexpected option argument was "
 "given."
-msgstr "aria2: opsi buruk/tidak dikenal telah diberikan atau argumen opsi tak terduga diberikan."
+msgstr ""
+"aria2: opsi buruk/tidak dikenal telah diberikan atau argumen opsi tak "
+"terduga diberikan."
 
-#: ../../po/../uget/UgetPluginAria2.c:310
+#: uget/UgetPluginAria2.c:308
 msgid "aria2: remote server was unable to handle the request."
 msgstr "aria2: remote server tidak dapat menangani permintaan."
 
-#: ../../po/../uget/UgetPluginAria2.c:311
+#: uget/UgetPluginAria2.c:309
 msgid "aria2: could not parse JSON-RPC request."
 msgstr "aria2: tidak dapat mengurai permintaan JSON-RPC."
 
-#: ../../po/../uget/UgetPluginAria2.c:314
+#: uget/UgetPluginAria2.c:312
 msgid "No response. Is aria2 shutdown?"
 msgstr "Tidak ada respon. Apakah aria2 mati?"
 
 #. debug
-#: ../../po/../uget/UgetPluginAria2.c:641
+#: uget/UgetPluginAria2.c:613
 msgid "aria2: gid was removed."
 msgstr "aria2: gid telah dihapus."
 
-#: ../../po/../uget/UgetPluginMedia.c:489
-msgid "Failed to get media link."
-msgstr "Gagal untuk mendapatkan tautan media."
+#: uget/UgetPluginMega.c:173
+msgid "Can't handle this MEGA URL."
+msgstr "Tidak dapat menangani URL MEGA ini."
 
-#: ../../po/../uget/UgetPluginMedia.c:505
-msgid "No matched media."
-msgstr "Tidak sesuai media."
+#: uget/UgetPluginMega.c:217
+msgid "Can't get download URL."
+msgstr "Tidak dapat memperoleh URL unduhan."
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:46
+#: uget/UgetPluginMega.c:677
+msgid "decrypting file..."
+msgstr "mendekripsi file..."
+
+#: uget/UgetPluginMega.c:766
+msgid "decryption completed"
+msgstr "penguraian enkripsi selesai"
+
+#: ui-gtk/UgtkAboutDialog.c:49
 msgid "Download Manager"
 msgstr "Download Manager"
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:48
+#: ui-gtk/UgtkAboutDialog.c:52
 msgid "translator-credits"
-msgstr "Daftar penerjemah"
+msgstr ""
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:80
-msgid "uGet Founder: "
-msgstr "Pendiri uGet: "
-
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:81
-msgid "uGet Project Manager: "
-msgstr "Manajer Proyek uGet: "
-
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:263
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:239
+#: ui-gtk/UgtkApp-timeout.c:262
 msgid "tasks"
 msgstr "tugas"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:399
+#: ui-gtk/UgtkApp-timeout.c:399
 msgid "New from Clipboard"
 msgstr "Baru dari klipboard"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:401 ../../po/../ui-gtk/UgtkApp.c:915
+#. Menu items (as flat buttons)
+#. New Download / New Category
+#: ui-gtk/UgtkApp-timeout.c:401 ui-gtk/UgtkApp-ui.c:342 ui-gtk/UgtkApp.c:870
+#: ui-gtk/UgtkMenubar-ui.c:66
 msgid "New Download"
 msgstr "Download Baru"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:425 ../../po/../ui-gtk/UgtkApp.c:1679
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:119
+#: ui-gtk/UgtkApp-timeout.c:425 ui-gtk/UgtkApp.c:1693
+#: ui-gtk/UgtkSettingDialog.c:151
 msgid "Clipboard"
 msgstr "Papan klip"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:427
+#: ui-gtk/UgtkApp-timeout.c:427
 msgid "Command line"
 msgstr "Baris perintah"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:780
+#: ui-gtk/UgtkApp-timeout.c:767
 msgid "Error Occurred"
 msgstr "Galat Terjadi"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:781
+#: ui-gtk/UgtkApp-timeout.c:768
 msgid "Error Occurred during downloading."
 msgstr "Galat Terjadi ketika sedang mengunduh."
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:782
+#: ui-gtk/UgtkApp-timeout.c:769
 msgid "Download Starting"
 msgstr "Memulai Unduhan"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:783
+#: ui-gtk/UgtkApp-timeout.c:770
 msgid "Starting download queue."
 msgstr "Memulai antrian unduhan"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:784
+#: ui-gtk/UgtkApp-timeout.c:771
 msgid "Download Completed"
 msgstr "Unduhan selesai"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:785
+#: ui-gtk/UgtkApp-timeout.c:772
 msgid "All queuing downloads have been completed."
 msgstr "Semua antrian unduhan sudah selesai"
 
 #. ----------------------------------------------------
 #. frame for Status (start mode)
-#: ../../po/../ui-gtk/UgtkApp-ui.c:193
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:224
-#: ../../po/../ui-gtk/UgtkNodeView.c:1040
+#: ui-gtk/UgtkApp-ui.c:231 ui-gtk/UgtkDownloadForm.c:236
 msgid "Status"
 msgstr "Status"
 
-#. Summary Items - Category
-#. Download Columns - Category
-#: ../../po/../ui-gtk/UgtkApp-ui.c:195 ../../po/../ui-gtk/UgtkMenubar-ui.c:318
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:346
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:431
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:418
-#: ../../po/../ui-gtk/UgtkNodeView.c:932
-#: ../../po/../ui-gtk/UgtkNodeView.c:1020 ../../po/../ui-gtk/UgtkSummary.c:131
+#: ui-gtk/UgtkApp-ui.c:232 ui-gtk/UgtkMenubar-ui.c:171
+#: ui-gtk/UgtkMenubar-ui.c:179 ui-gtk/UgtkMenubar-ui.c:200
+#: ui-gtk/UgtkMenubar-ui.c:227 ui-gtk/UgtkNodeDialog.c:424
+#: ui-gtk/UgtkNodeView.c:679 ui-gtk/UgtkSummary.c:113
 msgid "Category"
 msgstr "Kategori"
 
-#: ../../po/../ui-gtk/UgtkApp-ui.c:279
+#: ui-gtk/UgtkApp-ui.c:332
 msgid "Create new download"
 msgstr "Membuat unduhan baru"
 
-#. New Download (accelerators)
-#. gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_tearoff_menu_item_new() );
-#. New Download
-#: ../../po/../ui-gtk/UgtkApp-ui.c:289 ../../po/../ui-gtk/UgtkMenubar-ui.c:58
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:59
-msgid "New _Download..."
-msgstr "Unduhan_ Baru"
-
-#. New Category
-#: ../../po/../ui-gtk/UgtkApp-ui.c:300 ../../po/../ui-gtk/UgtkMenubar-ui.c:69
-msgid "New _Category..."
-msgstr "Kategori_Baru"
-
-#. New Clipboard batch
-#: ../../po/../ui-gtk/UgtkApp-ui.c:310 ../../po/../ui-gtk/UgtkTrayIcon.c:70
-msgid "New Clipboard _batch..."
-msgstr "Batch_Klipboard Baru"
-
-#. New URL Sequence batch
-#: ../../po/../ui-gtk/UgtkApp-ui.c:321
-msgid "New _URL Sequence batch..."
-msgstr "Rangkaian baru kumpulan _URL"
-
-#. New Torrent
-#. separator
-#. gtk_menu_shell_append ((GtkMenuShell*)submenu,
-#. gtk_separator_menu_item_new() );
-#. New Torrent
-#: ../../po/../ui-gtk/UgtkApp-ui.c:335 ../../po/../ui-gtk/UgtkMenubar-ui.c:81
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:83
-msgid "New Torrent..."
-msgstr "Torrent Baru..."
-
-#. New Metalink
-#: ../../po/../ui-gtk/UgtkApp-ui.c:342 ../../po/../ui-gtk/UgtkMenubar-ui.c:87
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:90
-msgid "New Metalink..."
-msgstr "Metalink Baru..."
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:356
-msgid "Save all settings"
-msgstr "Simpan semua pengaturan"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:369
-msgid "Set selected download runnable"
-msgstr "Pilih unduhan untuk dilanjutkan"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:379
-msgid "Set selected download to pause"
-msgstr "Pilih unduhan untuk berhenti sebentar"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:389
-msgid "Set selected download properties"
-msgstr "Atur properti unduhan yang dipilih"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:402
-msgid "Move selected download up"
-msgstr "Pindahkan unduhan terpilih keatas"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:412
-msgid "Move selected download down"
-msgstr "Pindah unduhan terpilih kebawah"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:422
-msgid "Move selected download to top"
-msgstr "Pindah unduhan terpilih ke paling atas"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:432
-msgid "Move selected download to bottom"
-msgstr "Pindah unduhan terpilih ke paling bawah"
-
-#: ../../po/../ui-gtk/UgtkApp.c:883
+#: ui-gtk/UgtkApp-ui.c:346 ui-gtk/UgtkApp.c:795 ui-gtk/UgtkMenubar-ui.c:67
+#: ui-gtk/UgtkMenubar-ui.c:216 ui-gtk/UgtkMenubar-ui.c:1428
 msgid "New Category"
 msgstr "Kategori Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:894
-msgid "Copy - "
-msgstr "Salin -"
+#: ui-gtk/UgtkApp-ui.c:350
+msgid "New Batch Sequence"
+msgstr "Urutan Batch Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1049
-msgid "Category Properties"
-msgstr "Kategori Properti"
+#: ui-gtk/UgtkApp-ui.c:354
+msgid "New Batch Clipboard"
+msgstr "Papan Klip Batch Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1063
-msgid "Download Properties"
-msgstr "Properti Download"
-
-#: ../../po/../ui-gtk/UgtkApp.c:1296
+#: ui-gtk/UgtkApp-ui.c:361 ui-gtk/UgtkApp.c:1245
 msgid "New Torrent"
 msgstr "Torrent Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1312
+#: ui-gtk/UgtkApp-ui.c:365 ui-gtk/UgtkApp.c:1261
 msgid "New Metalink"
 msgstr "Metalink Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1321
+#: ui-gtk/UgtkApp-ui.c:371 ui-gtk/UgtkMenubar-ui.c:86
+msgid "Save all settings"
+msgstr "Simpan semua pengaturan"
+
+#: ui-gtk/UgtkApp-ui.c:379
+msgid "Start"
+msgstr "Mulai"
+
+#: ui-gtk/UgtkApp-ui.c:384 ui-gtk/UgtkMenubar-ui.c:248
+#: ui-gtk/UgtkMenubar-ui.c:1462
+msgid "Pause"
+msgstr "Jeda"
+
+#: ui-gtk/UgtkApp-ui.c:389 ui-gtk/UgtkMenubar-ui.c:224
+#: ui-gtk/UgtkMenubar-ui.c:289 ui-gtk/UgtkMenubar-ui.c:1438
+#: ui-gtk/UgtkMenubar-ui.c:1503
+msgid "Properties"
+msgstr "Properti"
+
+#: ui-gtk/UgtkApp-ui.c:397 ui-gtk/UgtkMenubar-ui.c:219
+#: ui-gtk/UgtkMenubar-ui.c:261 ui-gtk/UgtkMenubar-ui.c:1432
+#: ui-gtk/UgtkMenubar-ui.c:1475
+msgid "Move Up"
+msgstr "Naik satu posisi"
+
+#: ui-gtk/UgtkApp-ui.c:402 ui-gtk/UgtkMenubar-ui.c:220
+#: ui-gtk/UgtkMenubar-ui.c:262 ui-gtk/UgtkMenubar-ui.c:1433
+#: ui-gtk/UgtkMenubar-ui.c:1476
+msgid "Move Down"
+msgstr "Pindahkan satu posisi ke bawah"
+
+#: ui-gtk/UgtkApp-ui.c:407
+msgid "Move Top"
+msgstr "Pindahkan ke bagian paling atas daftar"
+
+#: ui-gtk/UgtkApp-ui.c:412
+msgid "Move Bottom"
+msgstr "Pindahkan ke bagian paling bawah daftar"
+
+#: ui-gtk/UgtkApp.c:812
+msgid "Copy - "
+msgstr "Salin -"
+
+#: ui-gtk/UgtkApp.c:1025
+msgid "Category Properties"
+msgstr "Kategori Properti"
+
+#: ui-gtk/UgtkApp.c:1043
+msgid "Download Properties"
+msgstr "Properti Download"
+
+#: ui-gtk/UgtkApp.c:1273
 msgid "Open Torrent file"
 msgstr "Buka file Torrent"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1324
+#: ui-gtk/UgtkApp.c:1279
 msgid "Torrent file (*.torrent)"
 msgstr "Berkas torrent (*.torrent)"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1337
+#: ui-gtk/UgtkApp.c:1299
 msgid "Open Metalink file"
 msgstr "Membuka file Metalink"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1377
+#: ui-gtk/UgtkApp.c:1342
 msgid "Failed to save category file."
 msgstr "Gagal untuk menyimpan berkas kategori"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1397
+#: ui-gtk/UgtkApp.c:1362
 msgid "Failed to load category file."
 msgstr "Gagal untuk memuat berkas kategori"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1408
+#: ui-gtk/UgtkApp.c:1373
 msgid "Save Category file"
 msgstr "Simpan Berkas kategori"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1426
+#: ui-gtk/UgtkApp.c:1392
 msgid "Open Category file"
 msgstr "Buka Berkas kategori"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1429
+#: ui-gtk/UgtkApp.c:1398
 msgid "JSON file (*.json)"
 msgstr "Berkas JSON (*.json)"
 
 #. add link
-#: ../../po/../ui-gtk/UgtkApp.c:1485
+#: ui-gtk/UgtkApp.c:1464
 msgid "Link <A>"
 msgstr "Tautan <A>"
 
 #. add image
-#: ../../po/../ui-gtk/UgtkApp.c:1490
+#: ui-gtk/UgtkApp.c:1469
 msgid "Image <IMG>"
 msgstr "Gambar <IMG>"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1535
+#: ui-gtk/UgtkApp.c:1519
 msgid "Text File"
 msgstr "Berkas Teks"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1582
+#: ui-gtk/UgtkApp.c:1574
 msgid "Import URLs from HTML file"
 msgstr "Mengimpor URLs dari berkas HTML"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1585
+#: ui-gtk/UgtkApp.c:1580
 msgid "HTML file (*.htm, *.html)"
 msgstr "Berkas HTML (*.html)"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1597
+#: ui-gtk/UgtkApp.c:1600
 msgid "Import URLs from text file"
 msgstr "Mengimpor URLs dari berkas teks"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1600
+#: ui-gtk/UgtkApp.c:1606
 msgid "Plain text file"
 msgstr "Berkas text biasa"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1612
+#: ui-gtk/UgtkApp.c:1624
 msgid "Export URLs to text file"
 msgstr "Ekspor URL ke berkas teks"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1631
+#: ui-gtk/UgtkApp.c:1643 ui-gtk/UgtkMenubar-ui.c:73
 msgid "URL Sequence batch"
 msgstr "Urutan kumpulan URL"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1658
+#: ui-gtk/UgtkApp.c:1672
 msgid "No URLs found in clipboard."
 msgstr "Tidak ada URL ditemukan pada papan klip"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1667
+#: ui-gtk/UgtkApp.c:1681
 msgid "All URLs had existed."
 msgstr "Semua URL telah ada"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1672
+#: ui-gtk/UgtkApp.c:1686 ui-gtk/UgtkMenubar-ui.c:72
 msgid "Clipboard batch"
 msgstr "Kumpulan papan klip"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1762
+#: ui-gtk/UgtkApp.c:1750 ui-gtk/UgtkMenubar-ui.c:234
+#: ui-gtk/UgtkMenubar-ui.c:1449
 msgid "New"
 msgstr "Baru"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1803 ../../po/../ui-gtk/UgtkMenubar.c:460
-#: ../../po/../ui-gtk/UgtkMenubar.c:492 ../../po/../ui-gtk/UgtkNodeView.c:640
+#: ui-gtk/UgtkApp.c:1773 ui-gtk/UgtkNodeView.c:452
 msgid "Error"
 msgstr "Kesalahan "
 
-#: ../../po/../ui-gtk/UgtkApp.c:1811 ../../po/../ui-gtk/UgtkSummary.c:176
+#: ui-gtk/UgtkApp.c:1775 ui-gtk/UgtkMenubar-ui.c:181 ui-gtk/UgtkSummary.c:154
 msgid "Message"
 msgstr "Pesan"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1927
+#. OK button
+#: ui-gtk/UgtkApp.c:1779 ui-gtk/UgtkBatchDialog.c:73
+#: ui-gtk/UgtkNodeDialog.c:125 ui-gtk/UgtkSelector.c:368
+#: ui-gtk/UgtkSettingDialog.c:204
+msgid "_OK"
+msgstr "_OK"
+
+#: ui-gtk/UgtkApp.c:1787 ui-gtk/UgtkMenubar-ui.c:158
+msgid "Settings"
+msgstr "Pengaturan"
+
+#: ui-gtk/UgtkApp.c:1901
 #, c-format
 msgid "Selected %d items"
 msgstr "Memilih %d items"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:145 ../../po/../ui-gtk/UgtkBanner.c:165
-msgid "Attention uGetters:"
-msgstr "Perhatian uGetters:"
+#. back button
+#: ui-gtk/UgtkBatchDialog.c:64
+msgid "_Back"
+msgstr "_Kembali"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:148
-msgid ""
-"we are running a Donation Drive for uGet's Future Development, please click "
-msgstr "kami menjalankan Donation Drive untuk pengembangkan uGet ke depannya, tolong klik"
+#. forward button
+#: ui-gtk/UgtkBatchDialog.c:67
+msgid "_Forward"
+msgstr "_Teruskan"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:151
-msgid "HERE"
-msgstr "DISINI"
+#. cancel button
+#. OK & cancel buttons
+#: ui-gtk/UgtkBatchDialog.c:70 ui-gtk/UgtkFormatPicker.c:249
+#: ui-gtk/UgtkNodeDialog.c:123 ui-gtk/UgtkSelector.c:366
+#: ui-gtk/UgtkSettingDialog.c:202
+msgid "_Cancel"
+msgstr "_Batal"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:168
-msgid "please fill out this quick User Survey for uGet."
-msgstr "Harap isi Survei Pengguna untuk uGet."
-
-#: ../../po/../ui-gtk/UgtkBanner.c:171
-msgid "click here to take survey"
-msgstr "klik disini untuk mengikuti survei"
-
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:62
+#: ui-gtk/UgtkCategoryForm.c:71
 msgid "Category _name:"
 msgstr "Nama_kategori"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_active), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:82
+#: ui-gtk/UgtkCategoryForm.c:91
 msgid "Active _downloads:"
 msgstr "Unduhan_aktif"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_finished), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:92
+#: ui-gtk/UgtkCategoryForm.c:100
 msgid "Capacity of Finished:"
 msgstr "Kapasitas yang telah selesai:"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_recycled), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:102
+#: ui-gtk/UgtkCategoryForm.c:109
 msgid "Capacity of Recycled:"
 msgstr "Kapasitas yang didaur ulang:"
 
 #. ------------------------------------------------------------------------
 #. URI Matching conditions
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:111
+#: ui-gtk/UgtkCategoryForm.c:118
 msgid "URI Matching conditions"
 msgstr "Kondisi Pencocokan URL"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:118
+#: ui-gtk/UgtkCategoryForm.c:125
 msgid "Matched _Hosts:"
 msgstr "Cocok _Host:"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:129
+#: ui-gtk/UgtkCategoryForm.c:137
 msgid "Matched _Schemes:"
 msgstr "Cocok _Skema:"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:140
+#: ui-gtk/UgtkCategoryForm.c:149
 msgid "Matched _Types:"
 msgstr "Cocok _Tipe:"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:64
+#: ui-gtk/UgtkConfirmDialog.c:64
 msgid "Really Quit?"
 msgstr "Apakah yakin mau keluar?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:65
+#: ui-gtk/UgtkConfirmDialog.c:65
 msgid "Are you sure you want to quit?"
 msgstr "Apakah anda yakin akan keluar?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:69
+#: ui-gtk/UgtkConfirmDialog.c:69
 msgid "Really delete files?"
 msgstr "Yakin akan menghapus file?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:70
+#: ui-gtk/UgtkConfirmDialog.c:70
 msgid "Are you sure you want to delete files?"
 msgstr "Apakah Anda yakin akan menghapus file ini?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:74
+#: ui-gtk/UgtkConfirmDialog.c:74
 msgid "Really delete category?"
 msgstr "Sungguh menghapus kategori?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:75
+#: ui-gtk/UgtkConfirmDialog.c:75
 msgid "Are you sure you want to delete category?"
 msgstr "Apakah kamu yakin ingin menghapus kategori?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:109
+#. check button
+#: ui-gtk/UgtkConfirmDialog.c:109
 msgid "Don't ask me again"
 msgstr "Jangan tanya saya lagi"
 
+#: ui-gtk/UgtkConfirmDialog.c:119 ui-gtk/UgtkNodeDialog.c:214
+msgid "_No"
+msgstr "_Tidak"
+
+#: ui-gtk/UgtkConfirmDialog.c:121 ui-gtk/UgtkNodeDialog.c:214
+msgid "_Yes"
+msgstr "_Ya"
+
+#: ui-gtk/UgtkDownloadForm.c:120 ui-gtk/UgtkDownloadForm.c:929
+msgid "Fetch media stream formats from this URL"
+msgstr "Ambil format aliran media dari URL ini"
+
 #. URL - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:111
-#: ../../po/../ui-gtk/UgtkSequence.c:63
+#: ui-gtk/UgtkDownloadForm.c:129 ui-gtk/UgtkSequence.c:231
 msgid "_URI:"
 msgstr "_URI:"
 
 #. Mirrors - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:130
+#: ui-gtk/UgtkDownloadForm.c:147
 msgid "Mirrors:"
 msgstr "Mirror:"
 
+#: ui-gtk/UgtkDownloadForm.c:158
+msgid "Leave blank to use default filename ..."
+msgstr "Biarkan kosong untuk menggunakan nama file default ..."
+
 #. File - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:146
-#: ../../po/../ui-gtk/UgtkProxyForm.c:393
+#: ui-gtk/UgtkDownloadForm.c:166 ui-gtk/UgtkProxyForm.c:394
 msgid "File:"
 msgstr "Nama Berkas:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:166
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:897
+#: ui-gtk/UgtkDownloadForm.c:181 ui-gtk/UgtkDownloadForm.c:1268
 msgid "Select Folder"
 msgstr "Memilih Folder"
 
 #. Folder - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:174
+#: ui-gtk/UgtkDownloadForm.c:190
 msgid "_Folder:"
 msgstr "_Folder"
 
 #. Referrer - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:189
+#: ui-gtk/UgtkDownloadForm.c:206
 msgid "Referrer:"
 msgstr "Penghubung:"
 
 #. "Max Connections:" - title label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:212
+#: ui-gtk/UgtkDownloadForm.c:224
 msgid "_Max Connections:"
 msgstr "_ Koneksi Maks:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:230
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:574
+#: ui-gtk/UgtkDownloadForm.c:241
 msgid "_Runnable"
 msgstr "_Dapat dijalankan"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:232
+#: ui-gtk/UgtkDownloadForm.c:242
 msgid "P_ause"
 msgstr "_Jeda"
 
 #. ----------------------------------------------------
 #. frame for login
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:238
+#: ui-gtk/UgtkDownloadForm.c:250
 msgid "Login"
 msgstr "Login"
 
 #. User - label
 #. user label & entry
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:252
-#: ../../po/../ui-gtk/UgtkProxyForm.c:149
+#: ui-gtk/UgtkDownloadForm.c:267 ui-gtk/UgtkProxyForm.c:147
 msgid "User:"
 msgstr "Pengguna:"
 
 #. Password - label
 #. password label & entry
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:268
-#: ../../po/../ui-gtk/UgtkProxyForm.c:160
+#: ui-gtk/UgtkDownloadForm.c:284 ui-gtk/UgtkProxyForm.c:158
 msgid "Password:"
 msgstr "Kata kunci"
 
 #. label - cookie file
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:293
+#: ui-gtk/UgtkDownloadForm.c:309
 msgid "Cookie file:"
 msgstr "Berkas cookie"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:310
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:953
+#: ui-gtk/UgtkDownloadForm.c:322 ui-gtk/UgtkDownloadForm.c:1309
 msgid "Select Cookie File"
 msgstr "Pilih Berkas Cookie"
 
 #. label - post file
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:319
+#: ui-gtk/UgtkDownloadForm.c:332
 msgid "Post file:"
 msgstr "Berkas postingan:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:336
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:1009
+#: ui-gtk/UgtkDownloadForm.c:345 ui-gtk/UgtkDownloadForm.c:1350
 msgid "Select Post File"
 msgstr "Pilih berkas postingan"
 
 #. label - user agent
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:346
+#: ui-gtk/UgtkDownloadForm.c:356
 msgid "User Agent:"
 msgstr "Kurir:"
 
 #. Retry limit - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:362
+#: ui-gtk/UgtkDownloadForm.c:374
 msgid "Retry _limit:"
 msgstr "Batas_mengulang"
 
 #. counts - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:377
+#: ui-gtk/UgtkDownloadForm.c:389
 msgid "counts"
 msgstr "Jumlah"
 
 #. Retry delay - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:384
+#: ui-gtk/UgtkDownloadForm.c:397
 msgid "Retry _delay:"
 msgstr "Penundaan_mengulang:"
 
 #. seconds - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:399
+#: ui-gtk/UgtkDownloadForm.c:412
 msgid "seconds"
 msgstr "detik"
 
 #. label - Max upload speed
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:406
+#: ui-gtk/UgtkDownloadForm.c:420
 msgid "Max upload speed:"
 msgstr "Kecepatan unggah maksimal:"
 
 #. label - "KiB/s"
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:418
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:436
-#: ../../po/../ui-gtk/UgtkSettingForm.c:311
-#: ../../po/../ui-gtk/UgtkSettingForm.c:323
-#: ../../po/../ui-gtk/UgtkSettingForm.c:612
-#: ../../po/../ui-gtk/UgtkSettingForm.c:624
+#. Speed limit - KiB/s label
+#: ui-gtk/UgtkDownloadForm.c:431 ui-gtk/UgtkDownloadForm.c:450
+#: ui-gtk/UgtkScheduleForm.c:204 ui-gtk/UgtkSettingForm.c:309
+#: ui-gtk/UgtkSettingForm.c:324 ui-gtk/UgtkSettingForm.c:617
+#: ui-gtk/UgtkSettingForm.c:632
 msgid "KiB/s"
 msgstr "KiB/s"
 
 #. label - Max download speed
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:424
+#: ui-gtk/UgtkDownloadForm.c:439
 msgid "Max download speed:"
 msgstr "Kecepatan unduh maksimal:"
 
 #. Retrieve timestamp
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:442
+#: ui-gtk/UgtkDownloadForm.c:458
 msgid "Retrieve timestamp"
 msgstr "Mengambil catatan waktu"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:51
-msgid "_File"
-msgstr "_Berkas"
+#: ui-gtk/UgtkDownloadForm.c:925
+msgid "Media format selected. Click to choose a different one."
+msgstr "Format media telah dipilih. Klik untuk memilih yang lain."
 
-#. Batch Downloads --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:94
-msgid "_Batch Downloads"
-msgstr "_Batch Downloads"
+#: ui-gtk/UgtkDownloadForm.c:1149
+msgid "Could not fetch media formats"
+msgstr "Tidak dapat mengambil format media"
 
-#. Batch downloads - Clipboard batch
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:100
-msgid "_Clipboard batch..."
-msgstr "_batch klipboard"
+#: ui-gtk/UgtkFormatPicker.c:176
+msgid "Select media format"
+msgstr "Pilih format media"
 
-#. Batch downloads - URL Sequence batch
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:110
-msgid "_URL Sequence batch..."
-msgstr "_Urutan Batch URL"
-
-#. Batch downloads - Text file import (.txt)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:120
-msgid "_Text file import (.txt)..."
-msgstr "_Impor berkas teks (.txt)"
-
-#. Batch downloads - HTML file import (.html)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:130
-msgid "_HTML file import (.html)..."
-msgstr "_Impor berkas HTML (.html)"
-
-#. Batch downloads - Export to Text file (.txt)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:142
-msgid "_Export to Text file (.txt)..."
-msgstr "_Export ke berkas Text (.txt)..."
-
-#. Open Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:156
-msgid "_Open category..."
-msgstr "_Buka kategori..."
-
-#. Save Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:167
-msgid "_Save category as..."
-msgstr "_Simpan kategori sebagai..."
-
-#. Save All
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:178
-msgid "Save _all settings"
-msgstr "Simpan _semua pengaturan"
-
-#. Offline mode
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:192
-msgid "Offline Mode"
-msgstr "Mode Offline"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:210
-msgid "_Edit"
-msgstr "_Edit"
-
-#. menu.gtk_menu_shell_append((GtkMenuShell*)menu, gtk_tearoff_menu_item_new()
-#. );
-#. Settings shortcut
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:215
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:99
-msgid "Clipboard _Monitor"
-msgstr "Pemantau_ Papan Klip"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:219
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:103
-msgid "Clipboard works quietly"
-msgstr "Papan klip bekerja diam - diam"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:223
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:107
-msgid "Command-line works quietly"
-msgstr "Baris perintah bekerja diam - diam"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:227
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:111
-msgid "Skip existing URI"
-msgstr "Lewati URL yang ada"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:231
-#: ../../po/../ui-gtk/UgtkSettingForm.c:223
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:115
-msgid "Apply recent download settings"
-msgstr "Terapkan pengaturan unduh baru-baru ini"
-
-#. --- Completion Auto-Actions --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:238
-msgid "Completion _Auto-Actions"
-msgstr "Penyelesaian _Aksi Otomatis"
-
-#. Completion Auto-Actions - Disable
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:244
-msgid "_Disable"
-msgstr "_Nonaktifkan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:249
-msgid "Hibernate"
-msgstr "Hibernasi"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:254
-msgid "Suspend"
-msgstr "Menangguhkan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:259
-msgid "Shutdown"
-msgstr "Matikan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:264
-msgid "Reboot"
-msgstr "Hidupkan Ulang"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:269
-msgid "Custom"
-msgstr "Kustom"
-
-#. Completion Auto-Actions - Remember
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:275
-msgid "Remember setting"
-msgstr "Ingat pengaturan"
-
-#. Completion Auto-Actions - Help
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:279
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:682
-msgid "_Help"
-msgstr "_Bantuan"
-
-#. --- Completion Auto-Actions --- end ---
-#. menu_item = gtk_menu_item_new_with_mnemonic (_("_Settings..."));
-#. Settings
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:285
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:122
-msgid "_Settings..."
-msgstr "_Pengaturan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:304
-msgid "_View"
-msgstr "_Tampilan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:308
-msgid "_Toolbar"
-msgstr "_Peralatan"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:313
-msgid "Statusbar"
-msgstr "Barstatus"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:323
-msgid "_Summary"
-msgstr "_Hasil"
-
-#. Summary Items --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:331
-msgid "Summary _Items"
-msgstr "Butir _Ringkasan"
-
-#. Summary Items - Name
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:336
-msgid "_Name"
-msgstr "_Nama"
-
-#. Summary Items - Folder
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:341
-msgid "_Folder"
-msgstr "_Folder"
-
-#. Summary Items - Elapsed
-#. menu_item = gtk_check_menu_item_new_with_mnemonic (_("_Elapsed"));
-#. gtk_check_menu_item_set_active ((GtkCheckMenuItem*) menu_item, TRUE);
-#. gtk_menu_shell_append ((GtkMenuShell*) submenu, menu_item);
-#. menubar->view.summary_items.elapsed = menu_item;
-#. Summary Items - URL
-#. Download Columns - URL
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:356
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:436
-msgid "_URL"
-msgstr "_URL/Alamat"
-
-#. Summary Items - Message
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:361
-msgid "_Message"
-msgstr "_Rincian"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:376
-msgid "Download _Columns"
-msgstr "Kolom_ Unduhan"
-
-#. Download Columns - Complete
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:381
-msgid "_Complete"
-msgstr "_Selesai"
-
-#. Download Columns - Total
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:386
-msgid "_Size"
-msgstr "_Ukuran"
-
-#. Download Columns - Percent (%)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:391
-msgid "_Percent '%'"
-msgstr "_Persentasi '%'"
-
-#. Download Columns - Elapsed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:396
-msgid "_Elapsed"
-msgstr "_Sudah berjalan"
-
-#. Download Columns - Left
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:401
-msgid "_Left"
-msgstr "_Tersisa"
-
-#. Download Columns - Speed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:406
-#: ../../po/../ui-gtk/UgtkNodeView.c:861
-msgid "Speed"
-msgstr "Kecepatan"
-
-#. Download Columns - Up Speed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:411
-#: ../../po/../ui-gtk/UgtkNodeView.c:875
-msgid "Up Speed"
-msgstr "Kecepatan Unggah"
-
-#. Download Columns - Uploaded
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:416
-#: ../../po/../ui-gtk/UgtkNodeView.c:889
-msgid "Uploaded"
-msgstr "Terunggah"
-
-#. Download Columns - Ratio
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:421
-#: ../../po/../ui-gtk/UgtkNodeView.c:903
-msgid "Ratio"
-msgstr "Perbandingan"
-
-#. Download Columns - Retry
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:426
-msgid "_Retry"
-msgstr "_mengulang"
-
-#. Download Columns - Added On
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:441
-#: ../../po/../ui-gtk/UgtkNodeView.c:960
-msgid "Added On"
-msgstr "Ditambahkan Pada"
-
-#. Download Columns - Completed On
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:446
-#: ../../po/../ui-gtk/UgtkNodeView.c:974
-msgid "Completed On"
-msgstr "Selesai Pada"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:461
-msgid "_Category"
-msgstr "_Kategori"
-
-#. New Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:466
-msgid "_New Category..."
-msgstr "_Kategori Baru"
-
-#. Delete Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:476
-msgid "_Delete Category"
-msgstr "_Hapus Kategori"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:517
+#: ui-gtk/UgtkFormatPicker.c:254
 msgid "_Download"
 msgstr "_Unduh"
 
-#. menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE,
-#. accel_group);
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:529
-msgid "_Delete Entry"
-msgstr "_Hapus Entri"
+#: ui-gtk/UgtkMenubar-ui.c:74
+msgid "Text file import (.txt)"
+msgstr "Impor berkas teks (.txt)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:540
-msgid "Delete Entry and _File"
-msgstr "Hapis Entri dan _Berkas"
+#: ui-gtk/UgtkMenubar-ui.c:75
+msgid "HTML file import (.html)"
+msgstr "Impor berkas HTML (.html)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:555
-msgid "Open _Containing folder"
-msgstr "Buka _Folder yang berisi"
+#: ui-gtk/UgtkMenubar-ui.c:76
+msgid "Export to Text File (.txt)"
+msgstr "Export ke berkas Text (.txt)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:568
-msgid "Force Start"
-msgstr "Mulai Paksa"
+#: ui-gtk/UgtkMenubar-ui.c:77
+msgid "Batch Downloads"
+msgstr "Batch Downloads"
 
-#. Move to --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:596
-msgid "_Move To"
-msgstr "_Pindah Ke"
+#: ui-gtk/UgtkMenubar-ui.c:84
+msgid "Open category"
+msgstr "Buka kategori"
 
-#. Priority --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:645
-msgid "Priority"
-msgstr "Prioritas"
+#: ui-gtk/UgtkMenubar-ui.c:85
+msgid "Save category as"
+msgstr "Simpan kategori sebagai"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:654
-msgid "_High"
-msgstr "_Tinggi"
+#: ui-gtk/UgtkMenubar-ui.c:92 ui-gtk/UgtkTrayIcon.c:510
+msgid "Offline Mode"
+msgstr "Mode Offline"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:659
-msgid "_Normal"
-msgstr "_Normal"
+#: ui-gtk/UgtkMenubar-ui.c:98 ui-gtk/UgtkTrayIcon.c:513
+msgid "Quit"
+msgstr "Keluar"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:664
-msgid "_Low"
-msgstr "_Rendah"
+#: ui-gtk/UgtkMenubar-ui.c:102 ui-gtk/UgtkSummary.c:96
+msgid "File"
+msgstr "Berkas"
 
-#. Get Help Online
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:687
-msgid "Get Help Online"
-msgstr "Dapatkan Bantuan Online"
+#. Clipboard options, skip/apply
+#: ui-gtk/UgtkMenubar-ui.c:111 ui-gtk/UgtkTrayIcon.c:477
+msgid "Clipboard Monitor"
+msgstr "Pemantau Papan Klip"
 
-#. Documentation
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:698
-msgid "Documentation"
-msgstr "Dokumentasi"
+#: ui-gtk/UgtkMenubar-ui.c:112 ui-gtk/UgtkTrayIcon.c:481
+msgid "Clipboard works quietly"
+msgstr "Papan klip bekerja diam - diam"
 
-#. Support Forum
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:709
-msgid "Support Forum"
-msgstr "Dukungan Forum"
+#: ui-gtk/UgtkMenubar-ui.c:113 ui-gtk/UgtkTrayIcon.c:485
+msgid "Command-line works quietly"
+msgstr "Baris perintah bekerja diam - diam"
 
-#. Submit Feedback
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:720
-msgid "Submit Feedback"
-msgstr "Kirim Saran"
+#: ui-gtk/UgtkMenubar-ui.c:114 ui-gtk/UgtkTrayIcon.c:489
+msgid "Skip existing URI"
+msgstr "Lewati URL yang ada"
 
-#. Report a Bug
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:731
-msgid "Report a Bug"
-msgstr "Melaporkan Masalah"
+#: ui-gtk/UgtkMenubar-ui.c:115 ui-gtk/UgtkSettingForm.c:221
+#: ui-gtk/UgtkTrayIcon.c:493
+msgid "Apply recent download settings"
+msgstr "Terapkan pengaturan unduh baru-baru ini"
 
-#. Keyboard Shortcuts
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:742
-msgid "Keyboard Shortcuts"
-msgstr "Cara Pintas Keyboard"
+#: ui-gtk/UgtkMenubar-ui.c:122
+msgid "Disable"
+msgstr "Nonaktifkan"
 
-#. Check for Updates
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:749
-msgid "Check for Updates"
-msgstr "Periksa Update"
+#: ui-gtk/UgtkMenubar-ui.c:126
+msgid "Hibernate"
+msgstr "Hibernasi"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:187
-msgid "Settings"
-msgstr "Pengaturan"
+#: ui-gtk/UgtkMenubar-ui.c:130
+msgid "Suspend"
+msgstr "Menangguhkan"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:454
-#, c-format
-msgid "Can't launch default application for file '%s'."
-msgstr "Tidak bisa menjalankan aplikasi untuk file '%s'"
+#: ui-gtk/UgtkMenubar-ui.c:134
+msgid "Shutdown"
+msgstr "Matikan"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:486
-#, c-format
-msgid "'%s' - This folder does not exist."
-msgstr "'%s' - Berkas ini tidak ditemukan."
+#: ui-gtk/UgtkMenubar-ui.c:138
+msgid "Reboot"
+msgstr "Hidupkan Ulang"
 
-#. title
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:219
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:223
-msgid "URI had existed"
-msgstr "URI telah ada"
+#: ui-gtk/UgtkMenubar-ui.c:142
+msgid "Custom"
+msgstr "Kustom"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:221
-msgid "This URI had existed, are you sure to continue?"
-msgstr "URI ini telah ada, apa kamu ingin lanjutkan?"
+#: ui-gtk/UgtkMenubar-ui.c:147
+msgid "Remember"
+msgstr "Ingat pilihan ini"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:359
-msgid "General"
-msgstr "Umum"
+#: ui-gtk/UgtkMenubar-ui.c:148 ui-gtk/UgtkMenubar-ui.c:309
+msgid "Help"
+msgstr "Bantuan"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:361
-msgid "Advanced"
-msgstr "Tingkat Lanjut"
+#: ui-gtk/UgtkMenubar-ui.c:151 ui-gtk/UgtkSettingForm.c:350
+msgid "Completion Auto-Actions"
+msgstr "Penyelesaian Aksi Otomatis"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:370
-msgid "Category settings"
-msgstr "Atur Kategori"
+#: ui-gtk/UgtkMenubar-ui.c:162
+msgid "Edit"
+msgstr "Edit"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:372
-msgid "Default for new download 1"
-msgstr "Bawaan untuk unduhan baru 1"
+#: ui-gtk/UgtkMenubar-ui.c:169
+msgid "Toolbar"
+msgstr "Peralatan"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:374
-msgid "Default 2"
-msgstr "Bawaan 2"
+#: ui-gtk/UgtkMenubar-ui.c:170
+msgid "Statusbar"
+msgstr "Barstatus"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:143 ../../po/../ui-gtk/UgtkNodeView.c:608
-#: ../../po/../ui-gtk/UgtkSummary.c:107
-msgid "unnamed"
-msgstr "tidak dinamai"
+#: ui-gtk/UgtkMenubar-ui.c:172
+msgid "Summary"
+msgstr "Hasil"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:641
-msgid "Paused"
-msgstr "Berhenti sejenak"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:642
-msgid "Uploading"
-msgstr "Mengunggah"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:643
-msgid "Completed"
-msgstr "Selesai"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:645
-msgid "Recycled"
-msgstr "Kembalikan"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:646
-msgid "Queuing"
-msgstr "Antrian"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:647
-msgid "Active"
-msgstr "Aktif"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:668
-msgid "All Status"
-msgstr "Semua Status"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:773
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:101
-#: ../../po/../ui-gtk/UgtkSummary.c:100
+#: ui-gtk/UgtkMenubar-ui.c:177 ui-gtk/UgtkNodeView.c:635
+#: ui-gtk/UgtkSummary.c:92
 msgid "Name"
 msgstr "Nama"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:790
-msgid "Complete"
-msgstr "Selesai"
+#: ui-gtk/UgtkMenubar-ui.c:178 ui-gtk/UgtkSummary.c:106
+msgid "Folder"
+msgstr "Folder"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:804
-msgid "Size"
-msgstr "Ukuran"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:819
-msgid "%"
-msgstr "%"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:833
-msgid "Elapsed"
-msgstr "Sudah berjalan"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:847
-msgid "Left"
-msgstr "Tersisa"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:946
-#: ../../po/../ui-gtk/UgtkSettingForm.c:584
-#: ../../po/../ui-gtk/UgtkSummary.c:143
+#: ui-gtk/UgtkMenubar-ui.c:180 ui-gtk/UgtkMenubar-ui.c:201
+#: ui-gtk/UgtkNodeView.c:683 ui-gtk/UgtkSettingForm.c:580
+#: ui-gtk/UgtkSummary.c:126
 msgid "URI"
 msgstr "URI"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:997
-msgid "Quantity"
-msgstr "Kuantitas"
+#: ui-gtk/UgtkMenubar-ui.c:182
+msgid "Summary Items"
+msgstr "Butir Ringkasan"
 
-#. proxy type label & combo box
-#: ../../po/../ui-gtk/UgtkProxyForm.c:64
+#: ui-gtk/UgtkMenubar-ui.c:190 ui-gtk/UgtkNodeView.c:639
+msgid "Complete"
+msgstr "Selesai"
+
+#: ui-gtk/UgtkMenubar-ui.c:191
+msgid "Total"
+msgstr "Total"
+
+#: ui-gtk/UgtkMenubar-ui.c:192
+msgid "Percent"
+msgstr "Persentase"
+
+#: ui-gtk/UgtkMenubar-ui.c:193 ui-gtk/UgtkNodeView.c:651
+msgid "Elapsed"
+msgstr "Sudah berjalan"
+
+#: ui-gtk/UgtkMenubar-ui.c:194
+msgid "Remaining"
+msgstr "Sisa"
+
+#: ui-gtk/UgtkMenubar-ui.c:195 ui-gtk/UgtkNodeView.c:659
+msgid "Speed"
+msgstr "Kecepatan"
+
+#: ui-gtk/UgtkMenubar-ui.c:196
+msgid "Upload Speed"
+msgstr "Kecepatan Unggah"
+
+#: ui-gtk/UgtkMenubar-ui.c:197 ui-gtk/UgtkNodeView.c:667
+msgid "Uploaded"
+msgstr "Terunggah"
+
+#: ui-gtk/UgtkMenubar-ui.c:198 ui-gtk/UgtkNodeView.c:671
+msgid "Ratio"
+msgstr "Perbandingan"
+
+#: ui-gtk/UgtkMenubar-ui.c:202 ui-gtk/UgtkNodeView.c:687
+msgid "Added On"
+msgstr "Ditambahkan Pada"
+
+#: ui-gtk/UgtkMenubar-ui.c:203 ui-gtk/UgtkNodeView.c:691
+msgid "Completed On"
+msgstr "Selesai Pada"
+
+#: ui-gtk/UgtkMenubar-ui.c:204
+msgid "Download Columns"
+msgstr "Kolom Unduhan"
+
+#: ui-gtk/UgtkMenubar-ui.c:209
+msgid "View"
+msgstr "Tampilan"
+
+#: ui-gtk/UgtkMenubar-ui.c:217 ui-gtk/UgtkMenubar-ui.c:1429
+msgid "Delete Category"
+msgstr "Hapus Kategori"
+
+#: ui-gtk/UgtkMenubar-ui.c:235 ui-gtk/UgtkMenubar-ui.c:1450
+msgid "Delete Entry"
+msgstr "Hapus Entri"
+
+#: ui-gtk/UgtkMenubar-ui.c:236 ui-gtk/UgtkMenubar-ui.c:1451
+msgid "Delete Entry and File"
+msgstr "Hapis Entri dan Berkas"
+
+#: ui-gtk/UgtkMenubar-ui.c:240 ui-gtk/UgtkMenubar-ui.c:1454
+msgid "Open"
+msgstr "Buka"
+
+#: ui-gtk/UgtkMenubar-ui.c:241 ui-gtk/UgtkMenubar-ui.c:1455
+msgid "Open Containing Folder"
+msgstr "Buka Folder yang berisi"
+
+#: ui-gtk/UgtkMenubar-ui.c:246 ui-gtk/UgtkMenubar-ui.c:1460
+msgid "Force Start"
+msgstr "Mulai Paksa"
+
+#: ui-gtk/UgtkMenubar-ui.c:247 ui-gtk/UgtkMenubar-ui.c:1461
+msgid "Runnable"
+msgstr "Dapat dijalankan"
+
+#: ui-gtk/UgtkMenubar-ui.c:256 ui-gtk/UgtkMenubar-ui.c:1470
+msgid "Move To"
+msgstr "Pindah Ke"
+
+#: ui-gtk/UgtkMenubar-ui.c:263 ui-gtk/UgtkMenubar-ui.c:1477
+msgid "Move to Top"
+msgstr "Kembali ke Atas"
+
+#: ui-gtk/UgtkMenubar-ui.c:264 ui-gtk/UgtkMenubar-ui.c:1478
+msgid "Move to Bottom"
+msgstr "Pindahkan ke Bawah"
+
+#: ui-gtk/UgtkMenubar-ui.c:271 ui-gtk/UgtkMenubar-ui.c:1485
+msgid "High"
+msgstr "Tinggi"
+
+#. Normal - label
+#: ui-gtk/UgtkMenubar-ui.c:275 ui-gtk/UgtkMenubar-ui.c:1489
+#: ui-gtk/UgtkScheduleForm.c:175
+msgid "Normal"
+msgstr "Normal"
+
+#: ui-gtk/UgtkMenubar-ui.c:279 ui-gtk/UgtkMenubar-ui.c:1493
+msgid "Low"
+msgstr "Rendah"
+
+#: ui-gtk/UgtkMenubar-ui.c:283 ui-gtk/UgtkMenubar-ui.c:1497
+msgid "Priority"
+msgstr "Prioritas"
+
+#: ui-gtk/UgtkMenubar-ui.c:293
+msgid "Download"
+msgstr "Unduh"
+
+#: ui-gtk/UgtkMenubar-ui.c:300
+msgid "Documentation"
+msgstr "Dokumentasi"
+
+#: ui-gtk/UgtkMenubar-ui.c:301
+msgid "Report an Issue"
+msgstr "Laporkan Masalah"
+
+#: ui-gtk/UgtkMenubar-ui.c:302
+msgid "Check for Updates"
+msgstr "Periksa Update"
+
+#: ui-gtk/UgtkMenubar-ui.c:305 ui-gtk/UgtkTrayIcon.c:502
+msgid "About"
+msgstr "Tentang"
+
+#: ui-gtk/UgtkMenubar-ui.c:1514
+msgid "Copy"
+msgstr "Salin"
+
+#: ui-gtk/UgtkMenubar-ui.c:1515
+msgid "Copy All"
+msgstr "SalinSemua"
+
+#: ui-gtk/UgtkMenubar-ui.c:1536 ui-gtk/UgtkMenubar.c:78
+msgid "Unnamed"
+msgstr "tidak dinamai"
+
+#: ui-gtk/UgtkNodeDialog.c:210
+msgid "URI had existed"
+msgstr "URI telah ada"
+
+#: ui-gtk/UgtkNodeDialog.c:212
+msgid "This URI had existed, are you sure to continue?"
+msgstr "URI ini telah ada, apa kamu ingin lanjutkan?"
+
+#: ui-gtk/UgtkNodeDialog.c:369
+msgid "General"
+msgstr "Umum"
+
+#: ui-gtk/UgtkNodeDialog.c:371
+msgid "Advanced"
+msgstr "Tingkat Lanjut"
+
+#: ui-gtk/UgtkNodeDialog.c:380
+msgid "Category settings"
+msgstr "Atur Kategori"
+
+#: ui-gtk/UgtkNodeDialog.c:382
+msgid "Default for new download 1"
+msgstr "Bawaan untuk unduhan baru 1"
+
+#: ui-gtk/UgtkNodeDialog.c:384
+msgid "Default 2"
+msgstr "Bawaan 2"
+
+#: ui-gtk/UgtkNodeView.c:142 ui-gtk/UgtkNodeView.c:517 ui-gtk/UgtkSummary.c:99
+msgid "unnamed"
+msgstr "tidak dinamai"
+
+#: ui-gtk/UgtkNodeView.c:453
+msgid "Paused"
+msgstr "Berhenti sejenak"
+
+#: ui-gtk/UgtkNodeView.c:454
+msgid "Uploading"
+msgstr "Mengunggah"
+
+#: ui-gtk/UgtkNodeView.c:455
+msgid "Completed"
+msgstr "Selesai"
+
+#: ui-gtk/UgtkNodeView.c:457
+msgid "Recycled"
+msgstr "Kembalikan"
+
+#: ui-gtk/UgtkNodeView.c:458
+msgid "Queuing"
+msgstr "Antrian"
+
+#: ui-gtk/UgtkNodeView.c:459
+msgid "Active"
+msgstr "Aktif"
+
+#. name
+#: ui-gtk/UgtkNodeView.c:561
+msgid "All Status"
+msgstr "Semua Status"
+
+#: ui-gtk/UgtkNodeView.c:643
+msgid "Size"
+msgstr "Ukuran"
+
+#: ui-gtk/UgtkNodeView.c:647
+msgid "%"
+msgstr "%"
+
+#: ui-gtk/UgtkNodeView.c:655
+msgid "Left"
+msgstr "Tersisa"
+
+#: ui-gtk/UgtkNodeView.c:663
+msgid "Up Speed"
+msgstr "Kecepatan Unggah"
+
+#. proxy type label & dropdown
+#: ui-gtk/UgtkProxyForm.c:71
 msgid "Proxy:"
 msgstr "Proxy:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:67
+#: ui-gtk/UgtkProxyForm.c:74
 msgid "Don't use"
 msgstr "Jangan gunakan"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:69
+#: ui-gtk/UgtkProxyForm.c:74
 msgid "Default"
 msgstr "Bawaan"
 
 #. host label & entry
-#: ../../po/../ui-gtk/UgtkProxyForm.c:121
+#: ui-gtk/UgtkProxyForm.c:120
 msgid "Host:"
 msgstr "Host:"
 
 #. port label & entry
-#: ../../po/../ui-gtk/UgtkProxyForm.c:132
+#: ui-gtk/UgtkProxyForm.c:131
 msgid "Port:"
 msgstr "Port:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:359
+#: ui-gtk/UgtkProxyForm.c:357
 msgid "Socket:"
 msgstr "Soket:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:369
+#: ui-gtk/UgtkProxyForm.c:368
 msgid "Socket args:"
 msgstr "args Socket:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:379
+#: ui-gtk/UgtkProxyForm.c:379
 msgid "Element:"
 msgstr "Elemen:"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:57
+#: ui-gtk/UgtkScheduleForm.c:66
 msgid "Mon"
 msgstr "Senin"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:58
+#: ui-gtk/UgtkScheduleForm.c:67
 msgid "Tue"
 msgstr "Selasa"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:59
+#: ui-gtk/UgtkScheduleForm.c:68
 msgid "Wed"
 msgstr "Rabu"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:60
+#: ui-gtk/UgtkScheduleForm.c:69
 msgid "Thu"
 msgstr "Kamis"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:61
+#: ui-gtk/UgtkScheduleForm.c:70
 msgid "Fri"
 msgstr "Jumat"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:62
+#: ui-gtk/UgtkScheduleForm.c:71
 msgid "Sat"
 msgstr "Sabtu"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:63
+#: ui-gtk/UgtkScheduleForm.c:72
 msgid "Sun"
 msgstr "Minggu"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:104
+#: ui-gtk/UgtkScheduleForm.c:112
 msgid "_Enable Scheduler"
 msgstr "_Aktifkan Penjadwalan"
 
 #. Turn off - label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:154
+#: ui-gtk/UgtkScheduleForm.c:158
 msgid "Turn off"
 msgstr "Matikan"
 
 #. Turn off - help label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:159
+#: ui-gtk/UgtkScheduleForm.c:164
 msgid "- stop all task"
 msgstr "- hentikan semua tugas"
 
-#. Normal - label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:169
-msgid "Normal"
-msgstr "Normal"
-
 #. Normal - help label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:174
+#: ui-gtk/UgtkScheduleForm.c:181
 msgid "- run task normally"
 msgstr "- jalankan tugas secara normal"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:254
-msgid "All"
-msgstr "Semuanya"
+#. Speed limit - label
+#: ui-gtk/UgtkScheduleForm.c:191
+msgid "Limited speed"
+msgstr "Kecepatan terbatas"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:259
-msgid "None"
-msgstr "Tidak ada"
-
-#: ../../po/../ui-gtk/UgtkSelector.c:276
+#: ui-gtk/UgtkSelector.c:290
 msgid "Mark by filter"
 msgstr "Tandai berdasarkan filter"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:294
+#: ui-gtk/UgtkSelector.c:304
 msgid "Mark URLs by host AND filename extension."
 msgstr "Tandai URLs berdasarkan host dan ekstensi berkas"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:297
+#: ui-gtk/UgtkSelector.c:306
 msgid "This will reset all marks of URLs."
 msgstr "Ini akan mereset semua tanda pada URL"
 
-#. filter view -----------------------
-#. left side
-#: ../../po/../ui-gtk/UgtkSelector.c:305
+#: ui-gtk/UgtkSelector.c:316
 msgid "Host"
 msgstr "Host"
 
-#. right side (filename extension)
-#: ../../po/../ui-gtk/UgtkSelector.c:309
+#: ui-gtk/UgtkSelector.c:323 ui-gtk/UgtkSelector.c:346
+msgid "All"
+msgstr "Semuanya"
+
+#: ui-gtk/UgtkSelector.c:327 ui-gtk/UgtkSelector.c:350 ui-gtk/UgtkSequence.c:65
+msgid "None"
+msgstr "Tidak ada"
+
+#: ui-gtk/UgtkSelector.c:339
 msgid "File Ext."
 msgstr "Ekstensi File"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:449
-msgid "URL"
-msgstr "URL"
-
-#: ../../po/../ui-gtk/UgtkSelector.c:781
+#: ui-gtk/UgtkSelector.c:758
 msgid "Base hypertext reference"
 msgstr "Referensi dasar hypertext"
 
 #. select all
-#: ../../po/../ui-gtk/UgtkSelector.c:797
+#: ui-gtk/UgtkSelector.c:774
 msgid "Mark _All"
 msgstr "Tandai_Semua"
 
 #. select none
-#: ../../po/../ui-gtk/UgtkSelector.c:801
+#: ui-gtk/UgtkSelector.c:778
 msgid "Mark _None"
 msgstr "Hilangkan_Tanda"
 
 #. select by filter
-#: ../../po/../ui-gtk/UgtkSelector.c:805
+#: ui-gtk/UgtkSelector.c:782
 msgid "_Mark by filter..."
 msgstr "_Tandai berdasarkan filter"
 
-#. e.g.
-#: ../../po/../ui-gtk/UgtkSequence.c:74
-msgid "e.g."
-msgstr "contoh"
+#: ui-gtk/UgtkSequence.c:65
+msgid "Num"
+msgstr "Nomor"
 
-#. -------------------------------------------------------
-#. radio "From"
-#: ../../po/../ui-gtk/UgtkSequence.c:85
-msgid "_From:"
-msgstr "_Dari:"
+#: ui-gtk/UgtkSequence.c:65
+msgid "Char"
+msgstr "Karakter"
 
-#. label "To"
-#: ../../po/../ui-gtk/UgtkSequence.c:108
+#. Label - To
+#: ui-gtk/UgtkSequence.c:92
 msgid "To:"
 msgstr "Ke:"
 
-#. label "digits"
-#: ../../po/../ui-gtk/UgtkSequence.c:123
+#. label - digits
+#: ui-gtk/UgtkSequence.c:105
 msgid "digits:"
 msgstr "digit"
 
-#: ../../po/../ui-gtk/UgtkSequence.c:132
-msgid "F_rom:"
-msgstr "_Dari:"
-
-#. label case-sensitive
-#: ../../po/../ui-gtk/UgtkSequence.c:162
+#. label - case-sensitive
+#: ui-gtk/UgtkSequence.c:126
 msgid "case-sensitive"
 msgstr "hurup besar & kecil dibedakan"
 
-#: ../../po/../ui-gtk/UgtkSequence.c:188
-msgid "No wildcard(*) character in URL entry."
-msgstr "Tidak boleh ada character wildcard(*) di entri URL."
+#. e.g.
+#: ui-gtk/UgtkSequence.c:243
+msgid "e.g."
+msgstr "contoh"
 
-#: ../../po/../ui-gtk/UgtkSequence.c:192
-msgid "URL is not valid."
-msgstr "URL tidak valid."
+#: ui-gtk/UgtkSequence.c:292
+msgid "URI is not valid."
+msgstr "URI tidak valid."
 
-#: ../../po/../ui-gtk/UgtkSequence.c:196
+#: ui-gtk/UgtkSequence.c:299
+msgid "No wildcard(*) character in URI entry."
+msgstr "Jangan gunakan karakter wildcard (*) dalam entri URI."
+
+#: ui-gtk/UgtkSequence.c:306
 msgid "No character in 'From' or 'To' entry."
 msgstr "Tidak ada karakter di entri 'Dari' atau 'Ke'."
 
-#: ../../po/../ui-gtk/UgtkSequence.c:311
-msgid "Preview"
-msgstr "Lihat"
-
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:113
+#: ui-gtk/UgtkSettingDialog.c:145
 msgid "User Interface"
 msgstr "Antarmuka Pengguna"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:125
+#: ui-gtk/UgtkSettingDialog.c:157
 msgid "Bandwidth"
 msgstr "Bandwidth"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:131
+#: ui-gtk/UgtkSettingDialog.c:163
 msgid "Scheduler"
 msgstr "Pengatur Jadwal"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:137
+#: ui-gtk/UgtkSettingDialog.c:169
 msgid "Plug-in"
 msgstr "Plug-In"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:143
-msgid "Media website"
-msgstr "Media situs web"
+#: ui-gtk/UgtkSettingDialog.c:175
+msgid "Media"
+msgstr "Media"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:149
+#: ui-gtk/UgtkSettingDialog.c:181
 msgid "Others"
 msgstr "Lainnya"
 
 #. Monitor button
-#: ../../po/../ui-gtk/UgtkSettingForm.c:61
+#: ui-gtk/UgtkSettingForm.c:69
 msgid "_Enable clipboard monitor"
 msgstr "_Aktifkan pemantau papan klip"
 
 #. quiet mode
-#: ../../po/../ui-gtk/UgtkSettingForm.c:66
+#: ui-gtk/UgtkSettingForm.c:74
 msgid "_Quiet mode"
 msgstr "_Mode senyap"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:72
-#: ../../po/../ui-gtk/UgtkSettingForm.c:488
+#: ui-gtk/UgtkSettingForm.c:80 ui-gtk/UgtkSettingForm.c:487
 msgid "Default category index"
 msgstr "Index kategori standar"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:84
-#: ../../po/../ui-gtk/UgtkSettingForm.c:500
+#: ui-gtk/UgtkSettingForm.c:92 ui-gtk/UgtkSettingForm.c:499
 msgid "Adding to Nth category if no matched category."
 msgstr "Tambahkan ke kategori ke-N jika tidak ada kategori yang cocok."
 
-#. media website
-#: ../../po/../ui-gtk/UgtkSettingForm.c:90
-msgid "_Monitor URL of media website"
-msgstr "_Mengamati URL dari media situs web"
+#: ui-gtk/UgtkSettingForm.c:97
+msgid "_Monitor URL of website"
+msgstr "_Pantau URL situs web"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:105
+#: ui-gtk/UgtkSettingForm.c:112
 msgid "Monitor clipboard for specified file types:"
 msgstr "Pantau papan klip untuk tipe berkas tertentu:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:125
+#: ui-gtk/UgtkSettingForm.c:130
 msgid "Separate the types with character '|'."
 msgstr "Pisahkan tuisan dengan carakter '|'"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:130
+#: ui-gtk/UgtkSettingForm.c:134
 msgid "You can use regular expressions here."
 msgstr "Anda dapat menggunakan regular ekspresi disini"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:176
+#: ui-gtk/UgtkSettingForm.c:179
 msgid "Confirmation"
 msgstr "Konfirmasi"
 
 #. Confirmation check buttons
-#: ../../po/../ui-gtk/UgtkSettingForm.c:182
+#: ui-gtk/UgtkSettingForm.c:185
 msgid "Show confirmation dialog on exit"
 msgstr "Tampilkan dialog konfirmasi saat keluar"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:185
+#: ui-gtk/UgtkSettingForm.c:188
 msgid "Confirm when deleting files"
 msgstr "Konfirmasi ketika menghapus file"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:191
+#: ui-gtk/UgtkSettingForm.c:194
 msgid "System Tray"
 msgstr "Sistem Baki"
 
 #. System Tray check buttons
-#: ../../po/../ui-gtk/UgtkSettingForm.c:197
+#: ui-gtk/UgtkSettingForm.c:200
 msgid "Always show tray icon"
 msgstr "Selalu tampilkan ikon tray"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:200
+#: ui-gtk/UgtkSettingForm.c:203
 msgid "Minimize to tray on startup"
 msgstr "Minimalkan ke tray saat starup"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:203
+#: ui-gtk/UgtkSettingForm.c:206
 msgid "Close to tray on window close"
 msgstr "Tutup ke baki saat jendela ditutup"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:207
-msgid "Use Ubuntu's App Indicator"
-msgstr "Gunakan indikator Aplikasi Ubuntu"
-
-#: ../../po/../ui-gtk/UgtkSettingForm.c:214
+#: ui-gtk/UgtkSettingForm.c:212
 msgid "Enable offline mode on startup"
 msgstr "Aktifkan modus offline saat startup"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:217
+#: ui-gtk/UgtkSettingForm.c:215
 msgid "Download starting notification"
 msgstr "Pemberitahuan memulai unduhan"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:220
+#: ui-gtk/UgtkSettingForm.c:218
 msgid "Sound when download is finished"
 msgstr "Aktifkan suara ketika unduhan selesai"
 
-#. widget = gtk_check_button_new_with_label (_("Skip existing URI from
-#. clipboard and command-line"));
-#. uiform->skip_existing = (GtkToggleButton*) widget;
-#. gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
-#: ../../po/../ui-gtk/UgtkSettingForm.c:229
+#. widget = gtk_check_button_new_with_label (_("Skip existing URI from clipboard and command-line"));
+#. uiform->skip_existing = (GtkCheckButton*) widget;
+#. gtk_box_append (vbox, widget);
+#: ui-gtk/UgtkSettingForm.c:227
 msgid "Display large icon"
 msgstr "Menampilkan ikon besar"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:295
+#: ui-gtk/UgtkSettingForm.c:286
 msgid "These will affect all plug-ins."
 msgstr "Ini akan mempengaruhi semua pengaya."
 
 #. Global speed limit
-#: ../../po/../ui-gtk/UgtkSettingForm.c:301
+#: ui-gtk/UgtkSettingForm.c:292
 msgid "Global speed limit"
 msgstr "Batas kecepatan global"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:309
-#: ../../po/../ui-gtk/UgtkSettingForm.c:610
+#: ui-gtk/UgtkSettingForm.c:300 ui-gtk/UgtkSettingForm.c:608
 msgid "Max upload speed"
 msgstr "Kecepatan maks unggah"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:321
-#: ../../po/../ui-gtk/UgtkSettingForm.c:622
+#: ui-gtk/UgtkSettingForm.c:315 ui-gtk/UgtkSettingForm.c:623
 msgid "Max download speed"
 msgstr "Kecepatan maks unduh"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:354
-msgid "Completion Auto-Actions"
-msgstr "Penyelesaian Aksi Otomatis"
-
-#: ../../po/../ui-gtk/UgtkSettingForm.c:362
+#: ui-gtk/UgtkSettingForm.c:358
 msgid "Custom command:"
 msgstr "Perintah kustom:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:374
-msgid "Custom command if error occured:"
-msgstr "Perintah kustom jika galat terjadi:"
+#: ui-gtk/UgtkSettingForm.c:371
+msgid "Custom command if error occurred:"
+msgstr "Perintah khusus jika terjadi kesalahan:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:424
+#: ui-gtk/UgtkSettingForm.c:422
 msgid "_Autosave"
 msgstr "_Simpan otomatis"
 
 #. auto save interval label
-#: ../../po/../ui-gtk/UgtkSettingForm.c:435
+#: ui-gtk/UgtkSettingForm.c:434
 msgid "_Interval:"
 msgstr "_Jarak"
 
 #. auto save interval unit label
-#: ../../po/../ui-gtk/UgtkSettingForm.c:446
+#: ui-gtk/UgtkSettingForm.c:445
 msgid "minutes"
 msgstr "menit"
 
 #. Commandline Settings
-#: ../../po/../ui-gtk/UgtkSettingForm.c:475
+#: ui-gtk/UgtkSettingForm.c:474
 msgid "Commandline Settings"
 msgstr "Pengaturan baris perintah"
 
 #. --quiet
-#: ../../po/../ui-gtk/UgtkSettingForm.c:482
+#: ui-gtk/UgtkSettingForm.c:481
 msgid "Use '--quiet' by default"
 msgstr "Gunakan '--senyap' sebagai default"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:554
+#: ui-gtk/UgtkSettingForm.c:553
 msgid "Plug-in matching order:"
 msgstr "Urutan pengaya yang cocok:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:577
+#: ui-gtk/UgtkSettingForm.c:573
 msgid "Aria2 plug-in options"
 msgstr "Opsi pengaya Aria2"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:593
+#: ui-gtk/UgtkSettingForm.c:590
 msgid "RPC authorization secret token"
 msgstr "token autorisasi rahasia RPC"
 
 #. ------------------------------------------------------------------------
 #. Speed Limits
-#: ../../po/../ui-gtk/UgtkSettingForm.c:602
+#: ui-gtk/UgtkSettingForm.c:600
 msgid "Global speed limit for aria2 only"
 msgstr "Batas kecepatan global hanya untuk aria2 saja"
 
 #. ------------------------------------------------------------------------
 #. aria2 works on local device
 #. launch
-#: ../../po/../ui-gtk/UgtkSettingForm.c:635
+#: ui-gtk/UgtkSettingForm.c:638
 msgid "_Launch aria2 on startup"
 msgstr "_Nyalakan aria2 pada startup"
 
 #. shutdown
-#: ../../po/../ui-gtk/UgtkSettingForm.c:641
+#: ui-gtk/UgtkSettingForm.c:644
 msgid "_Shutdown aria2 on exit"
 msgstr "_Matikan aria2 saat keluar"
 
 #. ------------------------------------------------------------------------
 #. Local options
-#: ../../po/../ui-gtk/UgtkSettingForm.c:647
+#: ui-gtk/UgtkSettingForm.c:650
 msgid "Launch aria2 on local device"
 msgstr "Luncurkan aria2 pada perangkat lokal"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:656
+#: ui-gtk/UgtkSettingForm.c:659
 msgid "Path"
 msgstr "Lokasi"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:674
+#: ui-gtk/UgtkSettingForm.c:678
 msgid "Arguments"
 msgstr "Argumen"
 
 #. Arguments - hint
-#: ../../po/../ui-gtk/UgtkSettingForm.c:679
+#: ui-gtk/UgtkSettingForm.c:683
 msgid "You must restart uGet after modifying it."
 msgstr "Kamu harus hidupkan ulang uGet setelah memodifikasinya."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:783
-msgid "Media matching mode:"
-msgstr "Mode menyesuaikan media:"
+#: ui-gtk/UgtkSettingForm.c:799
+msgid "Status: media extractor is available."
+msgstr "Status: ekstraktor media sudah tersedia."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:801
-msgid "Match conditions"
-msgstr "Menyesuaikan kondisi"
+#: ui-gtk/UgtkSettingForm.c:802
+msgid ""
+"Status: media extractor not found in PATH. Install yt-dlp (or set a path "
+"below) to enable media downloads."
+msgstr "Status: ekstraktor media tidak ditemukan di PATH. Instal yt-dlp (atau atur jalur di bawah ini) untuk mengaktifkan pengunduhan media."
 
-#. Quality
-#: ../../po/../ui-gtk/UgtkSettingForm.c:810
-msgid "Quality:"
-msgstr "Kualitas:"
+#: ui-gtk/UgtkSettingForm.c:822
+msgid "_Enable media extraction (via yt-dlp)"
+msgstr "Aktifkan _ekstraksi media (melalui yt-dlp)"
 
-#. Type
-#: ../../po/../ui-gtk/UgtkSettingForm.c:830
-msgid "Type:"
-msgstr "Menggolongkan:"
+#: ui-gtk/UgtkSettingForm.c:830
+msgid ""
+"When enabled, clicking the \"find\" icon in the URL field of the New "
+"Download dialog will query an external extractor to fetch available stream "
+"formats from media page URLs."
+msgstr "Jika diaktifkan, mengklik ikon \"cari\" di bidang URL pada dialog Unduhan Baru akan mengirimkan permintaan ke ekstraktor eksternal untuk mengambil format streaming yang tersedia dari URL halaman media."
 
-#: ../../po/../ui-gtk/UgtkSummary.c:104
-msgid "File"
-msgstr "Berkas"
+#. Max height
+#: ui-gtk/UgtkSettingForm.c:846
+msgid "Max resolution:"
+msgstr "Resolusi maksimum:"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:119
-msgid "Folder"
-msgstr "Folder"
+#: ui-gtk/UgtkSettingForm.c:850 ui-gtk/UgtkSettingForm.c:861
+msgid "Best"
+msgstr "Kualitas terbaik yang tersedia"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:262
-msgid "Item"
-msgstr "Item"
+#. Preferred container
+#: ui-gtk/UgtkSettingForm.c:857
+msgid "Preferred container:"
+msgstr "Kontainer yang disarankan:"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:267
-msgid "Value"
-msgstr "Nilai"
+#: ui-gtk/UgtkSettingForm.c:869
+msgid "_Auto-pick best matching format (skip selector)"
+msgstr "_Pilih format yang paling cocok secara otomatis (lewati pemilih)"
 
-#. Copy All
-#: ../../po/../ui-gtk/UgtkSummary.c:299
-msgid "Copy _All"
-msgstr "Salin_Semua"
+#. Path
+#: ui-gtk/UgtkSettingForm.c:875
+msgid "Extractor:"
+msgstr "Ekstraktor:"
 
-#. Show window
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:141
+#: ui-gtk/UgtkTrayIcon.c:461
+msgid "New Download..."
+msgstr "Download Baru..."
+
+#: ui-gtk/UgtkTrayIcon.c:463
+msgid "New Clipboard batch..."
+msgstr "BatchKlipboard Baru..."
+
+#. Section 2: Torrent/Metalink
+#: ui-gtk/UgtkTrayIcon.c:468
+msgid "New Torrent..."
+msgstr "Torrent Baru..."
+
+#: ui-gtk/UgtkTrayIcon.c:470
+msgid "New Metalink..."
+msgstr "Metalink Baru..."
+
+#: ui-gtk/UgtkTrayIcon.c:500
+msgid "Settings..."
+msgstr "Pengaturan..."
+
+#: ui-gtk/UgtkTrayIcon.c:508
 msgid "Show window"
 msgstr "Tunjukkan jendela"
-
-#. Offline mode
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:147
-msgid "_Offline Mode"
-msgstr "_Modus Offline"

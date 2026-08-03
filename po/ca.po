@@ -7,1707 +7,1569 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: uGet\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-03 03:10+0800\n"
+"Report-Msgid-Bugs-To: https://github.com/ozgur-as/uget/issues\n"
+"POT-Creation-Date: 2026-08-03 17:58+0300\n"
 "PO-Revision-Date: 2016-11-09 16:16+0000\n"
 "Last-Translator: Michael Tunnell <michael@ugetdm.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/uget/uget/language/ca/)\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ca\n"
+"X-Generator: tools/po-deepl-fill.py (DeepL) for entries added after 2.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../../po/../uget/pwmd.c:32
-#, c-format
-msgid ""
-"Password Manager Daemon: uget\n"
-"\n"
-"While attempting an SSH connection to %s there was a problem verifying it's hostkey against the known and trusted hosts file because it's hostkey was not found.\n"
-"\n"
-"Would you like to treat this connection as trusted for this and future connections by adding %s's hostkey to the known hosts file?"
-msgstr ""
-
-#: ../../po/../uget/UgetApp.c:103
+#: uget/UgetApp.c:135
 msgid "All Category"
 msgstr "Totes les categories"
 
 #. UGET_EVENT_NORMAL_CUSTOM
-#: ../../po/../uget/UgetEvent.c:58
+#: uget/UgetEvent.c:58
 msgid "Connecting..."
 msgstr "Connectant..."
 
 #. UGET_EVENT_NORMAL_CONNECT
-#: ../../po/../uget/UgetEvent.c:59
+#: uget/UgetEvent.c:59
 msgid "Transmitting..."
 msgstr "Transmetent..."
 
 #. UGET_EVENT_NORMAL_TRANSMIT,
-#: ../../po/../uget/UgetEvent.c:60 ../../po/../ui-gtk/UgtkNodeView.c:917
+#: uget/UgetEvent.c:60 ui-gtk/UgtkMenubar-ui.c:199 ui-gtk/UgtkNodeView.c:675
 msgid "Retry"
 msgstr "Torna a provar"
 
 #. UGET_EVENT_NORMAL_RETRY,
-#: ../../po/../uget/UgetEvent.c:61
+#: uget/UgetEvent.c:61
 msgid "Download completed"
 msgstr "La descàrrega ha estat completada"
 
 #. UGET_EVENT_NORMAL_COMPLETE,
-#: ../../po/../uget/UgetEvent.c:62 ../../po/../ui-gtk/UgtkNodeView.c:644
+#: uget/UgetEvent.c:62 ui-gtk/UgtkNodeView.c:456
 msgid "Finished"
 msgstr "Ha finalitzat"
 
 #. UGET_EVENT_NORMAL_FINISH,
 #. resumable
-#: ../../po/../uget/UgetEvent.c:64
+#: uget/UgetEvent.c:64
 msgid "Resumable"
 msgstr "Reprèn la baixada"
 
 #. UGET_EVENT_NORMAL_RESUMABLE,
-#: ../../po/../uget/UgetEvent.c:65 ../../po/../uget/UgetPluginAria2.c:287
+#: uget/UgetEvent.c:65 uget/UgetPluginAria2.c:285
 msgid "Not Resumable"
 msgstr "No es pot reprendre"
 
 #. UGET_EVENT_WARNING_CUSTOM
-#: ../../po/../uget/UgetEvent.c:73 ../../po/../uget/UgetPluginAria2.c:294
+#: uget/UgetEvent.c:73 uget/UgetPluginAria2.c:292
 msgid "Output file can't be renamed."
 msgstr "L'arxiu de sortida no pot ser reanomenat."
 
 #. UGET_EVENT_ERROR_CUSTOM
-#: ../../po/../uget/UgetEvent.c:81
+#: uget/UgetEvent.c:81
 msgid "couldn't connect to host."
 msgstr "S'ha produït un error al connectar amb l'amfitrió."
 
 #. UGET_EVENT_ERROR_CONNECT_FAILED
-#: ../../po/../uget/UgetEvent.c:82 ../../po/../uget/UgetPluginAria2.c:298
+#: uget/UgetEvent.c:82 uget/UgetPluginAria2.c:296
 msgid "Folder can't be created."
 msgstr "No es pot crear la carpeta."
 
 #. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
-#: ../../po/../uget/UgetEvent.c:83
+#: uget/UgetEvent.c:83
 msgid "File can't be created (bad filename or file exist)."
 msgstr "No es pot crear el fitxer (ja existeix o no s'admet el nom)."
 
 #. UGET_EVENT_ERROR_FILE_CREATE_FAILED
-#: ../../po/../uget/UgetEvent.c:84
+#: uget/UgetEvent.c:84
 msgid "File can't be opened."
 msgstr "El fitxer no es pot obrir."
 
 #. UGET_EVENT_ERROR_FILE_OPEN_FAILED
-#: ../../po/../uget/UgetEvent.c:85
+#: uget/UgetEvent.c:85
 msgid "Unable to create thread."
 msgstr "No es pot crear un fil."
 
 #. UGET_EVENT_ERROR_THREAD_CREATE_FAILED,
-#: ../../po/../uget/UgetEvent.c:86
+#: uget/UgetEvent.c:86
 msgid "Incorrect source (different file size)."
 msgstr "El fitxer font no és correcte (té una grandària diferent)."
 
 #. UGET_EVENT_ERROR_INCORRECT_SOURCE,
-#: ../../po/../uget/UgetEvent.c:87
+#: uget/UgetEvent.c:87
 msgid "Out of resource (disk full or run out of memory)."
 msgstr "Hem fet curt de recursos (el disc està ple o hem esgotat la memòria)."
 
 #. UGET_EVENT_ERROR_OUT_OF_RESOURCE
-#: ../../po/../uget/UgetEvent.c:88
+#: uget/UgetEvent.c:88
 msgid "No output file."
 msgstr "Manca el fitxer de sortida."
 
 #. UGET_EVENT_ERROR_NO_OUTPUT_FILE
-#: ../../po/../uget/UgetEvent.c:89
+#: uget/UgetEvent.c:89
 msgid "No output setting."
 msgstr "Manca un paràmetre de sortida."
 
 #. UGET_EVENT_ERROR_NO_OUTPUT_SETTING
-#: ../../po/../uget/UgetEvent.c:90
+#: uget/UgetEvent.c:90
 msgid "Too many retries."
 msgstr "Ho hem intentat massa vegades."
 
 #. UGET_EVENT_ERROR_TOO_MANY_RETRIES
-#: ../../po/../uget/UgetEvent.c:91
+#: uget/UgetEvent.c:91
 msgid "Unsupported scheme (protocol)."
 msgstr "No s'admet el procés (o protocol)."
 
 #. UGET_EVENT_ERROR_UNSUPPORTED_SCHEME
-#: ../../po/../uget/UgetEvent.c:92
+#: uget/UgetEvent.c:92
 msgid "Unsupported file."
 msgstr "No s'admet el tipus de fitxer."
 
 #. UGET_EVENT_ERROR_UNSUPPORTED_FILE
-#: ../../po/../uget/UgetEvent.c:93
+#: uget/UgetEvent.c:93
 msgid "post file not found."
-msgstr ""
+msgstr "Fitxer de publicació no trobat."
 
 #. UGET_EVENT_ERROR_POST_FILE_NOT_FOUND
-#: ../../po/../uget/UgetEvent.c:94
+#: uget/UgetEvent.c:94
 msgid "cookie file not found."
-msgstr ""
-
-#: ../../po/../uget/UgetMedia-youtube.c:275
-msgid "This video has been removed."
-msgstr ""
-
-#: ../../po/../uget/UgetMedia-youtube.c:288
-msgid "Error occurred during getting video info."
-msgstr ""
-
-#: ../../po/../uget/UgetMedia-youtube.c:534
-msgid "Error occurred during getting video web page."
-msgstr ""
-
-#: ../../po/../uget/UgetMedia-youtube.c:606
-msgid "No video_id found in URL of YouTube."
-msgstr ""
+msgstr "Fitxer de galetes no trobat."
 
 #. 1 - 10
-#: ../../po/../uget/UgetPluginAria2.c:280
+#: uget/UgetPluginAria2.c:278
 msgid "aria2: an unknown error occurred."
 msgstr "aria2: s'ha produït un error desconegut."
 
-#: ../../po/../uget/UgetPluginAria2.c:281
+#: uget/UgetPluginAria2.c:279
 msgid "aria2: time out occurred."
 msgstr "aria2: el temps d'espera s'ha esgotat."
 
-#: ../../po/../uget/UgetPluginAria2.c:282
+#: uget/UgetPluginAria2.c:280
 msgid "aria2: resource was not found."
 msgstr "aria2: no s'ha trobat el recurs."
 
-#: ../../po/../uget/UgetPluginAria2.c:283
+#: uget/UgetPluginAria2.c:281
 msgid ""
-"aria2 saw the specfied number of 'resource not found' error. See --max-file-"
+"aria2 saw the specified number of 'resource not found' error. See --max-file-"
 "not-found option"
-msgstr "aria2 ha arribat al límit d'errors 'recurs no trobat' de l'opció --max-file-not-found."
+msgstr "aria2 va veure el nombre especificat d'errors «recurs no trobat». Vegeu l'opció --max-file-not-found"
 
-#: ../../po/../uget/UgetPluginAria2.c:284
+#: uget/UgetPluginAria2.c:282
 msgid "aria2: speed was too slow."
 msgstr "aria2: la velocitat de baixada és massa lenta."
 
-#: ../../po/../uget/UgetPluginAria2.c:285
+#: uget/UgetPluginAria2.c:283
 msgid "aria2: network problem occurred."
 msgstr "aria2: s'ha produït un error de xarxa."
 
-#: ../../po/../uget/UgetPluginAria2.c:286
+#: uget/UgetPluginAria2.c:284
 msgid "aria2: unfinished downloads."
 msgstr "aria2: no s'han enllestit les descàrregues."
 
 #. _("Not Resumable"),
-#: ../../po/../uget/UgetPluginAria2.c:288
+#: uget/UgetPluginAria2.c:286
 msgid "Out of resource"
 msgstr "Manquen recursos."
 
 #. _(),
-#: ../../po/../uget/UgetPluginAria2.c:289
+#: uget/UgetPluginAria2.c:287
 msgid "aria2: piece length was different from one in .aria2 control file."
-msgstr "aria2: la mida del fragment és diferent de la consignada al fitxer de control .aria2."
+msgstr "aria2: la longitud del fragment era diferent de la del fitxer de configuració d'aria2."
+"aria2: la mida del fragment és diferent de la consignada al fitxer de "
+"control .aria2."
 
 #. 11 - 20
-#: ../../po/../uget/UgetPluginAria2.c:291
+#: uget/UgetPluginAria2.c:289
 msgid "aria2 was downloading same file."
 msgstr "aria2: ja has descarregat aquest fitxer."
 
-#: ../../po/../uget/UgetPluginAria2.c:292
+#: uget/UgetPluginAria2.c:290
 msgid "aria2 was downloading same info hash torrent."
 msgstr "aria2 estàs descarregant informació duplicada del torrent."
 
-#: ../../po/../uget/UgetPluginAria2.c:293
+#: uget/UgetPluginAria2.c:291
 msgid "aria2: file already existed. See --allow-overwrite option."
 msgstr "aria2: el fitxer ja existeix. Fixa't en l'opció --allow-overwrite."
 
 #. _("Output file can't be renamed."),
-#: ../../po/../uget/UgetPluginAria2.c:295
+#: uget/UgetPluginAria2.c:293
 msgid "aria2: could not open existing file."
 msgstr "aria2: no es pot obrir un fitxer existent."
 
-#: ../../po/../uget/UgetPluginAria2.c:296
+#: uget/UgetPluginAria2.c:294
 msgid "aria2: could not create new file or truncate existing file."
 msgstr "aria2: no s'ha pogut crear un nou fitxer o truncar-ne un d'existent."
 
-#: ../../po/../uget/UgetPluginAria2.c:297
+#: uget/UgetPluginAria2.c:295
 msgid "aria2: file I/O error occurred."
 msgstr "aria2: s'ha produït un error d'I/O d'un fitxer "
 
 #. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
-#: ../../po/../uget/UgetPluginAria2.c:299
+#: uget/UgetPluginAria2.c:297
 msgid "aria2: name resolution failed."
 msgstr "aria2: la resolució de nom ha fallat."
 
-#: ../../po/../uget/UgetPluginAria2.c:300
+#: uget/UgetPluginAria2.c:298
 msgid "aria2: could not parse Metalink document."
 msgstr "aria2: no s'ha pogut gestionar un fitxer Metalink."
 
 #. 21 - 30
-#: ../../po/../uget/UgetPluginAria2.c:302
+#: uget/UgetPluginAria2.c:300
 msgid "aria2: FTP command failed."
 msgstr "aria2: l'ordre de FTP ha fallat."
 
-#: ../../po/../uget/UgetPluginAria2.c:303
+#: uget/UgetPluginAria2.c:301
 msgid "aria2: HTTP response header was bad or unexpected."
 msgstr "aria2: la capçalera de resposta HTTP és dolenta o desconeguda."
 
-#: ../../po/../uget/UgetPluginAria2.c:304
+#: uget/UgetPluginAria2.c:302
 msgid "Too many redirections."
 msgstr "S'ha redireccionat massa vegades."
 
-#: ../../po/../uget/UgetPluginAria2.c:305
+#: uget/UgetPluginAria2.c:303
 msgid "aria2: HTTP authorization failed."
 msgstr "aria2: ha fallat l'autorització HTTP."
 
-#: ../../po/../uget/UgetPluginAria2.c:306
+#: uget/UgetPluginAria2.c:304
 msgid "aria2: could not parse bencoded file(usually .torrent file)."
 msgstr "aria2: no s'ha pogut analitzar un fitxer .torrent."
 
-#: ../../po/../uget/UgetPluginAria2.c:307
+#: uget/UgetPluginAria2.c:305
 msgid "aria2: torrent file was corrupted or missing information."
 msgstr "aria2: el fitxer torrent és defectuós o conté informació incompleta."
 
-#: ../../po/../uget/UgetPluginAria2.c:308
+#: uget/UgetPluginAria2.c:306
 msgid "aria2: Magnet URI was bad."
 msgstr "aria2: l'URI del fitxer magnet és dolent."
 
-#: ../../po/../uget/UgetPluginAria2.c:309
+#: uget/UgetPluginAria2.c:307
 msgid ""
 "aria2: bad/unrecognized option was given or unexpected option argument was "
 "given."
-msgstr "aria2: l'opció donada és dolenta o incompleta; o bé l'opció té un argument desconegut. "
+msgstr ""
+"aria2: l'opció donada és dolenta o incompleta; o bé l'opció té un argument "
+"desconegut. "
 
-#: ../../po/../uget/UgetPluginAria2.c:310
+#: uget/UgetPluginAria2.c:308
 msgid "aria2: remote server was unable to handle the request."
 msgstr "aria2: el servidor remot no pot gestionar la petició."
 
-#: ../../po/../uget/UgetPluginAria2.c:311
+#: uget/UgetPluginAria2.c:309
 msgid "aria2: could not parse JSON-RPC request."
 msgstr "aria2: no es pot gestionar la petició JSON-RPC."
 
-#: ../../po/../uget/UgetPluginAria2.c:314
+#: uget/UgetPluginAria2.c:312
 msgid "No response. Is aria2 shutdown?"
 msgstr "aria2 no respon. Comprova que estigui actiu."
 
 #. debug
-#: ../../po/../uget/UgetPluginAria2.c:641
+#: uget/UgetPluginAria2.c:613
 msgid "aria2: gid was removed."
 msgstr "aria2: s'ha eliminat l'identificador de grup."
 
-#: ../../po/../uget/UgetPluginMedia.c:489
-msgid "Failed to get media link."
-msgstr ""
+#: uget/UgetPluginMega.c:173
+msgid "Can't handle this MEGA URL."
+msgstr "No es pot gestionar aquesta URL de MEGA."
 
-#: ../../po/../uget/UgetPluginMedia.c:505
-msgid "No matched media."
-msgstr ""
+#: uget/UgetPluginMega.c:217
+msgid "Can't get download URL."
+msgstr "No es pot obtenir l'URL de descàrrega."
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:46
+#: uget/UgetPluginMega.c:677
+msgid "decrypting file..."
+msgstr "desxifrant fitxer..."
+
+#: uget/UgetPluginMega.c:766
+msgid "decryption completed"
+msgstr "desxifratge completat"
+
+#: ui-gtk/UgtkAboutDialog.c:49
 msgid "Download Manager"
 msgstr "Gestor de descàrregues"
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:48
+#: ui-gtk/UgtkAboutDialog.c:52
 msgid "translator-credits"
 msgstr "David Sabadell i Ximenes <dsabadell@protonmail.ch>"
 
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:80
-msgid "uGet Founder: "
-msgstr "Fundador d'uGet:"
-
-#: ../../po/../ui-gtk/UgtkAboutDialog.c:81
-msgid "uGet Project Manager: "
-msgstr "Gestor de Projecte d'uGet:"
-
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:263
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:239
+#: ui-gtk/UgtkApp-timeout.c:262
 msgid "tasks"
 msgstr "tasques"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:399
+#: ui-gtk/UgtkApp-timeout.c:399
 msgid "New from Clipboard"
 msgstr "Nova des del porta-retalls"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:401 ../../po/../ui-gtk/UgtkApp.c:915
+#. Menu items (as flat buttons)
+#. New Download / New Category
+#: ui-gtk/UgtkApp-timeout.c:401 ui-gtk/UgtkApp-ui.c:342 ui-gtk/UgtkApp.c:870
+#: ui-gtk/UgtkMenubar-ui.c:66
 msgid "New Download"
 msgstr "Nova descàrrega"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:425 ../../po/../ui-gtk/UgtkApp.c:1679
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:119
+#: ui-gtk/UgtkApp-timeout.c:425 ui-gtk/UgtkApp.c:1693
+#: ui-gtk/UgtkSettingDialog.c:151
 msgid "Clipboard"
 msgstr "Porta-retalls"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:427
+#: ui-gtk/UgtkApp-timeout.c:427
 msgid "Command line"
 msgstr "Línia d'ordres"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:780
+#: ui-gtk/UgtkApp-timeout.c:767
 msgid "Error Occurred"
 msgstr "S'ha produït un error"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:781
+#: ui-gtk/UgtkApp-timeout.c:768
 msgid "Error Occurred during downloading."
 msgstr "S'ha produït un error mentre descarregava."
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:782
+#: ui-gtk/UgtkApp-timeout.c:769
 msgid "Download Starting"
 msgstr "S'està iniciant la baixada"
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:783
+#: ui-gtk/UgtkApp-timeout.c:770
 msgid "Starting download queue."
 msgstr "Comença la descàrrega de la cua."
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:784
+#: ui-gtk/UgtkApp-timeout.c:771
 msgid "Download Completed"
 msgstr "S'ha enllestit la descàrrega."
 
-#: ../../po/../ui-gtk/UgtkApp-timeout.c:785
+#: ui-gtk/UgtkApp-timeout.c:772
 msgid "All queuing downloads have been completed."
 msgstr "S'ha enllestit la cua de descàrregues."
 
 #. ----------------------------------------------------
 #. frame for Status (start mode)
-#: ../../po/../ui-gtk/UgtkApp-ui.c:193
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:224
-#: ../../po/../ui-gtk/UgtkNodeView.c:1040
+#: ui-gtk/UgtkApp-ui.c:231 ui-gtk/UgtkDownloadForm.c:236
 msgid "Status"
 msgstr "Estat"
 
-#. Summary Items - Category
-#. Download Columns - Category
-#: ../../po/../ui-gtk/UgtkApp-ui.c:195 ../../po/../ui-gtk/UgtkMenubar-ui.c:318
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:346
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:431
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:418
-#: ../../po/../ui-gtk/UgtkNodeView.c:932
-#: ../../po/../ui-gtk/UgtkNodeView.c:1020 ../../po/../ui-gtk/UgtkSummary.c:131
+#: ui-gtk/UgtkApp-ui.c:232 ui-gtk/UgtkMenubar-ui.c:171
+#: ui-gtk/UgtkMenubar-ui.c:179 ui-gtk/UgtkMenubar-ui.c:200
+#: ui-gtk/UgtkMenubar-ui.c:227 ui-gtk/UgtkNodeDialog.c:424
+#: ui-gtk/UgtkNodeView.c:679 ui-gtk/UgtkSummary.c:113
 msgid "Category"
 msgstr "Categoria"
 
-#: ../../po/../ui-gtk/UgtkApp-ui.c:279
+#: ui-gtk/UgtkApp-ui.c:332
 msgid "Create new download"
 msgstr "Crea una nova descàrrega"
 
-#. New Download (accelerators)
-#. gtk_menu_shell_append ((GtkMenuShell*)menu, gtk_tearoff_menu_item_new() );
-#. New Download
-#: ../../po/../ui-gtk/UgtkApp-ui.c:289 ../../po/../ui-gtk/UgtkMenubar-ui.c:58
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:59
-msgid "New _Download..."
-msgstr "Nova _descàrrega"
-
-#. New Category
-#: ../../po/../ui-gtk/UgtkApp-ui.c:300 ../../po/../ui-gtk/UgtkMenubar-ui.c:69
-msgid "New _Category..."
-msgstr "Nova _categoria..."
-
-#. New Clipboard batch
-#: ../../po/../ui-gtk/UgtkApp-ui.c:310 ../../po/../ui-gtk/UgtkTrayIcon.c:70
-msgid "New Clipboard _batch..."
-msgstr "Nou _lot del porta-retalls..."
-
-#. New URL Sequence batch
-#: ../../po/../ui-gtk/UgtkApp-ui.c:321
-msgid "New _URL Sequence batch..."
-msgstr "Nova _seqüència d'URLs... "
-
-#. New Torrent
-#. separator
-#. gtk_menu_shell_append ((GtkMenuShell*)submenu,
-#. gtk_separator_menu_item_new() );
-#. New Torrent
-#: ../../po/../ui-gtk/UgtkApp-ui.c:335 ../../po/../ui-gtk/UgtkMenubar-ui.c:81
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:83
-msgid "New Torrent..."
-msgstr "Nou torrent..."
-
-#. New Metalink
-#: ../../po/../ui-gtk/UgtkApp-ui.c:342 ../../po/../ui-gtk/UgtkMenubar-ui.c:87
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:90
-msgid "New Metalink..."
-msgstr "Nou metalink..."
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:356
-msgid "Save all settings"
-msgstr "Desar tots els paràmetres"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:369
-msgid "Set selected download runnable"
-msgstr "Defineix les descàrregues seleccionades com actives"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:379
-msgid "Set selected download to pause"
-msgstr "Posa les descàrregues seleccionades en espera"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:389
-msgid "Set selected download properties"
-msgstr "Defineixles propietats de les descàrregues seleccionades"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:402
-msgid "Move selected download up"
-msgstr "Mou les descàrregues seleccionades amunt"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:412
-msgid "Move selected download down"
-msgstr "Mou les descàrregues seleccionades avall"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:422
-msgid "Move selected download to top"
-msgstr "Posa les descàrregues seleccionades dalt de tot"
-
-#: ../../po/../ui-gtk/UgtkApp-ui.c:432
-msgid "Move selected download to bottom"
-msgstr "Posa les descàrregues seleccionades sota de tot"
-
-#: ../../po/../ui-gtk/UgtkApp.c:883
+#: ui-gtk/UgtkApp-ui.c:346 ui-gtk/UgtkApp.c:795 ui-gtk/UgtkMenubar-ui.c:67
+#: ui-gtk/UgtkMenubar-ui.c:216 ui-gtk/UgtkMenubar-ui.c:1428
 msgid "New Category"
 msgstr "Nova categoria"
 
-#: ../../po/../ui-gtk/UgtkApp.c:894
-msgid "Copy - "
-msgstr "Copia -"
+#: ui-gtk/UgtkApp-ui.c:350
+msgid "New Batch Sequence"
+msgstr "Nova seqüència de lot"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1049
-msgid "Category Properties"
-msgstr "Propietats de la categoria"
+#: ui-gtk/UgtkApp-ui.c:354
+msgid "New Batch Clipboard"
+msgstr "Nova memòria de retallada en lot"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1063
-msgid "Download Properties"
-msgstr "Propietats de la descàrrega"
-
-#: ../../po/../ui-gtk/UgtkApp.c:1296
+#: ui-gtk/UgtkApp-ui.c:361 ui-gtk/UgtkApp.c:1245
 msgid "New Torrent"
 msgstr "Nou torrent"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1312
+#: ui-gtk/UgtkApp-ui.c:365 ui-gtk/UgtkApp.c:1261
 msgid "New Metalink"
 msgstr "Nou metalink"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1321
+#: ui-gtk/UgtkApp-ui.c:371 ui-gtk/UgtkMenubar-ui.c:86
+msgid "Save all settings"
+msgstr "Desar tots els paràmetres"
+
+#: ui-gtk/UgtkApp-ui.c:379
+msgid "Start"
+msgstr "Inicia"
+
+#: ui-gtk/UgtkApp-ui.c:384 ui-gtk/UgtkMenubar-ui.c:248
+#: ui-gtk/UgtkMenubar-ui.c:1462
+msgid "Pause"
+msgstr "Pausa"
+
+#: ui-gtk/UgtkApp-ui.c:389 ui-gtk/UgtkMenubar-ui.c:224
+#: ui-gtk/UgtkMenubar-ui.c:289 ui-gtk/UgtkMenubar-ui.c:1438
+#: ui-gtk/UgtkMenubar-ui.c:1503
+msgid "Properties"
+msgstr "Propietats"
+
+#: ui-gtk/UgtkApp-ui.c:397 ui-gtk/UgtkMenubar-ui.c:219
+#: ui-gtk/UgtkMenubar-ui.c:261 ui-gtk/UgtkMenubar-ui.c:1432
+#: ui-gtk/UgtkMenubar-ui.c:1475
+msgid "Move Up"
+msgstr "Mou-te una posició cap amunt"
+
+#: ui-gtk/UgtkApp-ui.c:402 ui-gtk/UgtkMenubar-ui.c:220
+#: ui-gtk/UgtkMenubar-ui.c:262 ui-gtk/UgtkMenubar-ui.c:1433
+#: ui-gtk/UgtkMenubar-ui.c:1476
+msgid "Move Down"
+msgstr "Mou-te una posició cap avall"
+
+#: ui-gtk/UgtkApp-ui.c:407
+msgid "Move Top"
+msgstr "Mou-te fins al capdamunt de la llista"
+
+#: ui-gtk/UgtkApp-ui.c:412
+msgid "Move Bottom"
+msgstr "Mou-te fins al fons de la llista"
+
+#: ui-gtk/UgtkApp.c:812
+msgid "Copy - "
+msgstr "Copia -"
+
+#: ui-gtk/UgtkApp.c:1025
+msgid "Category Properties"
+msgstr "Propietats de la categoria"
+
+#: ui-gtk/UgtkApp.c:1043
+msgid "Download Properties"
+msgstr "Propietats de la descàrrega"
+
+#: ui-gtk/UgtkApp.c:1273
 msgid "Open Torrent file"
 msgstr "Obre un fitxer torrent"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1324
+#: ui-gtk/UgtkApp.c:1279
 msgid "Torrent file (*.torrent)"
-msgstr ""
+msgstr "Fitxer torrent (*.torrent)"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1337
+#: ui-gtk/UgtkApp.c:1299
 msgid "Open Metalink file"
 msgstr "Obre un fitxer metalink"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1377
+#: ui-gtk/UgtkApp.c:1342
 msgid "Failed to save category file."
 msgstr "No s'ha pogut desar la categoria."
 
-#: ../../po/../ui-gtk/UgtkApp.c:1397
+#: ui-gtk/UgtkApp.c:1362
 msgid "Failed to load category file."
 msgstr "No s'ha pogut carregar la categoria."
 
-#: ../../po/../ui-gtk/UgtkApp.c:1408
+#: ui-gtk/UgtkApp.c:1373
 msgid "Save Category file"
 msgstr "Desar el fitxer de categoria"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1426
+#: ui-gtk/UgtkApp.c:1392
 msgid "Open Category file"
 msgstr "Obrir un fitxer de categoria"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1429
+#: ui-gtk/UgtkApp.c:1398
 msgid "JSON file (*.json)"
-msgstr ""
+msgstr "Fitxer JSON (*.json)"
 
 #. add link
-#: ../../po/../ui-gtk/UgtkApp.c:1485
+#: ui-gtk/UgtkApp.c:1464
 msgid "Link <A>"
 msgstr "Enllaç <A>"
 
 #. add image
-#: ../../po/../ui-gtk/UgtkApp.c:1490
+#: ui-gtk/UgtkApp.c:1469
 msgid "Image <IMG>"
 msgstr "Imatge <IMG>"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1535
+#: ui-gtk/UgtkApp.c:1519
 msgid "Text File"
 msgstr "Fitxer de text"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1582
+#: ui-gtk/UgtkApp.c:1574
 msgid "Import URLs from HTML file"
 msgstr "Importa URLs des d'un fitxer HTML"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1585
+#: ui-gtk/UgtkApp.c:1580
 msgid "HTML file (*.htm, *.html)"
-msgstr ""
+msgstr "Fitxer HTML (*.htm, *.html)"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1597
+#: ui-gtk/UgtkApp.c:1600
 msgid "Import URLs from text file"
 msgstr "Importa URLs des d'un fitxer de text"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1600
+#: ui-gtk/UgtkApp.c:1606
 msgid "Plain text file"
-msgstr ""
+msgstr "Fitxer de text pla"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1612
+#: ui-gtk/UgtkApp.c:1624
 msgid "Export URLs to text file"
 msgstr "Exporta URLs a un fitxer de text"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1631
+#: ui-gtk/UgtkApp.c:1643 ui-gtk/UgtkMenubar-ui.c:73
 msgid "URL Sequence batch"
 msgstr "Lot de seqüència d'URLs"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1658
+#: ui-gtk/UgtkApp.c:1672
 msgid "No URLs found in clipboard."
 msgstr "No s'ha trobat cap URL al porta-retalls."
 
-#: ../../po/../ui-gtk/UgtkApp.c:1667
+#: ui-gtk/UgtkApp.c:1681
 msgid "All URLs had existed."
 msgstr "Totes les URL existeixen."
 
-#: ../../po/../ui-gtk/UgtkApp.c:1672
+#: ui-gtk/UgtkApp.c:1686 ui-gtk/UgtkMenubar-ui.c:72
 msgid "Clipboard batch"
 msgstr "Lot del porta-retalls"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1762
+#: ui-gtk/UgtkApp.c:1750 ui-gtk/UgtkMenubar-ui.c:234
+#: ui-gtk/UgtkMenubar-ui.c:1449
 msgid "New"
 msgstr "Nova"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1803 ../../po/../ui-gtk/UgtkMenubar.c:460
-#: ../../po/../ui-gtk/UgtkMenubar.c:492 ../../po/../ui-gtk/UgtkNodeView.c:640
+#: ui-gtk/UgtkApp.c:1773 ui-gtk/UgtkNodeView.c:452
 msgid "Error"
 msgstr "Error"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1811 ../../po/../ui-gtk/UgtkSummary.c:176
+#: ui-gtk/UgtkApp.c:1775 ui-gtk/UgtkMenubar-ui.c:181 ui-gtk/UgtkSummary.c:154
 msgid "Message"
 msgstr "Missatge"
 
-#: ../../po/../ui-gtk/UgtkApp.c:1927
+#. OK button
+#: ui-gtk/UgtkApp.c:1779 ui-gtk/UgtkBatchDialog.c:73
+#: ui-gtk/UgtkNodeDialog.c:125 ui-gtk/UgtkSelector.c:368
+#: ui-gtk/UgtkSettingDialog.c:204
+msgid "_OK"
+msgstr "_D'acord"
+
+#: ui-gtk/UgtkApp.c:1787 ui-gtk/UgtkMenubar-ui.c:158
+msgid "Settings"
+msgstr "Paràmetres"
+
+#: ui-gtk/UgtkApp.c:1901
 #, c-format
 msgid "Selected %d items"
 msgstr "%d ítems seleccionats"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:145 ../../po/../ui-gtk/UgtkBanner.c:165
-msgid "Attention uGetters:"
-msgstr "Atenció usuaris d'uGet:"
+#. back button
+#: ui-gtk/UgtkBatchDialog.c:64
+msgid "_Back"
+msgstr "_Enrere"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:148
-msgid ""
-"we are running a Donation Drive for uGet's Future Development, please click "
-msgstr "hem endegat una campanya de donació per al futur desenvolupament d'uGet: si us plau, cliqueu"
+#. forward button
+#: ui-gtk/UgtkBatchDialog.c:67
+msgid "_Forward"
+msgstr "_Endavant"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:151
-msgid "HERE"
-msgstr "AQUÍ"
+#. cancel button
+#. OK & cancel buttons
+#: ui-gtk/UgtkBatchDialog.c:70 ui-gtk/UgtkFormatPicker.c:249
+#: ui-gtk/UgtkNodeDialog.c:123 ui-gtk/UgtkSelector.c:366
+#: ui-gtk/UgtkSettingDialog.c:202
+msgid "_Cancel"
+msgstr "_Cancel·la"
 
-#: ../../po/../ui-gtk/UgtkBanner.c:168
-msgid "please fill out this quick User Survey for uGet."
-msgstr "Empleneu aquesta breu enquesta d'ús per millorar uGet."
-
-#: ../../po/../ui-gtk/UgtkBanner.c:171
-msgid "click here to take survey"
-msgstr "Clica aquí per respondre l'enquesta"
-
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:62
+#: ui-gtk/UgtkCategoryForm.c:71
 msgid "Category _name:"
 msgstr "_Nom de la categoria:"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_active), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:82
+#: ui-gtk/UgtkCategoryForm.c:91
 msgid "Active _downloads:"
 msgstr "_Descàrregues actives:"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_finished), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:92
+#: ui-gtk/UgtkCategoryForm.c:100
 msgid "Capacity of Finished:"
 msgstr "Capacitat de les finalitzades:"
 
-#. gtk_entry_set_width_chars (GTK_ENTRY(cform->spin_recycled), 5);
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:102
+#: ui-gtk/UgtkCategoryForm.c:109
 msgid "Capacity of Recycled:"
 msgstr "Capacitat de la paperera:"
 
 #. ------------------------------------------------------------------------
 #. URI Matching conditions
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:111
+#: ui-gtk/UgtkCategoryForm.c:118
 msgid "URI Matching conditions"
 msgstr "Les condicions de coincidència d'URI"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:118
+#: ui-gtk/UgtkCategoryForm.c:125
 msgid "Matched _Hosts:"
 msgstr "Amfitrions coincidents:"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:129
+#: ui-gtk/UgtkCategoryForm.c:137
 msgid "Matched _Schemes:"
 msgstr "Esquemes/processos coincidents:"
 
-#: ../../po/../ui-gtk/UgtkCategoryForm.c:140
+#: ui-gtk/UgtkCategoryForm.c:149
 msgid "Matched _Types:"
 msgstr "Tipus coincidents:"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:64
+#: ui-gtk/UgtkConfirmDialog.c:64
 msgid "Really Quit?"
 msgstr "Vols sortir del programa?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:65
+#: ui-gtk/UgtkConfirmDialog.c:65
 msgid "Are you sure you want to quit?"
 msgstr "Estàs segur que vols sortir?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:69
+#: ui-gtk/UgtkConfirmDialog.c:69
 msgid "Really delete files?"
 msgstr "Vols esborrar els fitxers?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:70
+#: ui-gtk/UgtkConfirmDialog.c:70
 msgid "Are you sure you want to delete files?"
 msgstr "Estàs segur que vols esborrar els fitxers?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:74
+#: ui-gtk/UgtkConfirmDialog.c:74
 msgid "Really delete category?"
 msgstr "Vols esborrar la categoria?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:75
+#: ui-gtk/UgtkConfirmDialog.c:75
 msgid "Are you sure you want to delete category?"
 msgstr "Esteu segur que vols esborrar la categoria?"
 
-#: ../../po/../ui-gtk/UgtkConfirmDialog.c:109
+#. check button
+#: ui-gtk/UgtkConfirmDialog.c:109
 msgid "Don't ask me again"
 msgstr "No m'ho demanis més"
 
+#: ui-gtk/UgtkConfirmDialog.c:119 ui-gtk/UgtkNodeDialog.c:214
+msgid "_No"
+msgstr "_No"
+
+#: ui-gtk/UgtkConfirmDialog.c:121 ui-gtk/UgtkNodeDialog.c:214
+msgid "_Yes"
+msgstr "_Sí"
+
+#: ui-gtk/UgtkDownloadForm.c:120 ui-gtk/UgtkDownloadForm.c:929
+msgid "Fetch media stream formats from this URL"
+msgstr "Obtingueu els formats de flux de mitjans d'aquesta URL"
+
 #. URL - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:111
-#: ../../po/../ui-gtk/UgtkSequence.c:63
+#: ui-gtk/UgtkDownloadForm.c:129 ui-gtk/UgtkSequence.c:231
 msgid "_URI:"
 msgstr "_URI"
 
 #. Mirrors - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:130
+#: ui-gtk/UgtkDownloadForm.c:147
 msgid "Mirrors:"
 msgstr "Servidors alternatius:"
 
+#: ui-gtk/UgtkDownloadForm.c:158
+msgid "Leave blank to use default filename ..."
+msgstr "Deixa en blanc per utilitzar el nom de fitxer predeterminat ..."
+
 #. File - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:146
-#: ../../po/../ui-gtk/UgtkProxyForm.c:393
+#: ui-gtk/UgtkDownloadForm.c:166 ui-gtk/UgtkProxyForm.c:394
 msgid "File:"
 msgstr "Fitxer:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:166
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:897
+#: ui-gtk/UgtkDownloadForm.c:181 ui-gtk/UgtkDownloadForm.c:1268
 msgid "Select Folder"
 msgstr "Selecciona una carpeta"
 
 #. Folder - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:174
+#: ui-gtk/UgtkDownloadForm.c:190
 msgid "_Folder:"
 msgstr "_Carpeta:"
 
 #. Referrer - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:189
+#: ui-gtk/UgtkDownloadForm.c:206
 msgid "Referrer:"
 msgstr "Referència:"
 
 #. "Max Connections:" - title label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:212
+#: ui-gtk/UgtkDownloadForm.c:224
 msgid "_Max Connections:"
 msgstr "Nombre _màxim de connexions simultànies:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:230
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:574
+#: ui-gtk/UgtkDownloadForm.c:241
 msgid "_Runnable"
 msgstr "_Activa"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:232
+#: ui-gtk/UgtkDownloadForm.c:242
 msgid "P_ause"
 msgstr "P_ausa"
 
 #. ----------------------------------------------------
 #. frame for login
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:238
+#: ui-gtk/UgtkDownloadForm.c:250
 msgid "Login"
 msgstr "Inicia sessió"
 
 #. User - label
 #. user label & entry
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:252
-#: ../../po/../ui-gtk/UgtkProxyForm.c:149
+#: ui-gtk/UgtkDownloadForm.c:267 ui-gtk/UgtkProxyForm.c:147
 msgid "User:"
 msgstr "Usuari:"
 
 #. Password - label
 #. password label & entry
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:268
-#: ../../po/../ui-gtk/UgtkProxyForm.c:160
+#: ui-gtk/UgtkDownloadForm.c:284 ui-gtk/UgtkProxyForm.c:158
 msgid "Password:"
 msgstr "Contrasenya:"
 
 #. label - cookie file
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:293
+#: ui-gtk/UgtkDownloadForm.c:309
 msgid "Cookie file:"
 msgstr "Galeta:"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:310
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:953
+#: ui-gtk/UgtkDownloadForm.c:322 ui-gtk/UgtkDownloadForm.c:1309
 msgid "Select Cookie File"
 msgstr "Selecciona una galeta"
 
 #. label - post file
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:319
+#: ui-gtk/UgtkDownloadForm.c:332
 msgid "Post file:"
 msgstr "Fitxer 'post':"
 
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:336
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:1009
+#: ui-gtk/UgtkDownloadForm.c:345 ui-gtk/UgtkDownloadForm.c:1350
 msgid "Select Post File"
 msgstr "Seleccioneu el fitxer 'post'"
 
 #. label - user agent
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:346
+#: ui-gtk/UgtkDownloadForm.c:356
 msgid "User Agent:"
 msgstr "Agent d'usuari:"
 
 #. Retry limit - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:362
+#: ui-gtk/UgtkDownloadForm.c:374
 msgid "Retry _limit:"
 msgstr "_Núm. màx. de temptatives:"
 
 #. counts - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:377
+#: ui-gtk/UgtkDownloadForm.c:389
 msgid "counts"
 msgstr "contador"
 
 #. Retry delay - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:384
+#: ui-gtk/UgtkDownloadForm.c:397
 msgid "Retry _delay:"
 msgstr "_Retard en intentar-ho:"
 
 #. seconds - label
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:399
+#: ui-gtk/UgtkDownloadForm.c:412
 msgid "seconds"
 msgstr "segons"
 
 #. label - Max upload speed
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:406
+#: ui-gtk/UgtkDownloadForm.c:420
 msgid "Max upload speed:"
 msgstr "Velocitat màx. de pujada:"
 
 #. label - "KiB/s"
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:418
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:436
-#: ../../po/../ui-gtk/UgtkSettingForm.c:311
-#: ../../po/../ui-gtk/UgtkSettingForm.c:323
-#: ../../po/../ui-gtk/UgtkSettingForm.c:612
-#: ../../po/../ui-gtk/UgtkSettingForm.c:624
+#. Speed limit - KiB/s label
+#: ui-gtk/UgtkDownloadForm.c:431 ui-gtk/UgtkDownloadForm.c:450
+#: ui-gtk/UgtkScheduleForm.c:204 ui-gtk/UgtkSettingForm.c:309
+#: ui-gtk/UgtkSettingForm.c:324 ui-gtk/UgtkSettingForm.c:617
+#: ui-gtk/UgtkSettingForm.c:632
 msgid "KiB/s"
 msgstr "KiB/s"
 
 #. label - Max download speed
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:424
+#: ui-gtk/UgtkDownloadForm.c:439
 msgid "Max download speed:"
 msgstr "Velocitat màx. de baixada:"
 
 #. Retrieve timestamp
-#: ../../po/../ui-gtk/UgtkDownloadForm.c:442
+#: ui-gtk/UgtkDownloadForm.c:458
 msgid "Retrieve timestamp"
 msgstr "Data i hora actuals"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:51
-msgid "_File"
-msgstr "_Fitxer"
+#: ui-gtk/UgtkDownloadForm.c:925
+msgid "Media format selected. Click to choose a different one."
+msgstr "Format de mitjà seleccionat. Feu clic per triar-ne un altre."
 
-#. Batch Downloads --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:94
-msgid "_Batch Downloads"
-msgstr "_Lot de descàrregues"
+#: ui-gtk/UgtkDownloadForm.c:1149
+msgid "Could not fetch media formats"
+msgstr "No s'han pogut obtenir els formats de mitjà"
 
-#. Batch downloads - Clipboard batch
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:100
-msgid "_Clipboard batch..."
-msgstr "Lot del _porta-retalls..."
+#: ui-gtk/UgtkFormatPicker.c:176
+msgid "Select media format"
+msgstr "Seleccioneu el format de mitjà"
 
-#. Batch downloads - URL Sequence batch
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:110
-msgid "_URL Sequence batch..."
-msgstr "Lot de seqüència d'_URLs..."
-
-#. Batch downloads - Text file import (.txt)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:120
-msgid "_Text file import (.txt)..."
-msgstr "Importa un fitxer de _text (.txt)..."
-
-#. Batch downloads - HTML file import (.html)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:130
-msgid "_HTML file import (.html)..."
-msgstr "Importa un fitxer _HTML (.html)..."
-
-#. Batch downloads - Export to Text file (.txt)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:142
-msgid "_Export to Text file (.txt)..."
-msgstr "_Exporta a un fitxer de _text (.txt)..."
-
-#. Open Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:156
-msgid "_Open category..."
-msgstr "Obre categoria"
-
-#. Save Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:167
-msgid "_Save category as..."
-msgstr "De_sa la categoria com..."
-
-#. Save All
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:178
-msgid "Save _all settings"
-msgstr "Des_a els paràmetres"
-
-#. Offline mode
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:192
-msgid "Offline Mode"
-msgstr "Mode fora de línia"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:210
-msgid "_Edit"
-msgstr "_Edita"
-
-#. menu.gtk_menu_shell_append((GtkMenuShell*)menu, gtk_tearoff_menu_item_new()
-#. );
-#. Settings shortcut
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:215
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:99
-msgid "Clipboard _Monitor"
-msgstr "_Monitoreja el porta-retalls"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:219
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:103
-msgid "Clipboard works quietly"
-msgstr "Porta-retalls silenciós"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:223
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:107
-msgid "Command-line works quietly"
-msgstr "Línia d'ordres silenciosa"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:227
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:111
-msgid "Skip existing URI"
-msgstr "Evita URI existent"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:231
-#: ../../po/../ui-gtk/UgtkSettingForm.c:223
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:115
-msgid "Apply recent download settings"
-msgstr "Aplica els paràmetres de baixada més nous"
-
-#. --- Completion Auto-Actions --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:238
-msgid "Completion _Auto-Actions"
-msgstr "_Accions autom. de compleció"
-
-#. Completion Auto-Actions - Disable
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:244
-msgid "_Disable"
-msgstr "_Inhabilita"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:249
-msgid "Hibernate"
-msgstr "Hiberna"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:254
-msgid "Suspend"
-msgstr "Suspèn"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:259
-msgid "Shutdown"
-msgstr "Atura l'equip"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:264
-msgid "Reboot"
-msgstr "Reinicia l'equip"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:269
-msgid "Custom"
-msgstr "Personalitza"
-
-#. Completion Auto-Actions - Remember
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:275
-msgid "Remember setting"
-msgstr "Recorda els paràmetres"
-
-#. Completion Auto-Actions - Help
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:279
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:682
-msgid "_Help"
-msgstr "A_juda"
-
-#. --- Completion Auto-Actions --- end ---
-#. menu_item = gtk_menu_item_new_with_mnemonic (_("_Settings..."));
-#. Settings
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:285
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:122
-msgid "_Settings..."
-msgstr "_Paràmetres..."
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:304
-msgid "_View"
-msgstr "_Visualitza"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:308
-msgid "_Toolbar"
-msgstr "_Barra d'eines"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:313
-msgid "Statusbar"
-msgstr "Barra d'estat"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:323
-msgid "_Summary"
-msgstr "_Sumari"
-
-#. Summary Items --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:331
-msgid "Summary _Items"
-msgstr "_Ítems del sumari"
-
-#. Summary Items - Name
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:336
-msgid "_Name"
-msgstr "_Nom"
-
-#. Summary Items - Folder
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:341
-msgid "_Folder"
-msgstr "_Carpeta"
-
-#. Summary Items - Elapsed
-#. menu_item = gtk_check_menu_item_new_with_mnemonic (_("_Elapsed"));
-#. gtk_check_menu_item_set_active ((GtkCheckMenuItem*) menu_item, TRUE);
-#. gtk_menu_shell_append ((GtkMenuShell*) submenu, menu_item);
-#. menubar->view.summary_items.elapsed = menu_item;
-#. Summary Items - URL
-#. Download Columns - URL
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:356
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:436
-msgid "_URL"
-msgstr "_URL"
-
-#. Summary Items - Message
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:361
-msgid "_Message"
-msgstr "_Missatge"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:376
-msgid "Download _Columns"
-msgstr "_Columnes de descàrrega"
-
-#. Download Columns - Complete
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:381
-msgid "_Complete"
-msgstr "_Complet"
-
-#. Download Columns - Total
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:386
-msgid "_Size"
-msgstr "_Mida"
-
-#. Download Columns - Percent (%)
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:391
-msgid "_Percent '%'"
-msgstr "_Percentatge '%'"
-
-#. Download Columns - Elapsed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:396
-msgid "_Elapsed"
-msgstr "_Transcorregut"
-
-#. Download Columns - Left
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:401
-msgid "_Left"
-msgstr "_Pendent"
-
-#. Download Columns - Speed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:406
-#: ../../po/../ui-gtk/UgtkNodeView.c:861
-msgid "Speed"
-msgstr "Velocitat"
-
-#. Download Columns - Up Speed
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:411
-#: ../../po/../ui-gtk/UgtkNodeView.c:875
-msgid "Up Speed"
-msgstr "Límit de velocitat"
-
-#. Download Columns - Uploaded
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:416
-#: ../../po/../ui-gtk/UgtkNodeView.c:889
-msgid "Uploaded"
-msgstr "Transferit"
-
-#. Download Columns - Ratio
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:421
-#: ../../po/../ui-gtk/UgtkNodeView.c:903
-msgid "Ratio"
-msgstr "Relació"
-
-#. Download Columns - Retry
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:426
-msgid "_Retry"
-msgstr "_Reintenta"
-
-#. Download Columns - Added On
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:441
-#: ../../po/../ui-gtk/UgtkNodeView.c:960
-msgid "Added On"
-msgstr "Afegit en"
-
-#. Download Columns - Completed On
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:446
-#: ../../po/../ui-gtk/UgtkNodeView.c:974
-msgid "Completed On"
-msgstr "Completat en"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:461
-msgid "_Category"
-msgstr "_Categoria"
-
-#. New Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:466
-msgid "_New Category..."
-msgstr "_Nova categoria..."
-
-#. Delete Category
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:476
-msgid "_Delete Category"
-msgstr "_Esborra la categoria"
-
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:517
+#: ui-gtk/UgtkFormatPicker.c:254
 msgid "_Download"
 msgstr "_Descarrega"
 
-#. menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE,
-#. accel_group);
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:529
-msgid "_Delete Entry"
-msgstr "Es_borra aquesta entrada"
+#: ui-gtk/UgtkMenubar-ui.c:74
+msgid "Text file import (.txt)"
+msgstr "Importa un fitxer de text (.txt)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:540
-msgid "Delete Entry and _File"
-msgstr "Esborra el _fitxer i les dades"
+#: ui-gtk/UgtkMenubar-ui.c:75
+msgid "HTML file import (.html)"
+msgstr "Importa un fitxer HTML (.html)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:555
-msgid "Open _Containing folder"
-msgstr "Obre la _carpeta contenidora"
+#: ui-gtk/UgtkMenubar-ui.c:76
+msgid "Export to Text File (.txt)"
+msgstr "Exporta a un fitxer de text (.txt)"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:568
-msgid "Force Start"
-msgstr "Força'l a engegar"
+#: ui-gtk/UgtkMenubar-ui.c:77
+msgid "Batch Downloads"
+msgstr "Lot de descàrregues"
 
-#. Move to --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:596
-msgid "_Move To"
-msgstr "_Mou a"
+#: ui-gtk/UgtkMenubar-ui.c:84
+msgid "Open category"
+msgstr "Obre categoria"
 
-#. Priority --- start ---
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:645
-msgid "Priority"
-msgstr "Prioritat"
+#: ui-gtk/UgtkMenubar-ui.c:85
+msgid "Save category as"
+msgstr "Desa la categoria com"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:654
-msgid "_High"
-msgstr "Alta"
+#: ui-gtk/UgtkMenubar-ui.c:92 ui-gtk/UgtkTrayIcon.c:510
+msgid "Offline Mode"
+msgstr "Mode fora de línia"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:659
-msgid "_Normal"
-msgstr "_Normal"
+#: ui-gtk/UgtkMenubar-ui.c:98 ui-gtk/UgtkTrayIcon.c:513
+msgid "Quit"
+msgstr "Tanca"
 
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:664
-msgid "_Low"
-msgstr "_Baixa"
+#: ui-gtk/UgtkMenubar-ui.c:102 ui-gtk/UgtkSummary.c:96
+msgid "File"
+msgstr "Fitxer"
 
-#. Get Help Online
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:687
-msgid "Get Help Online"
-msgstr "Aconsegueix ajuda en línia"
+#. Clipboard options, skip/apply
+#: ui-gtk/UgtkMenubar-ui.c:111 ui-gtk/UgtkTrayIcon.c:477
+msgid "Clipboard Monitor"
+msgstr "Monitoreja el porta-retalls"
 
-#. Documentation
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:698
-msgid "Documentation"
-msgstr "Documentació"
+#: ui-gtk/UgtkMenubar-ui.c:112 ui-gtk/UgtkTrayIcon.c:481
+msgid "Clipboard works quietly"
+msgstr "Porta-retalls silenciós"
 
-#. Support Forum
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:709
-msgid "Support Forum"
-msgstr "Fòrum de suport"
+#: ui-gtk/UgtkMenubar-ui.c:113 ui-gtk/UgtkTrayIcon.c:485
+msgid "Command-line works quietly"
+msgstr "Línia d'ordres silenciosa"
 
-#. Submit Feedback
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:720
-msgid "Submit Feedback"
-msgstr "Volem conèixer el teu parer"
+#: ui-gtk/UgtkMenubar-ui.c:114 ui-gtk/UgtkTrayIcon.c:489
+msgid "Skip existing URI"
+msgstr "Evita URI existent"
 
-#. Report a Bug
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:731
-msgid "Report a Bug"
-msgstr "Informa d'un error"
+#: ui-gtk/UgtkMenubar-ui.c:115 ui-gtk/UgtkSettingForm.c:221
+#: ui-gtk/UgtkTrayIcon.c:493
+msgid "Apply recent download settings"
+msgstr "Aplica els paràmetres de baixada més nous"
 
-#. Keyboard Shortcuts
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:742
-msgid "Keyboard Shortcuts"
-msgstr "Dreceres de teclat"
+#: ui-gtk/UgtkMenubar-ui.c:122
+msgid "Disable"
+msgstr "Inhabilita"
 
-#. Check for Updates
-#: ../../po/../ui-gtk/UgtkMenubar-ui.c:749
-msgid "Check for Updates"
-msgstr "Comprova si hi ha actualitzacions"
+#: ui-gtk/UgtkMenubar-ui.c:126
+msgid "Hibernate"
+msgstr "Hiberna"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:187
-msgid "Settings"
-msgstr "Paràmetres"
+#: ui-gtk/UgtkMenubar-ui.c:130
+msgid "Suspend"
+msgstr "Suspèn"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:454
-#, c-format
-msgid "Can't launch default application for file '%s'."
-msgstr "No es pot executar l'aplicació predefinida per al fitxer '%s'"
+#: ui-gtk/UgtkMenubar-ui.c:134
+msgid "Shutdown"
+msgstr "Tancament"
 
-#: ../../po/../ui-gtk/UgtkMenubar.c:486
-#, c-format
-msgid "'%s' - This folder does not exist."
-msgstr "'%s' - Aquesta carpeta no existeix."
+#: ui-gtk/UgtkMenubar-ui.c:138
+msgid "Reboot"
+msgstr "Reinicia l'equip"
 
-#. title
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:219
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:223
-msgid "URI had existed"
-msgstr "L'URI ja existeix."
+#: ui-gtk/UgtkMenubar-ui.c:142
+msgid "Custom"
+msgstr "Personalitza"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:221
-msgid "This URI had existed, are you sure to continue?"
-msgstr "Aquesta URI ja existeix. Estàs segur que vol continuar?"
+#: ui-gtk/UgtkMenubar-ui.c:147
+msgid "Remember"
+msgstr "Recordar aquesta elecció"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:359
-msgid "General"
-msgstr "General"
+#: ui-gtk/UgtkMenubar-ui.c:148 ui-gtk/UgtkMenubar-ui.c:309
+msgid "Help"
+msgstr "Ajuda"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:361
-msgid "Advanced"
-msgstr "Avançat"
+#: ui-gtk/UgtkMenubar-ui.c:151 ui-gtk/UgtkSettingForm.c:350
+msgid "Completion Auto-Actions"
+msgstr "Accions autom. de compleció"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:370
-msgid "Category settings"
-msgstr "Paràmetres de categoria"
+#: ui-gtk/UgtkMenubar-ui.c:162
+msgid "Edit"
+msgstr "Edita"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:372
-msgid "Default for new download 1"
-msgstr "Predeterminada per a nova descàrrega 1"
+#: ui-gtk/UgtkMenubar-ui.c:169
+msgid "Toolbar"
+msgstr "Barra d'eines"
 
-#: ../../po/../ui-gtk/UgtkNodeDialog.c:374
-msgid "Default 2"
-msgstr "Predeterminada 2"
+#: ui-gtk/UgtkMenubar-ui.c:170
+msgid "Statusbar"
+msgstr "Barra d'estat"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:143 ../../po/../ui-gtk/UgtkNodeView.c:608
-#: ../../po/../ui-gtk/UgtkSummary.c:107
-msgid "unnamed"
-msgstr "sense nom"
+#: ui-gtk/UgtkMenubar-ui.c:172
+msgid "Summary"
+msgstr "Sumari"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:641
-msgid "Paused"
-msgstr "En pausa"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:642
-msgid "Uploading"
-msgstr "S'està transferint"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:643
-msgid "Completed"
-msgstr "Completades"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:645
-msgid "Recycled"
-msgstr "Descartades"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:646
-msgid "Queuing"
-msgstr "Posant en cua"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:647
-msgid "Active"
-msgstr "Actives"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:668
-msgid "All Status"
-msgstr "Tots els estats"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:773
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:101
-#: ../../po/../ui-gtk/UgtkSummary.c:100
+#: ui-gtk/UgtkMenubar-ui.c:177 ui-gtk/UgtkNodeView.c:635
+#: ui-gtk/UgtkSummary.c:92
 msgid "Name"
 msgstr "Nom"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:790
-msgid "Complete"
-msgstr "Complet"
+#: ui-gtk/UgtkMenubar-ui.c:178 ui-gtk/UgtkSummary.c:106
+msgid "Folder"
+msgstr "Carpeta"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:804
-msgid "Size"
-msgstr "Mida"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:819
-msgid "%"
-msgstr "%"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:833
-msgid "Elapsed"
-msgstr "Transcorregut"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:847
-msgid "Left"
-msgstr "Pendent"
-
-#: ../../po/../ui-gtk/UgtkNodeView.c:946
-#: ../../po/../ui-gtk/UgtkSettingForm.c:584
-#: ../../po/../ui-gtk/UgtkSummary.c:143
+#: ui-gtk/UgtkMenubar-ui.c:180 ui-gtk/UgtkMenubar-ui.c:201
+#: ui-gtk/UgtkNodeView.c:683 ui-gtk/UgtkSettingForm.c:580
+#: ui-gtk/UgtkSummary.c:126
 msgid "URI"
 msgstr "URI"
 
-#: ../../po/../ui-gtk/UgtkNodeView.c:997
-msgid "Quantity"
-msgstr "Quantitat"
+#: ui-gtk/UgtkMenubar-ui.c:182
+msgid "Summary Items"
+msgstr "Ítems del sumari"
 
-#. proxy type label & combo box
-#: ../../po/../ui-gtk/UgtkProxyForm.c:64
+#: ui-gtk/UgtkMenubar-ui.c:190 ui-gtk/UgtkNodeView.c:639
+msgid "Complete"
+msgstr "Complet"
+
+#: ui-gtk/UgtkMenubar-ui.c:191
+msgid "Total"
+msgstr "Total"
+
+#: ui-gtk/UgtkMenubar-ui.c:192
+msgid "Percent"
+msgstr "Per cent"
+
+#: ui-gtk/UgtkMenubar-ui.c:193 ui-gtk/UgtkNodeView.c:651
+msgid "Elapsed"
+msgstr "Transcorregut"
+
+#: ui-gtk/UgtkMenubar-ui.c:194
+msgid "Remaining"
+msgstr "Restants"
+
+#: ui-gtk/UgtkMenubar-ui.c:195 ui-gtk/UgtkNodeView.c:659
+msgid "Speed"
+msgstr "Velocitat"
+
+#: ui-gtk/UgtkMenubar-ui.c:196
+msgid "Upload Speed"
+msgstr "Velocitat de pujada"
+
+#: ui-gtk/UgtkMenubar-ui.c:197 ui-gtk/UgtkNodeView.c:667
+msgid "Uploaded"
+msgstr "Transferit"
+
+#: ui-gtk/UgtkMenubar-ui.c:198 ui-gtk/UgtkNodeView.c:671
+msgid "Ratio"
+msgstr "Relació"
+
+#: ui-gtk/UgtkMenubar-ui.c:202 ui-gtk/UgtkNodeView.c:687
+msgid "Added On"
+msgstr "Afegit en"
+
+#: ui-gtk/UgtkMenubar-ui.c:203 ui-gtk/UgtkNodeView.c:691
+msgid "Completed On"
+msgstr "Completat en"
+
+#: ui-gtk/UgtkMenubar-ui.c:204
+msgid "Download Columns"
+msgstr "Columnes de descàrrega"
+
+#: ui-gtk/UgtkMenubar-ui.c:209
+msgid "View"
+msgstr "Visualitza"
+
+#: ui-gtk/UgtkMenubar-ui.c:217 ui-gtk/UgtkMenubar-ui.c:1429
+msgid "Delete Category"
+msgstr "Esborra la categoria"
+
+#: ui-gtk/UgtkMenubar-ui.c:235 ui-gtk/UgtkMenubar-ui.c:1450
+msgid "Delete Entry"
+msgstr "Esborra aquesta entrada"
+
+#: ui-gtk/UgtkMenubar-ui.c:236 ui-gtk/UgtkMenubar-ui.c:1451
+msgid "Delete Entry and File"
+msgstr "Esborra el fitxer i les dades"
+
+#: ui-gtk/UgtkMenubar-ui.c:240 ui-gtk/UgtkMenubar-ui.c:1454
+msgid "Open"
+msgstr "Obre"
+
+#: ui-gtk/UgtkMenubar-ui.c:241 ui-gtk/UgtkMenubar-ui.c:1455
+msgid "Open Containing Folder"
+msgstr "Obre la carpeta contenidora"
+
+#: ui-gtk/UgtkMenubar-ui.c:246 ui-gtk/UgtkMenubar-ui.c:1460
+msgid "Force Start"
+msgstr "Força'l a engegar"
+
+#: ui-gtk/UgtkMenubar-ui.c:247 ui-gtk/UgtkMenubar-ui.c:1461
+msgid "Runnable"
+msgstr "Activa"
+
+#: ui-gtk/UgtkMenubar-ui.c:256 ui-gtk/UgtkMenubar-ui.c:1470
+msgid "Move To"
+msgstr "Mou a"
+
+#: ui-gtk/UgtkMenubar-ui.c:263 ui-gtk/UgtkMenubar-ui.c:1477
+msgid "Move to Top"
+msgstr "Mou cap a dalt"
+
+#: ui-gtk/UgtkMenubar-ui.c:264 ui-gtk/UgtkMenubar-ui.c:1478
+msgid "Move to Bottom"
+msgstr "Mou cap a sota"
+
+#: ui-gtk/UgtkMenubar-ui.c:271 ui-gtk/UgtkMenubar-ui.c:1485
+msgid "High"
+msgstr "Alta"
+
+#. Normal - label
+#: ui-gtk/UgtkMenubar-ui.c:275 ui-gtk/UgtkMenubar-ui.c:1489
+#: ui-gtk/UgtkScheduleForm.c:175
+msgid "Normal"
+msgstr "Normal"
+
+#: ui-gtk/UgtkMenubar-ui.c:279 ui-gtk/UgtkMenubar-ui.c:1493
+msgid "Low"
+msgstr "Baixa"
+
+#: ui-gtk/UgtkMenubar-ui.c:283 ui-gtk/UgtkMenubar-ui.c:1497
+msgid "Priority"
+msgstr "Prioritat"
+
+#: ui-gtk/UgtkMenubar-ui.c:293
+msgid "Download"
+msgstr "Descarrega"
+
+#: ui-gtk/UgtkMenubar-ui.c:300
+msgid "Documentation"
+msgstr "Documentació"
+
+#: ui-gtk/UgtkMenubar-ui.c:301
+msgid "Report an Issue"
+msgstr "Informa d'un problema"
+
+#: ui-gtk/UgtkMenubar-ui.c:302
+msgid "Check for Updates"
+msgstr "Comprova si hi ha actualitzacions"
+
+#: ui-gtk/UgtkMenubar-ui.c:305 ui-gtk/UgtkTrayIcon.c:502
+msgid "About"
+msgstr "Sobre"
+
+#: ui-gtk/UgtkMenubar-ui.c:1514
+msgid "Copy"
+msgstr "Copia"
+
+#: ui-gtk/UgtkMenubar-ui.c:1515
+msgid "Copy All"
+msgstr "Copia-ho tot"
+
+#: ui-gtk/UgtkMenubar-ui.c:1536 ui-gtk/UgtkMenubar.c:78
+msgid "Unnamed"
+msgstr "sense nom"
+
+#: ui-gtk/UgtkNodeDialog.c:210
+msgid "URI had existed"
+msgstr "L'URI ja existeix."
+
+#: ui-gtk/UgtkNodeDialog.c:212
+msgid "This URI had existed, are you sure to continue?"
+msgstr "Aquesta URI ja existeix. Estàs segur que vol continuar?"
+
+#: ui-gtk/UgtkNodeDialog.c:369
+msgid "General"
+msgstr "General"
+
+#: ui-gtk/UgtkNodeDialog.c:371
+msgid "Advanced"
+msgstr "Avançat"
+
+#: ui-gtk/UgtkNodeDialog.c:380
+msgid "Category settings"
+msgstr "Paràmetres de categoria"
+
+#: ui-gtk/UgtkNodeDialog.c:382
+msgid "Default for new download 1"
+msgstr "Predeterminada per a nova descàrrega 1"
+
+#: ui-gtk/UgtkNodeDialog.c:384
+msgid "Default 2"
+msgstr "Predeterminada 2"
+
+#: ui-gtk/UgtkNodeView.c:142 ui-gtk/UgtkNodeView.c:517 ui-gtk/UgtkSummary.c:99
+msgid "unnamed"
+msgstr "sense nom"
+
+#: ui-gtk/UgtkNodeView.c:453
+msgid "Paused"
+msgstr "En pausa"
+
+#: ui-gtk/UgtkNodeView.c:454
+msgid "Uploading"
+msgstr "S'està transferint"
+
+#: ui-gtk/UgtkNodeView.c:455
+msgid "Completed"
+msgstr "Completades"
+
+#: ui-gtk/UgtkNodeView.c:457
+msgid "Recycled"
+msgstr "Descartades"
+
+#: ui-gtk/UgtkNodeView.c:458
+msgid "Queuing"
+msgstr "Posant en cua"
+
+#: ui-gtk/UgtkNodeView.c:459
+msgid "Active"
+msgstr "Actives"
+
+#. name
+#: ui-gtk/UgtkNodeView.c:561
+msgid "All Status"
+msgstr "Tots els estats"
+
+#: ui-gtk/UgtkNodeView.c:643
+msgid "Size"
+msgstr "Mida"
+
+#: ui-gtk/UgtkNodeView.c:647
+msgid "%"
+msgstr "%"
+
+#: ui-gtk/UgtkNodeView.c:655
+msgid "Left"
+msgstr "Pendent"
+
+#: ui-gtk/UgtkNodeView.c:663
+msgid "Up Speed"
+msgstr "Límit de velocitat"
+
+#. proxy type label & dropdown
+#: ui-gtk/UgtkProxyForm.c:71
 msgid "Proxy:"
 msgstr "Servidor intermediari:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:67
+#: ui-gtk/UgtkProxyForm.c:74
 msgid "Don't use"
 msgstr "No l'empris"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:69
+#: ui-gtk/UgtkProxyForm.c:74
 msgid "Default"
 msgstr "Predeterminada"
 
 #. host label & entry
-#: ../../po/../ui-gtk/UgtkProxyForm.c:121
+#: ui-gtk/UgtkProxyForm.c:120
 msgid "Host:"
 msgstr "Amfitrió:"
 
 #. port label & entry
-#: ../../po/../ui-gtk/UgtkProxyForm.c:132
+#: ui-gtk/UgtkProxyForm.c:131
 msgid "Port:"
 msgstr "Port:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:359
+#: ui-gtk/UgtkProxyForm.c:357
 msgid "Socket:"
 msgstr "Sòcol:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:369
+#: ui-gtk/UgtkProxyForm.c:368
 msgid "Socket args:"
 msgstr "Arguments del sòcul:"
 
-#: ../../po/../ui-gtk/UgtkProxyForm.c:379
+#: ui-gtk/UgtkProxyForm.c:379
 msgid "Element:"
 msgstr "Element:"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:57
+#: ui-gtk/UgtkScheduleForm.c:66
 msgid "Mon"
 msgstr "Dll"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:58
+#: ui-gtk/UgtkScheduleForm.c:67
 msgid "Tue"
 msgstr "Dm"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:59
+#: ui-gtk/UgtkScheduleForm.c:68
 msgid "Wed"
 msgstr "Dc"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:60
+#: ui-gtk/UgtkScheduleForm.c:69
 msgid "Thu"
 msgstr "Dj"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:61
+#: ui-gtk/UgtkScheduleForm.c:70
 msgid "Fri"
 msgstr "Dv"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:62
+#: ui-gtk/UgtkScheduleForm.c:71
 msgid "Sat"
 msgstr "Ds"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:63
+#: ui-gtk/UgtkScheduleForm.c:72
 msgid "Sun"
 msgstr "Dg"
 
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:104
+#: ui-gtk/UgtkScheduleForm.c:112
 msgid "_Enable Scheduler"
 msgstr "_Habilita el temporitzador"
 
 #. Turn off - label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:154
+#: ui-gtk/UgtkScheduleForm.c:158
 msgid "Turn off"
-msgstr "Desactiva"
+msgstr "Apagar"
 
 #. Turn off - help label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:159
+#: ui-gtk/UgtkScheduleForm.c:164
 msgid "- stop all task"
 msgstr "- atura totes les tasques"
 
-#. Normal - label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:169
-msgid "Normal"
-msgstr "Normal"
-
 #. Normal - help label
-#: ../../po/../ui-gtk/UgtkScheduleForm.c:174
+#: ui-gtk/UgtkScheduleForm.c:181
 msgid "- run task normally"
 msgstr "- executa les tasques amb normalitat"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:254
-msgid "All"
-msgstr "Tot"
+#. Speed limit - label
+#: ui-gtk/UgtkScheduleForm.c:191
+msgid "Limited speed"
+msgstr "Velocitat limitada"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:259
-msgid "None"
-msgstr "Cap"
-
-#: ../../po/../ui-gtk/UgtkSelector.c:276
+#: ui-gtk/UgtkSelector.c:290
 msgid "Mark by filter"
 msgstr "Selecciona per filtrar"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:294
+#: ui-gtk/UgtkSelector.c:304
 msgid "Mark URLs by host AND filename extension."
 msgstr "Selecciona URLs per servidor I per extensió de fitxer"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:297
+#: ui-gtk/UgtkSelector.c:306
 msgid "This will reset all marks of URLs."
 msgstr "Això netejarà tota selecció d'URLs."
 
-#. filter view -----------------------
-#. left side
-#: ../../po/../ui-gtk/UgtkSelector.c:305
+#: ui-gtk/UgtkSelector.c:316
 msgid "Host"
 msgstr "Amfitrió"
 
-#. right side (filename extension)
-#: ../../po/../ui-gtk/UgtkSelector.c:309
+#: ui-gtk/UgtkSelector.c:323 ui-gtk/UgtkSelector.c:346
+msgid "All"
+msgstr "Tot"
+
+#: ui-gtk/UgtkSelector.c:327 ui-gtk/UgtkSelector.c:350 ui-gtk/UgtkSequence.c:65
+msgid "None"
+msgstr "Cap"
+
+#: ui-gtk/UgtkSelector.c:339
 msgid "File Ext."
 msgstr "Extensió de fitxer"
 
-#: ../../po/../ui-gtk/UgtkSelector.c:449
-msgid "URL"
-msgstr "URL"
-
-#: ../../po/../ui-gtk/UgtkSelector.c:781
+#: ui-gtk/UgtkSelector.c:758
 msgid "Base hypertext reference"
 msgstr "Referència base d'hipertext"
 
 #. select all
-#: ../../po/../ui-gtk/UgtkSelector.c:797
+#: ui-gtk/UgtkSelector.c:774
 msgid "Mark _All"
 msgstr "Seleccion_a-les totes"
 
 #. select none
-#: ../../po/../ui-gtk/UgtkSelector.c:801
+#: ui-gtk/UgtkSelector.c:778
 msgid "Mark _None"
 msgstr "No e_n seleccionis cap"
 
 #. select by filter
-#: ../../po/../ui-gtk/UgtkSelector.c:805
+#: ui-gtk/UgtkSelector.c:782
 msgid "_Mark by filter..."
 msgstr "_Selecciona per filtre..."
 
-#. e.g.
-#: ../../po/../ui-gtk/UgtkSequence.c:74
-msgid "e.g."
-msgstr "p.ex."
+#: ui-gtk/UgtkSequence.c:65
+msgid "Num"
+msgstr "Número"
 
-#. -------------------------------------------------------
-#. radio "From"
-#: ../../po/../ui-gtk/UgtkSequence.c:85
-msgid "_From:"
-msgstr "_De:"
+#: ui-gtk/UgtkSequence.c:65
+msgid "Char"
+msgstr "Caràcter"
 
-#. label "To"
-#: ../../po/../ui-gtk/UgtkSequence.c:108
+#. Label - To
+#: ui-gtk/UgtkSequence.c:92
 msgid "To:"
 msgstr "A:"
 
-#. label "digits"
-#: ../../po/../ui-gtk/UgtkSequence.c:123
+#. label - digits
+#: ui-gtk/UgtkSequence.c:105
 msgid "digits:"
 msgstr "dígits:"
 
-#: ../../po/../ui-gtk/UgtkSequence.c:132
-msgid "F_rom:"
-msgstr "_De"
-
-#. label case-sensitive
-#: ../../po/../ui-gtk/UgtkSequence.c:162
+#. label - case-sensitive
+#: ui-gtk/UgtkSequence.c:126
 msgid "case-sensitive"
 msgstr "distingeix majúsc. i minúsc."
 
-#: ../../po/../ui-gtk/UgtkSequence.c:188
-msgid "No wildcard(*) character in URL entry."
-msgstr "No empreu el caràcter comodí (*) en el camp URL"
+#. e.g.
+#: ui-gtk/UgtkSequence.c:243
+msgid "e.g."
+msgstr "p.ex."
 
-#: ../../po/../ui-gtk/UgtkSequence.c:192
-msgid "URL is not valid."
-msgstr "L'URL no és vàlida."
+#: ui-gtk/UgtkSequence.c:292
+msgid "URI is not valid."
+msgstr "La URI no és vàlida."
 
-#: ../../po/../ui-gtk/UgtkSequence.c:196
+#: ui-gtk/UgtkSequence.c:299
+msgid "No wildcard(*) character in URI entry."
+msgstr "No s'admet el caràcter comodí (*) a l'entrada URI."
+
+#: ui-gtk/UgtkSequence.c:306
 msgid "No character in 'From' or 'To' entry."
 msgstr "Cap caràcter en els camps 'De' o 'A'"
 
-#: ../../po/../ui-gtk/UgtkSequence.c:311
-msgid "Preview"
-msgstr "Previsualització"
-
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:113
+#: ui-gtk/UgtkSettingDialog.c:145
 msgid "User Interface"
 msgstr "Interfície d'usuari"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:125
+#: ui-gtk/UgtkSettingDialog.c:157
 msgid "Bandwidth"
 msgstr "Ample de banda"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:131
+#: ui-gtk/UgtkSettingDialog.c:163
 msgid "Scheduler"
 msgstr "Temporitzador"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:137
+#: ui-gtk/UgtkSettingDialog.c:169
 msgid "Plug-in"
 msgstr "Connector"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:143
-msgid "Media website"
-msgstr ""
+#: ui-gtk/UgtkSettingDialog.c:175
+msgid "Media"
+msgstr "Mitjans"
 
-#: ../../po/../ui-gtk/UgtkSettingDialog.c:149
+#: ui-gtk/UgtkSettingDialog.c:181
 msgid "Others"
 msgstr "Altres"
 
 #. Monitor button
-#: ../../po/../ui-gtk/UgtkSettingForm.c:61
+#: ui-gtk/UgtkSettingForm.c:69
 msgid "_Enable clipboard monitor"
 msgstr "_Habilita el monitor del porta-retalls"
 
 #. quiet mode
-#: ../../po/../ui-gtk/UgtkSettingForm.c:66
+#: ui-gtk/UgtkSettingForm.c:74
 msgid "_Quiet mode"
 msgstr "_Mode silenciós"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:72
-#: ../../po/../ui-gtk/UgtkSettingForm.c:488
+#: ui-gtk/UgtkSettingForm.c:80 ui-gtk/UgtkSettingForm.c:487
 msgid "Default category index"
 msgstr "Índex predeterminat de categoria"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:84
-#: ../../po/../ui-gtk/UgtkSettingForm.c:500
+#: ui-gtk/UgtkSettingForm.c:92 ui-gtk/UgtkSettingForm.c:499
 msgid "Adding to Nth category if no matched category."
 msgstr "Si no coincideix amb cap categoria, afegeix a la Na categoria."
 
-#. media website
-#: ../../po/../ui-gtk/UgtkSettingForm.c:90
-msgid "_Monitor URL of media website"
-msgstr ""
+#: ui-gtk/UgtkSettingForm.c:97
+msgid "_Monitor URL of website"
+msgstr "URL de _monitoratge del lloc web"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:105
+#: ui-gtk/UgtkSettingForm.c:112
 msgid "Monitor clipboard for specified file types:"
 msgstr "_Cerca aquests tipus de fitxer al porta-retalls "
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:125
+#: ui-gtk/UgtkSettingForm.c:130
 msgid "Separate the types with character '|'."
 msgstr "Separa els tipus de fitxer amb el caràcter '|'."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:130
+#: ui-gtk/UgtkSettingForm.c:134
 msgid "You can use regular expressions here."
 msgstr "Aquí pots emprar expressions regulars."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:176
+#: ui-gtk/UgtkSettingForm.c:179
 msgid "Confirmation"
 msgstr "Confirma"
 
 #. Confirmation check buttons
-#: ../../po/../ui-gtk/UgtkSettingForm.c:182
+#: ui-gtk/UgtkSettingForm.c:185
 msgid "Show confirmation dialog on exit"
 msgstr "Demana confirmació per sortir"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:185
+#: ui-gtk/UgtkSettingForm.c:188
 msgid "Confirm when deleting files"
 msgstr "Confirma l'eliminació de fitxers"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:191
+#: ui-gtk/UgtkSettingForm.c:194
 msgid "System Tray"
 msgstr "Safata del sistema"
 
 #. System Tray check buttons
-#: ../../po/../ui-gtk/UgtkSettingForm.c:197
+#: ui-gtk/UgtkSettingForm.c:200
 msgid "Always show tray icon"
 msgstr "Sempre mostra icona a la safata"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:200
+#: ui-gtk/UgtkSettingForm.c:203
 msgid "Minimize to tray on startup"
 msgstr "Minimitza a la safata en arrencar"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:203
+#: ui-gtk/UgtkSettingForm.c:206
 msgid "Close to tray on window close"
 msgstr "Minimitza a la safata al tancar la finestra"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:207
-msgid "Use Ubuntu's App Indicator"
-msgstr "Activa l'extensió d'integració amb l'Ubuntu"
-
-#: ../../po/../ui-gtk/UgtkSettingForm.c:214
+#: ui-gtk/UgtkSettingForm.c:212
 msgid "Enable offline mode on startup"
 msgstr "Habilita el mode fora de línia en arrencar"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:217
+#: ui-gtk/UgtkSettingForm.c:215
 msgid "Download starting notification"
 msgstr "Notificació d'inici de descàrrega"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:220
+#: ui-gtk/UgtkSettingForm.c:218
 msgid "Sound when download is finished"
 msgstr "Fés un so quan la descàrrega acabi"
 
-#. widget = gtk_check_button_new_with_label (_("Skip existing URI from
-#. clipboard and command-line"));
-#. uiform->skip_existing = (GtkToggleButton*) widget;
-#. gtk_box_pack_start (vbox, widget, FALSE, FALSE, 1);
-#: ../../po/../ui-gtk/UgtkSettingForm.c:229
+#. widget = gtk_check_button_new_with_label (_("Skip existing URI from clipboard and command-line"));
+#. uiform->skip_existing = (GtkCheckButton*) widget;
+#. gtk_box_append (vbox, widget);
+#: ui-gtk/UgtkSettingForm.c:227
 msgid "Display large icon"
-msgstr ""
+msgstr "Mostra la icona gran"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:295
+#: ui-gtk/UgtkSettingForm.c:286
 msgid "These will affect all plug-ins."
 msgstr "Això afectarà a tots els connectors."
 
 #. Global speed limit
-#: ../../po/../ui-gtk/UgtkSettingForm.c:301
+#: ui-gtk/UgtkSettingForm.c:292
 msgid "Global speed limit"
 msgstr "Límit global de velocitat"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:309
-#: ../../po/../ui-gtk/UgtkSettingForm.c:610
+#: ui-gtk/UgtkSettingForm.c:300 ui-gtk/UgtkSettingForm.c:608
 msgid "Max upload speed"
 msgstr "Velocitat màx. de pujada"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:321
-#: ../../po/../ui-gtk/UgtkSettingForm.c:622
+#: ui-gtk/UgtkSettingForm.c:315 ui-gtk/UgtkSettingForm.c:623
 msgid "Max download speed"
 msgstr "Velocitat màx. de baixada"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:354
-msgid "Completion Auto-Actions"
-msgstr "Accions autom. de compleció"
-
-#: ../../po/../ui-gtk/UgtkSettingForm.c:362
+#: ui-gtk/UgtkSettingForm.c:358
 msgid "Custom command:"
 msgstr "Ordre personalitzada:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:374
-msgid "Custom command if error occured:"
-msgstr "Ordre predeterminada si s'escau un error:"
+#: ui-gtk/UgtkSettingForm.c:371
+msgid "Custom command if error occurred:"
+msgstr "Comanda personalitzada si s'ha produït un error:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:424
+#: ui-gtk/UgtkSettingForm.c:422
 msgid "_Autosave"
 msgstr "Desa _automàticament"
 
 #. auto save interval label
-#: ../../po/../ui-gtk/UgtkSettingForm.c:435
+#: ui-gtk/UgtkSettingForm.c:434
 msgid "_Interval:"
 msgstr "_Intèrval:"
 
 #. auto save interval unit label
-#: ../../po/../ui-gtk/UgtkSettingForm.c:446
+#: ui-gtk/UgtkSettingForm.c:445
 msgid "minutes"
 msgstr "minuts"
 
 #. Commandline Settings
-#: ../../po/../ui-gtk/UgtkSettingForm.c:475
+#: ui-gtk/UgtkSettingForm.c:474
 msgid "Commandline Settings"
 msgstr "Paràmetres de línia d'ordres"
 
 #. --quiet
-#: ../../po/../ui-gtk/UgtkSettingForm.c:482
+#: ui-gtk/UgtkSettingForm.c:481
 msgid "Use '--quiet' by default"
 msgstr "Empra el mode silenciós"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:554
+#: ui-gtk/UgtkSettingForm.c:553
 msgid "Plug-in matching order:"
 msgstr "Ordre de coincidència dels connectors:"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:577
+#: ui-gtk/UgtkSettingForm.c:573
 msgid "Aria2 plug-in options"
 msgstr "Opcions dels connectors d'aria2"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:593
+#: ui-gtk/UgtkSettingForm.c:590
 msgid "RPC authorization secret token"
 msgstr "Autorització secreta de RPC"
 
 #. ------------------------------------------------------------------------
 #. Speed Limits
-#: ../../po/../ui-gtk/UgtkSettingForm.c:602
+#: ui-gtk/UgtkSettingForm.c:600
 msgid "Global speed limit for aria2 only"
 msgstr "Límit de velocitat global només per aria2"
 
 #. ------------------------------------------------------------------------
 #. aria2 works on local device
 #. launch
-#: ../../po/../ui-gtk/UgtkSettingForm.c:635
+#: ui-gtk/UgtkSettingForm.c:638
 msgid "_Launch aria2 on startup"
 msgstr "_Executa l'aria2 en arrencar"
 
 #. shutdown
-#: ../../po/../ui-gtk/UgtkSettingForm.c:641
+#: ui-gtk/UgtkSettingForm.c:644
 msgid "_Shutdown aria2 on exit"
 msgstr "_Atura l'aria2 en sortir"
 
 #. ------------------------------------------------------------------------
 #. Local options
-#: ../../po/../ui-gtk/UgtkSettingForm.c:647
+#: ui-gtk/UgtkSettingForm.c:650
 msgid "Launch aria2 on local device"
 msgstr "Arrenca aria2 en el dispositiu local"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:656
+#: ui-gtk/UgtkSettingForm.c:659
 msgid "Path"
 msgstr "Camí"
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:674
+#: ui-gtk/UgtkSettingForm.c:678
 msgid "Arguments"
 msgstr "Arguments :"
 
 #. Arguments - hint
-#: ../../po/../ui-gtk/UgtkSettingForm.c:679
+#: ui-gtk/UgtkSettingForm.c:683
 msgid "You must restart uGet after modifying it."
 msgstr "Cal reiniciar uGet en modificar-los."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:783
-msgid "Media matching mode:"
-msgstr ""
+#: ui-gtk/UgtkSettingForm.c:799
+msgid "Status: media extractor is available."
+msgstr "Estat: l'extactor de mitjans està disponible."
 
-#: ../../po/../ui-gtk/UgtkSettingForm.c:801
-msgid "Match conditions"
-msgstr ""
+#: ui-gtk/UgtkSettingForm.c:802
+msgid ""
+"Status: media extractor not found in PATH. Install yt-dlp (or set a path "
+"below) to enable media downloads."
+msgstr "Estat: no s'ha trobat cap extractor de mitjans al PATH. Instal·la yt-dlp (o estableix una ruta a continuació) per permetre les descàrregues de mitjans."
 
-#. Quality
-#: ../../po/../ui-gtk/UgtkSettingForm.c:810
-msgid "Quality:"
-msgstr ""
+#: ui-gtk/UgtkSettingForm.c:822
+msgid "_Enable media extraction (via yt-dlp)"
+msgstr "Activa l'_extracció de mitjans (mitjançant yt-dlp)"
 
-#. Type
-#: ../../po/../ui-gtk/UgtkSettingForm.c:830
-msgid "Type:"
-msgstr ""
+#: ui-gtk/UgtkSettingForm.c:830
+msgid ""
+"When enabled, clicking the \"find\" icon in the URL field of the New "
+"Download dialog will query an external extractor to fetch available stream "
+"formats from media page URLs."
+msgstr "Quan estigui habilitat, fer clic a la icona «troba» al camp URL del diàleg de nova descàrrega enviarà una consulta a un extractor extern per obtenir els formats de flux disponibles a partir de les adreces URL de les pàgines de mitjans."
 
-#: ../../po/../ui-gtk/UgtkSummary.c:104
-msgid "File"
-msgstr "Fitxer"
+#. Max height
+#: ui-gtk/UgtkSettingForm.c:846
+msgid "Max resolution:"
+msgstr "Màxima resolució:"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:119
-msgid "Folder"
-msgstr "Carpeta"
+#: ui-gtk/UgtkSettingForm.c:850 ui-gtk/UgtkSettingForm.c:861
+msgid "Best"
+msgstr "Millor disponible"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:262
-msgid "Item"
-msgstr "Element"
+#. Preferred container
+#: ui-gtk/UgtkSettingForm.c:857
+msgid "Preferred container:"
+msgstr "Contenidor preferit:"
 
-#: ../../po/../ui-gtk/UgtkSummary.c:267
-msgid "Value"
-msgstr "Valor"
+#: ui-gtk/UgtkSettingForm.c:869
+msgid "_Auto-pick best matching format (skip selector)"
+msgstr "Selecció _automàtica del format més adequat (salta el selector)"
 
-#. Copy All
-#: ../../po/../ui-gtk/UgtkSummary.c:299
-msgid "Copy _All"
-msgstr "Copia-ho _tot"
+#. Path
+#: ui-gtk/UgtkSettingForm.c:875
+msgid "Extractor:"
+msgstr "Extractor:"
 
-#. Show window
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:141
+#: ui-gtk/UgtkTrayIcon.c:461
+msgid "New Download..."
+msgstr "Nova descàrrega..."
+
+#: ui-gtk/UgtkTrayIcon.c:463
+msgid "New Clipboard batch..."
+msgstr "Nou lot del porta-retalls..."
+
+#. Section 2: Torrent/Metalink
+#: ui-gtk/UgtkTrayIcon.c:468
+msgid "New Torrent..."
+msgstr "Nou torrent..."
+
+#: ui-gtk/UgtkTrayIcon.c:470
+msgid "New Metalink..."
+msgstr "Nou metalink..."
+
+#: ui-gtk/UgtkTrayIcon.c:500
+msgid "Settings..."
+msgstr "Paràmetres..."
+
+#: ui-gtk/UgtkTrayIcon.c:508
 msgid "Show window"
 msgstr "Mostra la finestra"
-
-#. Offline mode
-#: ../../po/../ui-gtk/UgtkTrayIcon.c:147
-msgid "_Offline Mode"
-msgstr "_Mode fora de línia"

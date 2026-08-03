@@ -1,0 +1,1569 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR uGet Project
+# This file is distributed under the same license as the uget package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: uget\n"
+"Report-Msgid-Bugs-To: https://github.com/ozgur-as/uget/issues\n"
+"POT-Creation-Date: 2026-08-03 17:58+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: uget/UgetApp.c:135
+msgid "All Category"
+msgstr ""
+
+#. UGET_EVENT_NORMAL_CUSTOM
+#: uget/UgetEvent.c:58
+msgid "Connecting..."
+msgstr ""
+
+#. UGET_EVENT_NORMAL_CONNECT
+#: uget/UgetEvent.c:59
+msgid "Transmitting..."
+msgstr ""
+
+#. UGET_EVENT_NORMAL_TRANSMIT,
+#: uget/UgetEvent.c:60 ui-gtk/UgtkMenubar-ui.c:199 ui-gtk/UgtkNodeView.c:675
+msgid "Retry"
+msgstr ""
+
+#. UGET_EVENT_NORMAL_RETRY,
+#: uget/UgetEvent.c:61
+msgid "Download completed"
+msgstr ""
+
+#. UGET_EVENT_NORMAL_COMPLETE,
+#: uget/UgetEvent.c:62 ui-gtk/UgtkNodeView.c:456
+msgid "Finished"
+msgstr ""
+
+#. UGET_EVENT_NORMAL_FINISH,
+#. resumable
+#: uget/UgetEvent.c:64
+msgid "Resumable"
+msgstr ""
+
+#. UGET_EVENT_NORMAL_RESUMABLE,
+#: uget/UgetEvent.c:65 uget/UgetPluginAria2.c:285
+msgid "Not Resumable"
+msgstr ""
+
+#. UGET_EVENT_WARNING_CUSTOM
+#: uget/UgetEvent.c:73 uget/UgetPluginAria2.c:292
+msgid "Output file can't be renamed."
+msgstr ""
+
+#. UGET_EVENT_ERROR_CUSTOM
+#: uget/UgetEvent.c:81
+msgid "couldn't connect to host."
+msgstr ""
+
+#. UGET_EVENT_ERROR_CONNECT_FAILED
+#: uget/UgetEvent.c:82 uget/UgetPluginAria2.c:296
+msgid "Folder can't be created."
+msgstr ""
+
+#. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
+#: uget/UgetEvent.c:83
+msgid "File can't be created (bad filename or file exist)."
+msgstr ""
+
+#. UGET_EVENT_ERROR_FILE_CREATE_FAILED
+#: uget/UgetEvent.c:84
+msgid "File can't be opened."
+msgstr ""
+
+#. UGET_EVENT_ERROR_FILE_OPEN_FAILED
+#: uget/UgetEvent.c:85
+msgid "Unable to create thread."
+msgstr ""
+
+#. UGET_EVENT_ERROR_THREAD_CREATE_FAILED,
+#: uget/UgetEvent.c:86
+msgid "Incorrect source (different file size)."
+msgstr ""
+
+#. UGET_EVENT_ERROR_INCORRECT_SOURCE,
+#: uget/UgetEvent.c:87
+msgid "Out of resource (disk full or run out of memory)."
+msgstr ""
+
+#. UGET_EVENT_ERROR_OUT_OF_RESOURCE
+#: uget/UgetEvent.c:88
+msgid "No output file."
+msgstr ""
+
+#. UGET_EVENT_ERROR_NO_OUTPUT_FILE
+#: uget/UgetEvent.c:89
+msgid "No output setting."
+msgstr ""
+
+#. UGET_EVENT_ERROR_NO_OUTPUT_SETTING
+#: uget/UgetEvent.c:90
+msgid "Too many retries."
+msgstr ""
+
+#. UGET_EVENT_ERROR_TOO_MANY_RETRIES
+#: uget/UgetEvent.c:91
+msgid "Unsupported scheme (protocol)."
+msgstr ""
+
+#. UGET_EVENT_ERROR_UNSUPPORTED_SCHEME
+#: uget/UgetEvent.c:92
+msgid "Unsupported file."
+msgstr ""
+
+#. UGET_EVENT_ERROR_UNSUPPORTED_FILE
+#: uget/UgetEvent.c:93
+msgid "post file not found."
+msgstr ""
+
+#. UGET_EVENT_ERROR_POST_FILE_NOT_FOUND
+#: uget/UgetEvent.c:94
+msgid "cookie file not found."
+msgstr ""
+
+#. 1 - 10
+#: uget/UgetPluginAria2.c:278
+msgid "aria2: an unknown error occurred."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:279
+msgid "aria2: time out occurred."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:280
+msgid "aria2: resource was not found."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:281
+msgid ""
+"aria2 saw the specified number of 'resource not found' error. See --max-file-"
+"not-found option"
+msgstr ""
+
+#: uget/UgetPluginAria2.c:282
+msgid "aria2: speed was too slow."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:283
+msgid "aria2: network problem occurred."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:284
+msgid "aria2: unfinished downloads."
+msgstr ""
+
+#. _("Not Resumable"),
+#: uget/UgetPluginAria2.c:286
+msgid "Out of resource"
+msgstr ""
+
+#. _(),
+#: uget/UgetPluginAria2.c:287
+msgid "aria2: piece length was different from one in .aria2 control file."
+msgstr ""
+
+#. 11 - 20
+#: uget/UgetPluginAria2.c:289
+msgid "aria2 was downloading same file."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:290
+msgid "aria2 was downloading same info hash torrent."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:291
+msgid "aria2: file already existed. See --allow-overwrite option."
+msgstr ""
+
+#. _("Output file can't be renamed."),
+#: uget/UgetPluginAria2.c:293
+msgid "aria2: could not open existing file."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:294
+msgid "aria2: could not create new file or truncate existing file."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:295
+msgid "aria2: file I/O error occurred."
+msgstr ""
+
+#. UGET_EVENT_ERROR_FOLDER_CREATE_FAILED
+#: uget/UgetPluginAria2.c:297
+msgid "aria2: name resolution failed."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:298
+msgid "aria2: could not parse Metalink document."
+msgstr ""
+
+#. 21 - 30
+#: uget/UgetPluginAria2.c:300
+msgid "aria2: FTP command failed."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:301
+msgid "aria2: HTTP response header was bad or unexpected."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:302
+msgid "Too many redirections."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:303
+msgid "aria2: HTTP authorization failed."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:304
+msgid "aria2: could not parse bencoded file(usually .torrent file)."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:305
+msgid "aria2: torrent file was corrupted or missing information."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:306
+msgid "aria2: Magnet URI was bad."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:307
+msgid ""
+"aria2: bad/unrecognized option was given or unexpected option argument was "
+"given."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:308
+msgid "aria2: remote server was unable to handle the request."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:309
+msgid "aria2: could not parse JSON-RPC request."
+msgstr ""
+
+#: uget/UgetPluginAria2.c:312
+msgid "No response. Is aria2 shutdown?"
+msgstr ""
+
+#. debug
+#: uget/UgetPluginAria2.c:613
+msgid "aria2: gid was removed."
+msgstr ""
+
+#: uget/UgetPluginMega.c:173
+msgid "Can't handle this MEGA URL."
+msgstr ""
+
+#: uget/UgetPluginMega.c:217
+msgid "Can't get download URL."
+msgstr ""
+
+#: uget/UgetPluginMega.c:677
+msgid "decrypting file..."
+msgstr ""
+
+#: uget/UgetPluginMega.c:766
+msgid "decryption completed"
+msgstr ""
+
+#: ui-gtk/UgtkAboutDialog.c:49
+msgid "Download Manager"
+msgstr ""
+
+#: ui-gtk/UgtkAboutDialog.c:52
+msgid "translator-credits"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:262
+msgid "tasks"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:399
+msgid "New from Clipboard"
+msgstr ""
+
+#. Menu items (as flat buttons)
+#. New Download / New Category
+#: ui-gtk/UgtkApp-timeout.c:401 ui-gtk/UgtkApp-ui.c:342 ui-gtk/UgtkApp.c:870
+#: ui-gtk/UgtkMenubar-ui.c:66
+msgid "New Download"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:425 ui-gtk/UgtkApp.c:1693
+#: ui-gtk/UgtkSettingDialog.c:151
+msgid "Clipboard"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:427
+msgid "Command line"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:767
+msgid "Error Occurred"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:768
+msgid "Error Occurred during downloading."
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:769
+msgid "Download Starting"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:770
+msgid "Starting download queue."
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:771
+msgid "Download Completed"
+msgstr ""
+
+#: ui-gtk/UgtkApp-timeout.c:772
+msgid "All queuing downloads have been completed."
+msgstr ""
+
+#. ----------------------------------------------------
+#. frame for Status (start mode)
+#: ui-gtk/UgtkApp-ui.c:231 ui-gtk/UgtkDownloadForm.c:236
+msgid "Status"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:232 ui-gtk/UgtkMenubar-ui.c:171
+#: ui-gtk/UgtkMenubar-ui.c:179 ui-gtk/UgtkMenubar-ui.c:200
+#: ui-gtk/UgtkMenubar-ui.c:227 ui-gtk/UgtkNodeDialog.c:424
+#: ui-gtk/UgtkNodeView.c:679 ui-gtk/UgtkSummary.c:113
+msgid "Category"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:332
+msgid "Create new download"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:346 ui-gtk/UgtkApp.c:795 ui-gtk/UgtkMenubar-ui.c:67
+#: ui-gtk/UgtkMenubar-ui.c:216 ui-gtk/UgtkMenubar-ui.c:1428
+msgid "New Category"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:350
+msgid "New Batch Sequence"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:354
+msgid "New Batch Clipboard"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:361 ui-gtk/UgtkApp.c:1245
+msgid "New Torrent"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:365 ui-gtk/UgtkApp.c:1261
+msgid "New Metalink"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:371 ui-gtk/UgtkMenubar-ui.c:86
+msgid "Save all settings"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:379
+msgid "Start"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:384 ui-gtk/UgtkMenubar-ui.c:248
+#: ui-gtk/UgtkMenubar-ui.c:1462
+msgid "Pause"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:389 ui-gtk/UgtkMenubar-ui.c:224
+#: ui-gtk/UgtkMenubar-ui.c:289 ui-gtk/UgtkMenubar-ui.c:1438
+#: ui-gtk/UgtkMenubar-ui.c:1503
+msgid "Properties"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:397 ui-gtk/UgtkMenubar-ui.c:219
+#: ui-gtk/UgtkMenubar-ui.c:261 ui-gtk/UgtkMenubar-ui.c:1432
+#: ui-gtk/UgtkMenubar-ui.c:1475
+msgid "Move Up"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:402 ui-gtk/UgtkMenubar-ui.c:220
+#: ui-gtk/UgtkMenubar-ui.c:262 ui-gtk/UgtkMenubar-ui.c:1433
+#: ui-gtk/UgtkMenubar-ui.c:1476
+msgid "Move Down"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:407
+msgid "Move Top"
+msgstr ""
+
+#: ui-gtk/UgtkApp-ui.c:412
+msgid "Move Bottom"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:812
+msgid "Copy - "
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1025
+msgid "Category Properties"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1043
+msgid "Download Properties"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1273
+msgid "Open Torrent file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1279
+msgid "Torrent file (*.torrent)"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1299
+msgid "Open Metalink file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1342
+msgid "Failed to save category file."
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1362
+msgid "Failed to load category file."
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1373
+msgid "Save Category file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1392
+msgid "Open Category file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1398
+msgid "JSON file (*.json)"
+msgstr ""
+
+#. add link
+#: ui-gtk/UgtkApp.c:1464
+msgid "Link <A>"
+msgstr ""
+
+#. add image
+#: ui-gtk/UgtkApp.c:1469
+msgid "Image <IMG>"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1519
+msgid "Text File"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1574
+msgid "Import URLs from HTML file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1580
+msgid "HTML file (*.htm, *.html)"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1600
+msgid "Import URLs from text file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1606
+msgid "Plain text file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1624
+msgid "Export URLs to text file"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1643 ui-gtk/UgtkMenubar-ui.c:73
+msgid "URL Sequence batch"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1672
+msgid "No URLs found in clipboard."
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1681
+msgid "All URLs had existed."
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1686 ui-gtk/UgtkMenubar-ui.c:72
+msgid "Clipboard batch"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1750 ui-gtk/UgtkMenubar-ui.c:234
+#: ui-gtk/UgtkMenubar-ui.c:1449
+msgid "New"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1773 ui-gtk/UgtkNodeView.c:452
+msgid "Error"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1775 ui-gtk/UgtkMenubar-ui.c:181 ui-gtk/UgtkSummary.c:154
+msgid "Message"
+msgstr ""
+
+#. OK button
+#: ui-gtk/UgtkApp.c:1779 ui-gtk/UgtkBatchDialog.c:73
+#: ui-gtk/UgtkNodeDialog.c:125 ui-gtk/UgtkSelector.c:368
+#: ui-gtk/UgtkSettingDialog.c:204
+msgid "_OK"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1787 ui-gtk/UgtkMenubar-ui.c:158
+msgid "Settings"
+msgstr ""
+
+#: ui-gtk/UgtkApp.c:1901
+#, c-format
+msgid "Selected %d items"
+msgstr ""
+
+#. back button
+#: ui-gtk/UgtkBatchDialog.c:64
+msgid "_Back"
+msgstr ""
+
+#. forward button
+#: ui-gtk/UgtkBatchDialog.c:67
+msgid "_Forward"
+msgstr ""
+
+#. cancel button
+#. OK & cancel buttons
+#: ui-gtk/UgtkBatchDialog.c:70 ui-gtk/UgtkFormatPicker.c:249
+#: ui-gtk/UgtkNodeDialog.c:123 ui-gtk/UgtkSelector.c:366
+#: ui-gtk/UgtkSettingDialog.c:202
+msgid "_Cancel"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:71
+msgid "Category _name:"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:91
+msgid "Active _downloads:"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:100
+msgid "Capacity of Finished:"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:109
+msgid "Capacity of Recycled:"
+msgstr ""
+
+#. ------------------------------------------------------------------------
+#. URI Matching conditions
+#: ui-gtk/UgtkCategoryForm.c:118
+msgid "URI Matching conditions"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:125
+msgid "Matched _Hosts:"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:137
+msgid "Matched _Schemes:"
+msgstr ""
+
+#: ui-gtk/UgtkCategoryForm.c:149
+msgid "Matched _Types:"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:64
+msgid "Really Quit?"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:65
+msgid "Are you sure you want to quit?"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:69
+msgid "Really delete files?"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:70
+msgid "Are you sure you want to delete files?"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:74
+msgid "Really delete category?"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:75
+msgid "Are you sure you want to delete category?"
+msgstr ""
+
+#. check button
+#: ui-gtk/UgtkConfirmDialog.c:109
+msgid "Don't ask me again"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:119 ui-gtk/UgtkNodeDialog.c:214
+msgid "_No"
+msgstr ""
+
+#: ui-gtk/UgtkConfirmDialog.c:121 ui-gtk/UgtkNodeDialog.c:214
+msgid "_Yes"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:120 ui-gtk/UgtkDownloadForm.c:929
+msgid "Fetch media stream formats from this URL"
+msgstr ""
+
+#. URL - label
+#: ui-gtk/UgtkDownloadForm.c:129 ui-gtk/UgtkSequence.c:231
+msgid "_URI:"
+msgstr ""
+
+#. Mirrors - label
+#: ui-gtk/UgtkDownloadForm.c:147
+msgid "Mirrors:"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:158
+msgid "Leave blank to use default filename ..."
+msgstr ""
+
+#. File - label
+#: ui-gtk/UgtkDownloadForm.c:166 ui-gtk/UgtkProxyForm.c:394
+msgid "File:"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:181 ui-gtk/UgtkDownloadForm.c:1268
+msgid "Select Folder"
+msgstr ""
+
+#. Folder - label
+#: ui-gtk/UgtkDownloadForm.c:190
+msgid "_Folder:"
+msgstr ""
+
+#. Referrer - label
+#: ui-gtk/UgtkDownloadForm.c:206
+msgid "Referrer:"
+msgstr ""
+
+#. "Max Connections:" - title label
+#: ui-gtk/UgtkDownloadForm.c:224
+msgid "_Max Connections:"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:241
+msgid "_Runnable"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:242
+msgid "P_ause"
+msgstr ""
+
+#. ----------------------------------------------------
+#. frame for login
+#: ui-gtk/UgtkDownloadForm.c:250
+msgid "Login"
+msgstr ""
+
+#. User - label
+#. user label & entry
+#: ui-gtk/UgtkDownloadForm.c:267 ui-gtk/UgtkProxyForm.c:147
+msgid "User:"
+msgstr ""
+
+#. Password - label
+#. password label & entry
+#: ui-gtk/UgtkDownloadForm.c:284 ui-gtk/UgtkProxyForm.c:158
+msgid "Password:"
+msgstr ""
+
+#. label - cookie file
+#: ui-gtk/UgtkDownloadForm.c:309
+msgid "Cookie file:"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:322 ui-gtk/UgtkDownloadForm.c:1309
+msgid "Select Cookie File"
+msgstr ""
+
+#. label - post file
+#: ui-gtk/UgtkDownloadForm.c:332
+msgid "Post file:"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:345 ui-gtk/UgtkDownloadForm.c:1350
+msgid "Select Post File"
+msgstr ""
+
+#. label - user agent
+#: ui-gtk/UgtkDownloadForm.c:356
+msgid "User Agent:"
+msgstr ""
+
+#. Retry limit - label
+#: ui-gtk/UgtkDownloadForm.c:374
+msgid "Retry _limit:"
+msgstr ""
+
+#. counts - label
+#: ui-gtk/UgtkDownloadForm.c:389
+msgid "counts"
+msgstr ""
+
+#. Retry delay - label
+#: ui-gtk/UgtkDownloadForm.c:397
+msgid "Retry _delay:"
+msgstr ""
+
+#. seconds - label
+#: ui-gtk/UgtkDownloadForm.c:412
+msgid "seconds"
+msgstr ""
+
+#. label - Max upload speed
+#: ui-gtk/UgtkDownloadForm.c:420
+msgid "Max upload speed:"
+msgstr ""
+
+#. label - "KiB/s"
+#. Speed limit - KiB/s label
+#: ui-gtk/UgtkDownloadForm.c:431 ui-gtk/UgtkDownloadForm.c:450
+#: ui-gtk/UgtkScheduleForm.c:204 ui-gtk/UgtkSettingForm.c:309
+#: ui-gtk/UgtkSettingForm.c:324 ui-gtk/UgtkSettingForm.c:617
+#: ui-gtk/UgtkSettingForm.c:632
+msgid "KiB/s"
+msgstr ""
+
+#. label - Max download speed
+#: ui-gtk/UgtkDownloadForm.c:439
+msgid "Max download speed:"
+msgstr ""
+
+#. Retrieve timestamp
+#: ui-gtk/UgtkDownloadForm.c:458
+msgid "Retrieve timestamp"
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:925
+msgid "Media format selected. Click to choose a different one."
+msgstr ""
+
+#: ui-gtk/UgtkDownloadForm.c:1149
+msgid "Could not fetch media formats"
+msgstr ""
+
+#: ui-gtk/UgtkFormatPicker.c:176
+msgid "Select media format"
+msgstr ""
+
+#: ui-gtk/UgtkFormatPicker.c:254
+msgid "_Download"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:74
+msgid "Text file import (.txt)"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:75
+msgid "HTML file import (.html)"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:76
+msgid "Export to Text File (.txt)"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:77
+msgid "Batch Downloads"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:84
+msgid "Open category"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:85
+msgid "Save category as"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:92 ui-gtk/UgtkTrayIcon.c:510
+msgid "Offline Mode"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:98 ui-gtk/UgtkTrayIcon.c:513
+msgid "Quit"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:102 ui-gtk/UgtkSummary.c:96
+msgid "File"
+msgstr ""
+
+#. Clipboard options, skip/apply
+#: ui-gtk/UgtkMenubar-ui.c:111 ui-gtk/UgtkTrayIcon.c:477
+msgid "Clipboard Monitor"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:112 ui-gtk/UgtkTrayIcon.c:481
+msgid "Clipboard works quietly"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:113 ui-gtk/UgtkTrayIcon.c:485
+msgid "Command-line works quietly"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:114 ui-gtk/UgtkTrayIcon.c:489
+msgid "Skip existing URI"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:115 ui-gtk/UgtkSettingForm.c:221
+#: ui-gtk/UgtkTrayIcon.c:493
+msgid "Apply recent download settings"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:122
+msgid "Disable"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:126
+msgid "Hibernate"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:130
+msgid "Suspend"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:134
+msgid "Shutdown"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:138
+msgid "Reboot"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:142
+msgid "Custom"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:147
+msgid "Remember"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:148 ui-gtk/UgtkMenubar-ui.c:309
+msgid "Help"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:151 ui-gtk/UgtkSettingForm.c:350
+msgid "Completion Auto-Actions"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:162
+msgid "Edit"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:169
+msgid "Toolbar"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:170
+msgid "Statusbar"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:172
+msgid "Summary"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:177 ui-gtk/UgtkNodeView.c:635
+#: ui-gtk/UgtkSummary.c:92
+msgid "Name"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:178 ui-gtk/UgtkSummary.c:106
+msgid "Folder"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:180 ui-gtk/UgtkMenubar-ui.c:201
+#: ui-gtk/UgtkNodeView.c:683 ui-gtk/UgtkSettingForm.c:580
+#: ui-gtk/UgtkSummary.c:126
+msgid "URI"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:182
+msgid "Summary Items"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:190 ui-gtk/UgtkNodeView.c:639
+msgid "Complete"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:191
+msgid "Total"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:192
+msgid "Percent"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:193 ui-gtk/UgtkNodeView.c:651
+msgid "Elapsed"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:194
+msgid "Remaining"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:195 ui-gtk/UgtkNodeView.c:659
+msgid "Speed"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:196
+msgid "Upload Speed"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:197 ui-gtk/UgtkNodeView.c:667
+msgid "Uploaded"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:198 ui-gtk/UgtkNodeView.c:671
+msgid "Ratio"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:202 ui-gtk/UgtkNodeView.c:687
+msgid "Added On"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:203 ui-gtk/UgtkNodeView.c:691
+msgid "Completed On"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:204
+msgid "Download Columns"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:209
+msgid "View"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:217 ui-gtk/UgtkMenubar-ui.c:1429
+msgid "Delete Category"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:235 ui-gtk/UgtkMenubar-ui.c:1450
+msgid "Delete Entry"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:236 ui-gtk/UgtkMenubar-ui.c:1451
+msgid "Delete Entry and File"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:240 ui-gtk/UgtkMenubar-ui.c:1454
+msgid "Open"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:241 ui-gtk/UgtkMenubar-ui.c:1455
+msgid "Open Containing Folder"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:246 ui-gtk/UgtkMenubar-ui.c:1460
+msgid "Force Start"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:247 ui-gtk/UgtkMenubar-ui.c:1461
+msgid "Runnable"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:256 ui-gtk/UgtkMenubar-ui.c:1470
+msgid "Move To"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:263 ui-gtk/UgtkMenubar-ui.c:1477
+msgid "Move to Top"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:264 ui-gtk/UgtkMenubar-ui.c:1478
+msgid "Move to Bottom"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:271 ui-gtk/UgtkMenubar-ui.c:1485
+msgid "High"
+msgstr ""
+
+#. Normal - label
+#: ui-gtk/UgtkMenubar-ui.c:275 ui-gtk/UgtkMenubar-ui.c:1489
+#: ui-gtk/UgtkScheduleForm.c:175
+msgid "Normal"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:279 ui-gtk/UgtkMenubar-ui.c:1493
+msgid "Low"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:283 ui-gtk/UgtkMenubar-ui.c:1497
+msgid "Priority"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:293
+msgid "Download"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:300
+msgid "Documentation"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:301
+msgid "Report an Issue"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:302
+msgid "Check for Updates"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:305 ui-gtk/UgtkTrayIcon.c:502
+msgid "About"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:1514
+msgid "Copy"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:1515
+msgid "Copy All"
+msgstr ""
+
+#: ui-gtk/UgtkMenubar-ui.c:1536 ui-gtk/UgtkMenubar.c:78
+msgid "Unnamed"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:210
+msgid "URI had existed"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:212
+msgid "This URI had existed, are you sure to continue?"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:369
+msgid "General"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:371
+msgid "Advanced"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:380
+msgid "Category settings"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:382
+msgid "Default for new download 1"
+msgstr ""
+
+#: ui-gtk/UgtkNodeDialog.c:384
+msgid "Default 2"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:142 ui-gtk/UgtkNodeView.c:517 ui-gtk/UgtkSummary.c:99
+msgid "unnamed"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:453
+msgid "Paused"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:454
+msgid "Uploading"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:455
+msgid "Completed"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:457
+msgid "Recycled"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:458
+msgid "Queuing"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:459
+msgid "Active"
+msgstr ""
+
+#. name
+#: ui-gtk/UgtkNodeView.c:561
+msgid "All Status"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:643
+msgid "Size"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:647
+msgid "%"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:655
+msgid "Left"
+msgstr ""
+
+#: ui-gtk/UgtkNodeView.c:663
+msgid "Up Speed"
+msgstr ""
+
+#. proxy type label & dropdown
+#: ui-gtk/UgtkProxyForm.c:71
+msgid "Proxy:"
+msgstr ""
+
+#: ui-gtk/UgtkProxyForm.c:74
+msgid "Don't use"
+msgstr ""
+
+#: ui-gtk/UgtkProxyForm.c:74
+msgid "Default"
+msgstr ""
+
+#. host label & entry
+#: ui-gtk/UgtkProxyForm.c:120
+msgid "Host:"
+msgstr ""
+
+#. port label & entry
+#: ui-gtk/UgtkProxyForm.c:131
+msgid "Port:"
+msgstr ""
+
+#: ui-gtk/UgtkProxyForm.c:357
+msgid "Socket:"
+msgstr ""
+
+#: ui-gtk/UgtkProxyForm.c:368
+msgid "Socket args:"
+msgstr ""
+
+#: ui-gtk/UgtkProxyForm.c:379
+msgid "Element:"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:66
+msgid "Mon"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:67
+msgid "Tue"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:68
+msgid "Wed"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:69
+msgid "Thu"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:70
+msgid "Fri"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:71
+msgid "Sat"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:72
+msgid "Sun"
+msgstr ""
+
+#: ui-gtk/UgtkScheduleForm.c:112
+msgid "_Enable Scheduler"
+msgstr ""
+
+#. Turn off - label
+#: ui-gtk/UgtkScheduleForm.c:158
+msgid "Turn off"
+msgstr ""
+
+#. Turn off - help label
+#: ui-gtk/UgtkScheduleForm.c:164
+msgid "- stop all task"
+msgstr ""
+
+#. Normal - help label
+#: ui-gtk/UgtkScheduleForm.c:181
+msgid "- run task normally"
+msgstr ""
+
+#. Speed limit - label
+#: ui-gtk/UgtkScheduleForm.c:191
+msgid "Limited speed"
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:290
+msgid "Mark by filter"
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:304
+msgid "Mark URLs by host AND filename extension."
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:306
+msgid "This will reset all marks of URLs."
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:316
+msgid "Host"
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:323 ui-gtk/UgtkSelector.c:346
+msgid "All"
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:327 ui-gtk/UgtkSelector.c:350 ui-gtk/UgtkSequence.c:65
+msgid "None"
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:339
+msgid "File Ext."
+msgstr ""
+
+#: ui-gtk/UgtkSelector.c:758
+msgid "Base hypertext reference"
+msgstr ""
+
+#. select all
+#: ui-gtk/UgtkSelector.c:774
+msgid "Mark _All"
+msgstr ""
+
+#. select none
+#: ui-gtk/UgtkSelector.c:778
+msgid "Mark _None"
+msgstr ""
+
+#. select by filter
+#: ui-gtk/UgtkSelector.c:782
+msgid "_Mark by filter..."
+msgstr ""
+
+#: ui-gtk/UgtkSequence.c:65
+msgid "Num"
+msgstr ""
+
+#: ui-gtk/UgtkSequence.c:65
+msgid "Char"
+msgstr ""
+
+#. Label - To
+#: ui-gtk/UgtkSequence.c:92
+msgid "To:"
+msgstr ""
+
+#. label - digits
+#: ui-gtk/UgtkSequence.c:105
+msgid "digits:"
+msgstr ""
+
+#. label - case-sensitive
+#: ui-gtk/UgtkSequence.c:126
+msgid "case-sensitive"
+msgstr ""
+
+#. e.g.
+#: ui-gtk/UgtkSequence.c:243
+msgid "e.g."
+msgstr ""
+
+#: ui-gtk/UgtkSequence.c:292
+msgid "URI is not valid."
+msgstr ""
+
+#: ui-gtk/UgtkSequence.c:299
+msgid "No wildcard(*) character in URI entry."
+msgstr ""
+
+#: ui-gtk/UgtkSequence.c:306
+msgid "No character in 'From' or 'To' entry."
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:145
+msgid "User Interface"
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:157
+msgid "Bandwidth"
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:163
+msgid "Scheduler"
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:169
+msgid "Plug-in"
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:175
+msgid "Media"
+msgstr ""
+
+#: ui-gtk/UgtkSettingDialog.c:181
+msgid "Others"
+msgstr ""
+
+#. Monitor button
+#: ui-gtk/UgtkSettingForm.c:69
+msgid "_Enable clipboard monitor"
+msgstr ""
+
+#. quiet mode
+#: ui-gtk/UgtkSettingForm.c:74
+msgid "_Quiet mode"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:80 ui-gtk/UgtkSettingForm.c:487
+msgid "Default category index"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:92 ui-gtk/UgtkSettingForm.c:499
+msgid "Adding to Nth category if no matched category."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:97
+msgid "_Monitor URL of website"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:112
+msgid "Monitor clipboard for specified file types:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:130
+msgid "Separate the types with character '|'."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:134
+msgid "You can use regular expressions here."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:179
+msgid "Confirmation"
+msgstr ""
+
+#. Confirmation check buttons
+#: ui-gtk/UgtkSettingForm.c:185
+msgid "Show confirmation dialog on exit"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:188
+msgid "Confirm when deleting files"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:194
+msgid "System Tray"
+msgstr ""
+
+#. System Tray check buttons
+#: ui-gtk/UgtkSettingForm.c:200
+msgid "Always show tray icon"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:203
+msgid "Minimize to tray on startup"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:206
+msgid "Close to tray on window close"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:212
+msgid "Enable offline mode on startup"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:215
+msgid "Download starting notification"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:218
+msgid "Sound when download is finished"
+msgstr ""
+
+#. widget = gtk_check_button_new_with_label (_("Skip existing URI from clipboard and command-line"));
+#. uiform->skip_existing = (GtkCheckButton*) widget;
+#. gtk_box_append (vbox, widget);
+#: ui-gtk/UgtkSettingForm.c:227
+msgid "Display large icon"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:286
+msgid "These will affect all plug-ins."
+msgstr ""
+
+#. Global speed limit
+#: ui-gtk/UgtkSettingForm.c:292
+msgid "Global speed limit"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:300 ui-gtk/UgtkSettingForm.c:608
+msgid "Max upload speed"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:315 ui-gtk/UgtkSettingForm.c:623
+msgid "Max download speed"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:358
+msgid "Custom command:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:371
+msgid "Custom command if error occurred:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:422
+msgid "_Autosave"
+msgstr ""
+
+#. auto save interval label
+#: ui-gtk/UgtkSettingForm.c:434
+msgid "_Interval:"
+msgstr ""
+
+#. auto save interval unit label
+#: ui-gtk/UgtkSettingForm.c:445
+msgid "minutes"
+msgstr ""
+
+#. Commandline Settings
+#: ui-gtk/UgtkSettingForm.c:474
+msgid "Commandline Settings"
+msgstr ""
+
+#. --quiet
+#: ui-gtk/UgtkSettingForm.c:481
+msgid "Use '--quiet' by default"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:553
+msgid "Plug-in matching order:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:573
+msgid "Aria2 plug-in options"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:590
+msgid "RPC authorization secret token"
+msgstr ""
+
+#. ------------------------------------------------------------------------
+#. Speed Limits
+#: ui-gtk/UgtkSettingForm.c:600
+msgid "Global speed limit for aria2 only"
+msgstr ""
+
+#. ------------------------------------------------------------------------
+#. aria2 works on local device
+#. launch
+#: ui-gtk/UgtkSettingForm.c:638
+msgid "_Launch aria2 on startup"
+msgstr ""
+
+#. shutdown
+#: ui-gtk/UgtkSettingForm.c:644
+msgid "_Shutdown aria2 on exit"
+msgstr ""
+
+#. ------------------------------------------------------------------------
+#. Local options
+#: ui-gtk/UgtkSettingForm.c:650
+msgid "Launch aria2 on local device"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:659
+msgid "Path"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:678
+msgid "Arguments"
+msgstr ""
+
+#. Arguments - hint
+#: ui-gtk/UgtkSettingForm.c:683
+msgid "You must restart uGet after modifying it."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:799
+msgid "Status: media extractor is available."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:802
+msgid ""
+"Status: media extractor not found in PATH. Install yt-dlp (or set a path "
+"below) to enable media downloads."
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:822
+msgid "_Enable media extraction (via yt-dlp)"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:830
+msgid ""
+"When enabled, clicking the \"find\" icon in the URL field of the New "
+"Download dialog will query an external extractor to fetch available stream "
+"formats from media page URLs."
+msgstr ""
+
+#. Max height
+#: ui-gtk/UgtkSettingForm.c:846
+msgid "Max resolution:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:850 ui-gtk/UgtkSettingForm.c:861
+msgid "Best"
+msgstr ""
+
+#. Preferred container
+#: ui-gtk/UgtkSettingForm.c:857
+msgid "Preferred container:"
+msgstr ""
+
+#: ui-gtk/UgtkSettingForm.c:869
+msgid "_Auto-pick best matching format (skip selector)"
+msgstr ""
+
+#. Path
+#: ui-gtk/UgtkSettingForm.c:875
+msgid "Extractor:"
+msgstr ""
+
+#: ui-gtk/UgtkTrayIcon.c:461
+msgid "New Download..."
+msgstr ""
+
+#: ui-gtk/UgtkTrayIcon.c:463
+msgid "New Clipboard batch..."
+msgstr ""
+
+#. Section 2: Torrent/Metalink
+#: ui-gtk/UgtkTrayIcon.c:468
+msgid "New Torrent..."
+msgstr ""
+
+#: ui-gtk/UgtkTrayIcon.c:470
+msgid "New Metalink..."
+msgstr ""
+
+#: ui-gtk/UgtkTrayIcon.c:500
+msgid "Settings..."
+msgstr ""
+
+#: ui-gtk/UgtkTrayIcon.c:508
+msgid "Show window"
+msgstr ""
