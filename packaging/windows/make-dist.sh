@@ -67,6 +67,25 @@ resolve_dlls() {
 	done
 }
 resolve_dlls "$STAGE/bin/uget-gtk.exe"
+
+# Libraries opened by name at runtime never appear in an import table, so the
+# walk above cannot discover them; they have to be named explicitly.
+#
+#   libEGL / libGLESv2 (ANGLE) -- libepoxy probes for EGL regardless of GTK
+#   having selected the WGL backend. With these absent its EGL dispatch
+#   entries stay NULL and epoxy_egl_version() calls straight through one,
+#   jumping to address 0: an immediate crash a few seconds into startup.
+for runtime_dll in libEGL.dll libGLESv2.dll; do
+	if [ -f "$SYSROOT/bin/$runtime_dll" ]; then
+		if [ ! -f "$STAGE/bin/$runtime_dll" ]; then
+			cp "$SYSROOT/bin/$runtime_dll" "$STAGE/bin/"
+			resolve_dlls "$STAGE/bin/$runtime_dll"
+		fi
+	else
+		echo ":: WARNING: $runtime_dll not in sysroot (install mingw64-angleproject)"
+	fi
+done
+
 echo ":: bundled $(find "$STAGE/bin" -name '*.dll' | wc -l) DLLs"
 
 # --- GTK runtime data -------------------------------------------------------
@@ -80,16 +99,36 @@ for theme in Adwaita hicolor; do
 	[ -d "$SYSROOT/share/icons/$theme" ] && cp -r "$SYSROOT/share/icons/$theme" "$STAGE/share/icons/"
 done
 
-# gdk-pixbuf loaders, if this GTK build uses loadable ones
-[ -d "$SYSROOT/lib/gdk-pixbuf-2.0" ] && {
+# gdk-pixbuf loaders. The SVG loader matters in particular: the Adwaita icon
+# theme is SVG, so without it every symbolic icon in the UI fails to load.
+if [ -d "$SYSROOT/lib/gdk-pixbuf-2.0" ]; then
 	mkdir -p "$STAGE/lib"
 	cp -r "$SYSROOT/lib/gdk-pixbuf-2.0" "$STAGE/lib/"
-}
+	# Import libraries are build-time only.
+	find "$STAGE/lib/gdk-pixbuf-2.0" -name '*.dll.a' -delete
+
+	# Loaders are dlopen()ed at runtime, so they never appear in the
+	# executable's import table and resolve_dlls() above did not see them.
+	# Their own dependencies (librsvg, libxml2, ...) must be resolved
+	# explicitly or Windows reports the loader itself as "module not found".
+	while IFS= read -r loader; do
+		resolve_dlls "$loader"
+	done < <(find "$STAGE/lib/gdk-pixbuf-2.0" -name '*.dll')
+	echo ":: DLLs after pixbuf loaders: $(find "$STAGE/bin" -name '*.dll' | wc -l)"
+fi
 
 # --- uGet's own data --------------------------------------------------------
-cp -r "$SOURCE_DIR/pixmaps/icons/hicolor" "$STAGE/share/icons/" 2>/dev/null || true
-mkdir -p "$STAGE/share/uget"
-cp "$SOURCE_DIR/sounds/notification.wav" "$STAGE/share/uget/"
+# These paths must match the install_data() rules in meson.build exactly: the
+# code rebuilds them at runtime from ugtk_get_data_dir(), so staging a file
+# anywhere else means it is silently never found.
+#
+#   share/icons/hicolor/...             application and tray icons
+#   share/pixmaps/uget/logo.png         About dialog logo
+#   share/sounds/uget/notification.wav  download notification sound
+cp -r "$SOURCE_DIR/pixmaps/icons/hicolor" "$STAGE/share/icons/"
+mkdir -p "$STAGE/share/pixmaps/uget" "$STAGE/share/sounds/uget"
+cp "$SOURCE_DIR/pixmaps/logo.png" "$STAGE/share/pixmaps/uget/"
+cp "$SOURCE_DIR/sounds/notification.wav" "$STAGE/share/sounds/uget/"
 
 # Compiled translations, mirroring the Unix install layout.
 if [ -d "$BUILD_DIR/po" ]; then
